@@ -55,7 +55,7 @@ must_be_numeric: ${fieldName} debe ser numérico
 sats_amount: monto en sats
 fiat_amount: monto en fiat
 sell_correct_format: |
-  /sell \<_monto en sats_\> \<_monto en fiat_\> \<_código fiat_\> \<_método de pago_\> \[_prima/descuento_\]
+  /sell \<_token amount_\> \<_token code_\> \<_fiat amount_\> \<_fiat code_\> \<_payment method_\> \[_premium/discount_\]
 
   Para crear una venta de 1000 satoshis por 2 bolívares \(VES\) e indicar que el método de pago fiat es pago móvil, debes omitir los \<\> y los \[\]\.
 
@@ -189,6 +189,7 @@ you_started_dispute_to_buyer: 🥴 Has iniciado una disputa por tu compra, nos c
 buyer_started_dispute_to_seller: '🥴 El comprador ha iniciado una disputa por tu orden con Id: ${orderId}, nos comunicaremos contigo y tu contraparte para resolverla'
 you_started_dispute_to_seller: 🥴 Has iniciado una disputa por tu venta, nos comunicaremos contigo y tu contraparte para resolverla
 seller_started_dispute_to_buyer: '🥴 El vendedor ha iniciado una disputa por tu orden con Id: ${orderId}, nos comunicaremos contigo y tu contraparte para resolverla'
+must_be_valid_token: 'Token_code must be a valid code for example: RBTC, RIF, you can see a complete list executing /listtokens'
 must_be_valid_currency: 'codigo_fiat debe ser un código de moneda válido, ejemplo: USD, EUR, puedes ver una lista completa ejecutando /listcurrencies'
 must_be_number_or_range: 'monto_en_fiat debe ser un número o un rango numerico de la forma: <mínimo>-<máximo>.'
 invalid_lightning_address: Dirección lightning no válida

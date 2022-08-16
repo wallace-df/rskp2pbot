@@ -2,7 +2,8 @@ require('dotenv').config();
 const { SocksProxyAgent } = require('socks-proxy-agent');
 const { start } = require('./bot');
 const mongoConnect = require('./db_connect');
-const { resubscribeInvoices } = require('./ln');
+// FIXME: need to replace with method that will check the RSK network.
+// const { resubscribeInvoices } = require('./ln');
 const logger = require('./logger');
 
 (async () => {
@@ -29,7 +30,8 @@ const logger = require('./logger');
       }
 
       const bot = start(process.env.BOT_TOKEN, options);
-      await resubscribeInvoices(bot);
+      // FIXME: need to replace with method that will check the RSK network.
+      // await resubscribeInvoices(bot);
     })
     .on('error', error => logger.error(`Error connecting to Mongo: ${error}`));
 })();

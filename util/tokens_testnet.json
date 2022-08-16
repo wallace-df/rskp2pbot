@@ -1,0 +1,15 @@
+{
+  "RBTC" : {
+    "symbol": "RBTC",
+    "name": "RBTC",
+    "contractAddress": null,
+    "stablecoin": false
+  },
+
+  "RIF": {
+    "symbol": "RIF",
+    "name": "RIF",
+    "contractAddress": "0x19f64674d8a5b4e652319f5e239efd3bc969a1fe",
+    "stablecoin": false
+  }
+}

@@ -55,7 +55,7 @@ must_be_numeric: ${fieldName} must be numeric
 sats_amount: sats amount
 fiat_amount: fiat amount
 sell_correct_format: |
-  /sell \<_sats amount_\> \<_fiat amount_\> \<_fiat code_\> \<_payment method_\> \[_premium/discount_\]
+  /sell \<_token amount_\> \<_token code_\> \<_fiat amount_\> \<_fiat code_\> \<_payment method_\> \[_premium/discount_\]
 
   In order to create a sell order of 1000 satoshis for 2 Us dollars \(USD\) and indicate that the fiat payment is through transfer or ATM deposit, you must avoid \<\> and \[\]\.
 
@@ -189,6 +189,7 @@ you_started_dispute_to_buyer: 🥴 You have started a dispute for your buy order
 buyer_started_dispute_to_seller: '🥴 The buyer has initiated a dispute for your order with Id: ${orderId}, we will contact you and your counterparty to resolve it.'
 you_started_dispute_to_seller: 🥴 You have started a dispute for your sell order, we will get in touch with you and your counterparty to sort it out.
 seller_started_dispute_to_buyer: '🥴 The Seller has initiated a dispute for your order with Id: ${orderId}, we will contact you and your counterparty to resolve it.'
+must_be_valid_token: 'Token_code must be a valid code for example: RBTC, RIF, you can see a complete list executing /listtokens'
 must_be_valid_currency: 'Fiat_code must be a valid code for example: USD, EUR, you can see a complete list executing /listcurrencies'
 must_be_number_or_range: 'Fiat_amount must be a number or numeric range in the  <minimum>-<maximum> format'
 invalid_lightning_address: Invalid lightning adress

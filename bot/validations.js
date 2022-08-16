@@ -2,7 +2,7 @@ const { parsePaymentRequest } = require('invoices');
 const { ObjectId } = require('mongoose').Types;
 const messages = require('./messages');
 const { Order, User, Community } = require('../models');
-const { isIso4217, isDisputeSolver } = require('../util');
+const { isIso4217, isDisputeSolver, isSupportedToken } = require('../util');
 const { existLightningAddress } = require('../lnurl/lnurl-pay');
 const logger = require('../logger');
 
@@ -65,12 +65,12 @@ const validateAdmin = async (ctx, id) => {
 const validateSellOrder = async ctx => {
   try {
     const args = ctx.state.command.args;
-    if (args.length < 4) {
+    if (args.length < 5) {
       await messages.sellOrderCorrectFormatMessage(ctx);
       return false;
     }
 
-    let [amount, fiatAmount, fiatCode, paymentMethod, priceMargin] = args;
+    let [amount, tokenCode, fiatAmount, fiatCode, paymentMethod, priceMargin] = args;
 
     if (priceMargin && isNaN(priceMargin)) {
       await ctx.reply(
@@ -89,6 +89,12 @@ const validateSellOrder = async ctx => {
 
       return false;
     }
+
+    if (!isSupportedToken(tokenCode)) {
+      await messages.mustBeValidToken(ctx);
+      return false;
+    }
+
 
     // for ranges like 100--2, the result will be [100, 0, 2]
     fiatAmount = fiatAmount.split('-');

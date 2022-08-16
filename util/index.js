@@ -1,6 +1,7 @@
 const axios = require('axios');
 const { I18n } = require('@grammyjs/i18n');
 const currencies = require('./fiat.json');
+const tokens = require('./tokens_testnet.json');
 const languages = require('./languages.json');
 const { Order, Community } = require('../models');
 const logger = require('../logger');
@@ -19,6 +20,14 @@ const isIso4217 = code => {
     return true;
   });
 };
+
+const isSupportedToken = code => {
+  const token = tokens[code];
+  if (!token) return false;
+
+  return true;
+};
+
 
 const getCurrency = code => {
   if (!isIso4217(code)) return false;
@@ -381,6 +390,7 @@ const getLanguageFlag = code => {
 
 module.exports = {
   isIso4217,
+  isSupportedToken,
   plural,
   getCurrency,
   handleReputationItems,

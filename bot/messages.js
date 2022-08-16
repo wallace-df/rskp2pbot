@@ -631,6 +631,16 @@ const checkOrderMessage = async (ctx, order, buyer, seller) => {
   }
 };
 
+
+const mustBeValidToken = async ctx => {
+  try {
+    await ctx.reply(ctx.i18n.t('must_be_valid_token'));
+  } catch (error) {
+    logger.error(error);
+  }
+
+};
+
 const mustBeValidCurrency = async ctx => {
   try {
     await ctx.reply(ctx.i18n.t('must_be_valid_currency'));
@@ -1562,6 +1572,7 @@ module.exports = {
   customMessage,
   nonHandleErrorMessage,
   checkOrderMessage,
+  mustBeValidToken,
   mustBeValidCurrency,
   mustBeANumberOrRange,
   unavailableLightningAddress,
