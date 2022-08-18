@@ -82,11 +82,6 @@ buy_correct_format: |
   Se si desidera creare un ordine d'acquisto in un range, invece di indicare un importo Fiat fisso, è possibile impostare il minimo e il massimo da transare, separati da un trattino *\-*
 
   `/buy 0 100\-500 EUR "metodo di pagamento" \-2`
-min_invoice_amount: la invoice dovrà essere uguale o superiore a ${minPaymentAmount} satoshi
-min_expiration_time: La validità della invoice deve essere di almeno ${expirationTime} minuti
-invoice_expired: Invoice scaduta
-invoice_expired_long: |
-  La invoice è scaduta. Èpossibile utilizzare il seguente comando per inviare una nuova invoice in modo da ricevere i satoshi 👇
 setinvoice_cmd_order: |
   /setinvoice ${orderId} \\<Lightning Invoice\\>
 order_id_invalid: IOrder ID non valido
@@ -372,7 +367,7 @@ generic_error: Si è verificato un errore
 sats: sats
 no_capital_letters: 🤖 Si sta cercando di eseguire un comando con la prima lettera maiuscola. Scrivi l'intero comando con caratteri minuscolo.
 unknown_command: 😕 Non ho capito. Per favore usa /help per vedere la lista dei comandi disponibili
-invoice_invalid_error: |
+invalid_wallet_address: |
   Errore nell'elaborazionei della invoice. Si prega di copiare-incollare una invoice lightning che inizia con 'lnbc'.
 
   Se si vuole interrompere e tornare alla modalità di inserimento dei comandi, è sufficiente eseguire /exit

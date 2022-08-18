@@ -82,11 +82,6 @@ buy_correct_format: |
   Se você deseja criar o pedido de compra por intervalo, em vez de indicar uma quantidade fiduciária fixa, pode definir o mínimo e o máximo para transações separadas por um hífen *\-*
 
   `/buy 0 100\-500 USD "forma de pagamento" \-2`
-min_invoice_amount: fatura precisa ser igual ou superior a que ${minPaymentAmount} satoshis
-min_expiration_time: A expiração do tempo para a fatura deve ser de pelo menos ${expirationTime} minutos
-invoice_expired: Fatura expirou
-invoice_expired_long: |
-  Fatura expirou. Você pode usar o seguinte comando para me enviar uma nova fatura para receber os satoshis 👇
 setinvoice_cmd_order: |
   /setinvoice ${orderId} \\<Lightning Invoice\\>
 order_id_invalid: ID do pedido inválido
@@ -373,7 +368,7 @@ generic_error: Um erro ocorreu
 sats: sats
 no_capital_letters: 🤖 Você está tentando executar um comando com a primeira letra capitalizada. Escreva o comando inteiro em minúsculas.
 unknown_command: 😕 Eu não entendi. Por favor, use /help para ver a lista de comandos disponíveis
-invoice_invalid_error: |
+invalid_wallet_address: |
   Erro analisando a fatura. Por favor, copiar-colar uma fatura de lightning começando com 'lnbc'.
 
   Se você deseja abortar e retornar ao modo de entrada de comando, basta executar /exit

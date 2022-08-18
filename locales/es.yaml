@@ -82,11 +82,6 @@ buy_correct_format: |
   Para crear una compra por rango, en lugar de indicar un monto fiat fijo, puedes indicar un monto mínimo y un monto máximo a operar separados por un guión *\-*\.
 
   `/buy 0 100\-500 ves "pago móvil" \-2`
-min_invoice_amount: La factura debe ser mayor o igual a ${minPaymentAmount} satoshis
-min_expiration_time: El tiempo de expiración de la factura debe ser de al menos ${expirationTime} minutos
-invoice_expired: La factura ha expirado
-invoice_expired_long: |
-  La factura ha expirado. Si deseas puedes enviarme una nueva factura para recibir los satoshis con el comando 👇
 setinvoice_cmd_order: |
   /setinvoice ${orderId} \\<factura lightning\\>
 order_id_invalid: Id de orden incorrecto
@@ -373,7 +368,7 @@ generic_error: Ha ocurrido un error
 sats: sats
 no_capital_letters: 🤖 Estás intentando ejecutar un comando con la primera letra en mayúscula. Por favor, escribe todo el comando en minúscula.
 unknown_command: 😕 No entiendo lo que me dices. Por favor, consulta el comando /help para ver los comandos disponibles.
-invoice_invalid_error: |
+invalid_wallet_address: |
   Error parseando la factura, recuerda que solo debes indicarme la factura lightning, debe comenzar por lnbc,
 
   Para volver al modo donde puedes ingresar comandos solo ejecuta /exit

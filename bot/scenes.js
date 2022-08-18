@@ -1,5 +1,5 @@
 const { Scenes } = require('telegraf');
-const { isValidInvoice } = require('./validations');
+const { isValidWalletAddress } = require('./validations');
 const { Order, PendingPayment } = require('../models');
 const { waitPayment, addWalletAddress, showHoldInvoice } = require('./commands');
 const { getCurrency, getUserI18nContext } = require('../util');
@@ -7,8 +7,8 @@ const messages = require('./messages');
 const { isPendingPayment } = require('../ln');
 const logger = require('../logger');
 
-const addInvoiceWizard = new Scenes.WizardScene(
-  'ADD_INVOICE_WIZARD_SCENE_ID',
+const addWalletAddressWizard = new Scenes.WizardScene(
+  'ADD_WALLET_ADDRESS_WIZARD_SCENE_ID',
   async ctx => {
     try {V
       const { order } = ctx.wizard.state;
@@ -48,7 +48,7 @@ const addInvoiceWizard = new Scenes.WizardScene(
         return ctx.scene.leave();
       }
 
-      const res = await isValidInvoice(ctx, lnInvoice);
+      const res = await isValidWalletAddress(ctx, walletAddress);
       if (!res.success) {
         return;
       }
@@ -66,7 +66,7 @@ const addInvoiceWizard = new Scenes.WizardScene(
       if (res.invoice.tokens && res.invoice.tokens !== order.amount)
         return await messages.incorrectAmountInvoiceMessage(ctx);
 
-      await waitPayment(ctx, bot, buyer, seller, order, lnInvoice);
+      await waitPayment(ctx, bot, buyer, seller, order, walletAddress);
 
       return ctx.scene.leave();
     } catch (error) {
@@ -135,6 +135,6 @@ const addFiatAmountWizard = new Scenes.WizardScene(
 );
 
 module.exports = {
-  addInvoiceWizard,
+  addWalletAddressWizard,
   addFiatAmountWizard
 };

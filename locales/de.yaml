@@ -82,11 +82,6 @@ buy_correct_format: |
   Wenn du einen Auftrag in einem gewissen Bereich erstellen willst, anstatt einen festen FIAT\-Betrag anzugeben, kannst du das Minimum und das Maximum für die Transaktion durch einen Bindestrich getrennt angeben *\-*
 
   `/buy 0 100\-500 EUR "Banküberweisung" \-2`
-min_invoice_amount: LN-Rechnung muss gleich oder höher als ${minPaymentAmount} sats sein
-min_expiration_time: Die Ablaufzeit für die LN-Rechnung muss mindestens ${expirationTime} Minuten betragen
-invoice_expired: Die LN-Rechnung ist abgelaufen
-invoice_expired_long: |
-  Die LN-Rechnung ist abgelaufen. Du kannst mir mit folgendem Befehl eine neue LN-Rechnung schicken, um die sats zu erhalten 👇
 setinvoice_cmd_order: |
   /setinvoice ${orderId} \\<Lightning Invoice\\>
 order_id_invalid: Ungültige Auftrags-ID
@@ -375,7 +370,7 @@ generic_error: Ein Fehler ist aufgetreten
 sats: sats
 no_capital_letters: 🤖 Du versuchst, einen Befehl auszuführen, bei dem der erste Buchstabe groß geschrieben wird. Bitte schreibe den gesamten Befehl in Kleinbuchstaben.
 unknown_command: 😕 Ich verstehe das nicht. Bitte benutze /help, um die Liste der verfügbaren Befehle zu sehen
-invoice_invalid_error: |
+invalid_wallet_address: |
   Fehler beim Parsen der LN-Rechnung. Bitte füge eine Lightning-Netzwerk LN-Rechnung ein, die mit "lnbc" beginnt.
 
   Wenn du abbrechen und in den Befehlseingabemodus zurückkehren willst, tippe einfach /exit

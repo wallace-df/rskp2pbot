@@ -264,7 +264,7 @@ const isValidWalletAddress = async (ctx, walletAddress) => {
       walletAddress
     };
   } catch (error) {
-    await messages.invoiceInvalidMessage(ctx);
+    await messages.invalidWalletAddressMessage(ctx);
     return {
       success: false,
     };

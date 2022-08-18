@@ -144,22 +144,9 @@ const buyOrderCorrectFormatMessage = async ctx => {
   }
 };
 
-const expiredInvoiceOnPendingMessage = async (bot, user, order, i18n) => {
+const invalidWalletAddressMessage = async ctx => {
   try {
-    await bot.telegram.sendMessage(user.tg_id, i18n.t('invoice_expired_long'));
-    await bot.telegram.sendMessage(
-      user.tg_id,
-      i18n.t('setinvoice_cmd_order', { orderId: order._id }),
-      { parse_mode: 'MarkdownV2' }
-    );
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const invoiceInvalidMessage = async ctx => {
-  try {
-    await ctx.reply(ctx.i18n.t('invoice_invalid_error'));
+    await ctx.reply(ctx.i18n.t('invalid_wallet_address'));
   } catch (error) {
     logger.error(error);
   }
@@ -1464,7 +1451,7 @@ module.exports = {
   invoicePaymentRequestMessage,
   sellOrderCorrectFormatMessage,
   buyOrderCorrectFormatMessage,
-  invoiceInvalidMessage,
+  invalidWalletAddressMessage,
   publishBuyOrderMessage,
   invalidOrderMessage,
   invalidTypeOrderMessage,
@@ -1529,7 +1516,6 @@ module.exports = {
   showInfoMessage,
   sendBuyerInfo2SellerMessage,
   updateUserSettingsMessage,
-  expiredInvoiceOnPendingMessage,
   successCancelAllOrdersMessage,
   disableLightningAddress,
   invalidRangeWithAmount,

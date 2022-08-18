@@ -82,11 +82,6 @@ buy_correct_format: |
   If you want to create purchase order by range instead of indicating a fixed Fiat amount, you can set the minimum and maximum to transact separated by a hyphen *\-*
 
   `/buy 0 100\-500 USD "payment method" \-2`
-min_invoice_amount: invoice needs to be equal or higher that ${minPaymentAmount} satoshis
-min_expiration_time: Time expiration for the invoice shold be of at least ${expirationTime} minutes
-invoice_expired: Invoice has expired
-invoice_expired_long: |
-  Invoice has expired. You can use the following command to send me a new invoice so as to receive the satoshis 👇
 setinvoice_cmd_order: |
   /setinvoice ${orderId} \\<Lightning Invoice\\>
 order_id_invalid: Invalid order ID
@@ -373,7 +368,7 @@ generic_error: An error occurred
 sats: sats
 no_capital_letters: 🤖 You are trying to execute a command with the first letter capitalized. Please write the entire command in lowercase.
 unknown_command: 😕 I do not understand. Please use /help to see the list of available commands
-invoice_invalid_error: |
+invalid_wallet_address: |
   Error parsing the invoice. Please copy-paste a lightning invoice starting with 'lnbc'.
 
   If you want to abort and return to the command entering mode just run /exit
