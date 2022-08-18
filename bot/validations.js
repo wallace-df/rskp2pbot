@@ -90,11 +90,10 @@ const validateSellOrder = async ctx => {
       return false;
     }
 
-    if (!isSupportedToken(tokenCode)) {
+    if (!isSupportedToken(tokenCode.toUpperCase())) {
       await messages.mustBeValidToken(ctx);
       return false;
     }
-
 
     // for ranges like 100--2, the result will be [100, 0, 2]
     fiatAmount = fiatAmount.split('-');
@@ -145,6 +144,7 @@ const validateSellOrder = async ctx => {
 
     return {
       amount,
+      tokenCode: tokenCode.toUpperCase(),
       fiatAmount,
       fiatCode: fiatCode.toUpperCase(),
       paymentMethod,
@@ -408,7 +408,7 @@ const validateReleaseOrder = async (ctx, user, orderId) => {
   try {
     let where = {
       seller_id: user._id,
-      status: 'WAITING_BUYER_INVOICE',
+      status: 'WAITING_BUYER_ADDRESS',
       _id: orderId,
     };
     let order = await Order.findOne(where);
@@ -577,7 +577,7 @@ const validateUserWaitingOrder = async (ctx, bot, user) => {
     // If is a buyer
     where = {
       buyer_id: user._id,
-      status: 'WAITING_BUYER_INVOICE',
+      status: 'WAITING_BUYER_ADDRESS',
     };
     orders = await Order.find(where);
     if (orders.length > 0) {

@@ -384,7 +384,7 @@ const onGoingTakeBuyMessage = async (
     await bot.telegram.sendMessage(buyer.tg_id, order._id, {
       reply_markup: {
         inline_keyboard: [
-          [{ text: i18nBuyer.t('continue'), callback_data: 'addInvoiceBtn' }],
+          [{ text: i18nBuyer.t('continue'), callback_data: 'addWalletAddressBtn' }],
         ],
       },
     });
@@ -409,10 +409,10 @@ const beginTakeSellMessage = async (ctx, bot, buyer, order) => {
       reply_markup: {
         inline_keyboard: [
           [
-            { text: ctx.i18n.t('continue'), callback_data: 'addInvoiceBtn' },
+            { text: ctx.i18n.t('continue'), callback_data: 'addWalletAddressBtn' },
             {
               text: ctx.i18n.t('cancel'),
-              callback_data: 'cancelAddInvoiceBtn',
+              callback_data: 'cancelAddWalletAddressBtn',
             },
           ],
         ],

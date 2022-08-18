@@ -1,7 +1,7 @@
 const { Scenes } = require('telegraf');
 const { isValidInvoice } = require('./validations');
 const { Order, PendingPayment } = require('../models');
-const { waitPayment, addInvoice, showHoldInvoice } = require('./commands');
+const { waitPayment, addWalletAddress, showHoldInvoice } = require('./commands');
 const { getCurrency, getUserI18nContext } = require('../util');
 const messages = require('./messages');
 const { isPendingPayment } = require('../ln');
@@ -26,7 +26,7 @@ const addInvoiceWizard = new Scenes.WizardScene(
         expirationTime
       );
 
-      order.status = 'WAITING_BUYER_INVOICE';
+      order.status = 'WAITING_BUYER_ADDRESS';
       await order.save();
       return ctx.wizard.next();
     } catch (error) {
@@ -58,7 +58,7 @@ const addInvoiceWizard = new Scenes.WizardScene(
         return ctx.scene.leave();
       }
 
-      if (order.status !== 'WAITING_BUYER_INVOICE') {
+      if (order.status !== 'WAITING_BUYER_ADDRESS') {
         await messages.cantAddInvoiceMessage(ctx);
         return ctx.scene.leave();
       }
@@ -196,7 +196,7 @@ const addFiatAmountWizard = new Scenes.WizardScene(
       );
 
       if (order.type === 'sell') {
-        await addInvoice(ctx, bot, order);
+        await addWalletAddress(ctx, bot, order);
       } else {
         await showHoldInvoice(ctx, bot, order);
       }

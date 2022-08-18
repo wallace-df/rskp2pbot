@@ -25,8 +25,8 @@ const {
   takebuy,
   takesell,
   rateUser,
-  cancelAddInvoice,
-  addInvoice,
+  cancelAddWalletAddress,
+  addWalletAddress,
   cancelShowHoldInvoice,
   showHoldInvoice,
   waitPayment,
@@ -452,15 +452,15 @@ const initialize = (botToken, options) => {
 
   bot.command('setaddress', userMiddleware, async ctx => {
     try {
-      const [lightningAddress] = await validateParams(
+      const [wallet_address] = await validateParams(
         ctx,
         2,
-        '\\<_lightningAddress / off_\\>'
+        '\\<_wallet_address / off_\\>'
       );
-      if (!lightningAddress) return;
+      if (!wallet_address) return;
 
-      if (lightningAddress === 'off') {
-        ctx.user.lightning_address = null;
+      if (wallet_address === 'off') {
+        ctx.user.wallet_address = null;
         await ctx.user.save();
         return await messages.disableLightningAddress(ctx);
       }
@@ -468,7 +468,7 @@ const initialize = (botToken, options) => {
       if (!(await validateLightningAddress(lightningAddress)))
         return await messages.invalidLightningAddress(ctx);
 
-      ctx.user.lightning_address = lightningAddress;
+      ctx.user.wallet_address = lightningAddress;
       await ctx.user.save();
       await messages.successSetAddress(ctx);
     } catch (error) {
@@ -530,7 +530,7 @@ const initialize = (botToken, options) => {
         } else {
           await messages.invoiceAlreadyUpdatedMessage(ctx);
         }
-      } else if (order.status === 'WAITING_BUYER_INVOICE') {
+      } else if (order.status === 'WAITING_BUYER_ADDRESS') {
         const seller = await User.findOne({ _id: order.seller_id });
         await waitPayment(ctx, bot, ctx.user, seller, order, lnInvoice);
       } else {
@@ -545,12 +545,12 @@ const initialize = (botToken, options) => {
 
   OrdersModule.configure(bot);
 
-  bot.action('addInvoiceBtn', userMiddleware, async ctx => {
-    await addInvoice(ctx, bot);
+  bot.action('addWalletAddressBtn', userMiddleware, async ctx => {
+    await addWalletAddress(ctx, bot);
   });
 
-  bot.action('cancelAddInvoiceBtn', userMiddleware, async ctx => {
-    await cancelAddInvoice(ctx, bot);
+  bot.action('cancelAddWalletAddressBtn', userMiddleware, async ctx => {
+    await cancelAddWalletAddress(ctx, bot);
   });
 
   bot.action('showHoldInvoiceBtn', userMiddleware, async ctx => {

@@ -48,7 +48,7 @@ const OrderSchema = new mongoose.Schema({
     type: String,
     enum: [
       'WAITING_PAYMENT', // buyer waiting for seller pay hold invoice
-      'WAITING_BUYER_INVOICE', // seller waiting for buyer add invoice where will receive sats
+      'WAITING_BUYER_ADDRESS', // seller waiting for buyer inform the address where he/she will receive the tokens
       'PENDING', // order published on CHANNEL but not taken yet
       'ACTIVE', //  order taken
       'FIAT_SENT', // buyer indicates the fiat payment is already done
@@ -63,6 +63,7 @@ const OrderSchema = new mongoose.Schema({
     ],
   },
   type: { type: String },
+  token_code: { type: String },
   fiat_amount: { type: Number, min: 1 }, // amount in fiat
   fiat_code: { type: String },
   payment_method: { type: String },

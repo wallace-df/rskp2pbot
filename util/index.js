@@ -28,6 +28,12 @@ const isSupportedToken = code => {
   return true;
 };
 
+const getToken = code => {
+  const token = tokens[code];
+  if (!token) return false;
+
+  return token;
+};
 
 const getCurrency = code => {
   if (!isIso4217(code)) return false;
@@ -392,6 +398,7 @@ module.exports = {
   isIso4217,
   isSupportedToken,
   plural,
+  getToken,
   getCurrency,
   handleReputationItems,
   getBtcFiatPrice,

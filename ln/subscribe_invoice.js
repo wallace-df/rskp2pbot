@@ -32,7 +32,7 @@ const subscribeInvoice = async (bot, id, resub) => {
             i18nCtxSeller
           );
         } else if (order.type === 'buy') {
-          order.status = 'WAITING_BUYER_INVOICE';
+          order.status = 'WAITING_BUYER_ADDRESS';
           // We need the seller rating
           const stars = getEmojiRate(sellerUser.total_rating);
           const roundedRating = decimalRound(sellerUser.total_rating, -1);

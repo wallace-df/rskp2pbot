@@ -2,6 +2,7 @@ const { ObjectId } = require('mongoose').Types;
 const { Order } = require('../models');
 const messages = require('./messages');
 const {
+  getToken,
   getCurrency,
   numberFormat,
   getBtcExchangePrice,
@@ -18,6 +19,7 @@ const createOrder = async (
   {
     type,
     amount,
+    tokenCode,
     fiatAmount,
     fiatCode,
     paymentMethod,
@@ -36,6 +38,7 @@ const createOrder = async (
     // We will need this to calculate the final amount
     const botFee = parseFloat(process.env.MAX_FEE);
     const communityFee = parseFloat(process.env.FEE_PERCENT);
+    const token = getToken(tokenCode);
     const currency = getCurrency(fiatCode);
     const priceFromAPI = !amount;
 
@@ -55,6 +58,7 @@ const createOrder = async (
       creator_id: user._id,
       type,
       status,
+      token_code: tokenCode,
       fiat_code: fiatCode,
       payment_method: paymentMethod,
       tg_chat_id: tgChatId,
@@ -154,14 +158,25 @@ const buildDescription = (
     let amountText = `${numberFormat(fiatCode, amount)} `;
     let tasaText = '';
     if (priceFromAPI) {
+      const exchangePrice = 123;
       amountText = '';
       tasaText =
         i18n.t('rate') + `: ${process.env.FIAT_RATE_NAME} ${priceMarginText}\n`;
-    } else {
+
+        tasaText +=
+        'Fair market price:' +
+        `: ${numberFormat(fiatCode, exchangePrice.toFixed(2))}\n`;
+
+      } else {
       const exchangePrice = getBtcExchangePrice(fiatAmount[0], amount);
       tasaText =
         i18n.t('price') +
         `: ${numberFormat(fiatCode, exchangePrice.toFixed(2))}\n`;
+
+        tasaText +=
+        'Fair market price:' +
+        `: ${numberFormat(fiatCode, exchangePrice.toFixed(2))}\n`;
+
     }
 
     let rateText = '';
@@ -227,7 +242,7 @@ const getOrders = async (ctx, user, status) => {
     } else {
       const $or = [
         { status: 'WAITING_PAYMENT' },
-        { status: 'WAITING_BUYER_INVOICE' },
+        { status: 'WAITING_BUYER_ADDRESS' },
         { status: 'PENDING' },
         { status: 'ACTIVE' },
         { status: 'FIAT_SENT' },

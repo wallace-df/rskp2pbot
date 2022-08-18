@@ -1,6 +1,6 @@
 const { cancelHoldInvoice } = require('../ln');
 const { User, Order } = require('../models');
-const { cancelShowHoldInvoice, cancelAddInvoice } = require('../bot/commands');
+const { cancelShowHoldInvoice, cancelAddWalletAddress } = require('../bot/commands');
 const messages = require('../bot/messages');
 const { getUserI18nContext } = require('../util');
 const logger = require('../logger');
@@ -13,9 +13,9 @@ const cancelOrders = async bot => {
         parseInt(process.env.HOLD_INVOICE_EXPIRATION_WINDOW)
     );
     // We get the orders where the seller didn't pay the hold invoice before expired
-    // or where the buyer didn't add the invoice
+    // or where the buyer didn't add the wallet address
     const waitingPaymentOrders = await Order.find({
-      $or: [{ status: 'WAITING_PAYMENT' }, { status: 'WAITING_BUYER_INVOICE' }],
+      $or: [{ status: 'WAITING_PAYMENT' }, { status: 'WAITING_BUYER_ADDRESS' }],
       taken_at: { $lte: holdInvoiceTime },
     });
     for (const order of waitingPaymentOrders) {
@@ -23,7 +23,7 @@ const cancelOrders = async bot => {
       if (order.status === 'WAITING_PAYMENT') {
         await cancelShowHoldInvoice(null, bot, order);
       } else {
-        await cancelAddInvoice(null, bot, order);
+        await cancelAddWalletAddress(null, bot, order);
       }
     }
     // We get the expired order where the seller sent the sats but never released the order

@@ -83,7 +83,7 @@ const takesell = async (ctx, bot) => {
     if (await isBannedFromCommunity(user, order.community_id))
       return await messages.bannedUserErrorMessage(ctx, user);
     if (!(await validateTakeSellOrder(ctx, bot, user, order))) return;
-    order.status = 'WAITING_BUYER_INVOICE';
+    order.status = 'WAITING_BUYER_ADDRESS';
     order.buyer_id = user._id;
     order.taken_at = Date.now();
 
@@ -164,7 +164,7 @@ const waitPayment = async (ctx, bot, buyer, seller, order, buyerInvoice) => {
   }
 };
 
-const addInvoice = async (ctx, bot, order) => {
+const addWalletAddress = async (ctx, bot, order) => {
   try {
     ctx.deleteMessage();
     ctx.scene.leave();
@@ -175,8 +175,8 @@ const addInvoice = async (ctx, bot, order) => {
       if (!order) return;
     }
 
-    // Buyers only can take orders with status WAITING_BUYER_INVOICE
-    if (order.status !== 'WAITING_BUYER_INVOICE') {
+    // Buyers only can take orders with status WAITING_BUYER_ADDRESS
+    if (order.status !== 'WAITING_BUYER_ADDRESS') {
       return;
     }
 
@@ -209,30 +209,8 @@ const addInvoice = async (ctx, bot, order) => {
     await order.save();
     const seller = await User.findOne({ _id: order.seller_id });
 
-    if (buyer.lightning_address) {
-      const laRes = await resolvLightningAddress(
-        buyer.lightning_address,
-        order.amount * 1000
-      );
-      if (!!laRes && !laRes.pr) {
-        logger.warn(
-          `lightning address ${buyer.lightning_address} not available`
-        );
-        messages.unavailableLightningAddress(
-          ctx,
-          bot,
-          buyer,
-          buyer.lightning_address
-        );
-        ctx.scene.enter('ADD_INVOICE_WIZARD_SCENE_ID', {
-          order,
-          seller,
-          buyer,
-          bot,
-        });
-      } else {
-        await waitPayment(ctx, bot, buyer, seller, order, laRes.pr);
-      }
+    if (buyer.wallet_address) {
+      await waitPayment(ctx, bot, buyer, seller, order, buyer.wallet_address);
     } else {
       ctx.scene.enter('ADD_INVOICE_WIZARD_SCENE_ID', {
         order,
@@ -305,7 +283,7 @@ const saveUserReview = async (targetUser, rating) => {
   }
 };
 
-const cancelAddInvoice = async (ctx, bot, order) => {
+const cancelAddWalletAddress = async (ctx, bot, order) => {
   try {
     if (ctx) {
       ctx.deleteMessage();
@@ -325,8 +303,8 @@ const cancelAddInvoice = async (ctx, bot, order) => {
     if (!user) return;
 
     const i18nCtx = await getUserI18nContext(user);
-    // Buyers only can cancel orders with status WAITING_BUYER_INVOICE
-    if (order.status !== 'WAITING_BUYER_INVOICE')
+    // Buyers only can cancel orders with status WAITING_BUYER_ADDRESS
+    if (order.status !== 'WAITING_BUYER_ADDRESS')
       return await messages.genericErrorMessage(bot, user, i18nCtx);
 
     const sellerUser = await User.findOne({ _id: order.seller_id });
@@ -603,8 +581,8 @@ const cancelOrder = async (ctx, orderId, user) => {
 
     // If a buyer is taking a sell offer and accidentally touch continue button we
     // let the user to cancel
-    if (order.type === 'sell' && order.status === 'WAITING_BUYER_INVOICE') {
-      return await cancelAddInvoice(null, ctx, order);
+    if (order.seller_id != user._id && order.type === 'sell' && order.status === 'WAITING_BUYER_ADDRESS') {
+      return await cancelAddWalletAddress(null, ctx, order);
     }
 
     // If a seller is taking a buy offer and accidentally touch continue button we
@@ -755,9 +733,9 @@ module.exports = {
   takesell,
   rateUser,
   saveUserReview,
-  cancelAddInvoice,
+  cancelAddWalletAddress,
   waitPayment,
-  addInvoice,
+  addWalletAddress,
   cancelShowHoldInvoice,
   showHoldInvoice,
   addInvoicePHI,
