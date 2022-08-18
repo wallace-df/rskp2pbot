@@ -89,8 +89,6 @@ invoice_expired_long: |
   La factura ha expirado. Si deseas puedes enviarme una nueva factura para recibir los satoshis con el comando 👇
 setinvoice_cmd_order: |
   /setinvoice ${orderId} \\<factura lightning\\>
-invoice_require_destination: La factura necesita una dirección destino
-invoice_require_hash: La factura necesita un hash
 order_id_invalid: Id de orden incorrecto
 order_invalid_type: Esta orden es una ${type}
 order_already_taken: Esta orden ya ha sido tomada por otro usuario
@@ -379,10 +377,6 @@ invoice_invalid_error: |
   Error parseando la factura, recuerda que solo debes indicarme la factura lightning, debe comenzar por lnbc,
 
   Para volver al modo donde puedes ingresar comandos solo ejecuta /exit
-invoice_expiry_too_short_error: El tiempo de expiración de la factura es muy corto
-invoice_has_expired_error: La factura ha expirado
-invoice_has_wrong_destination_error: La factura necesita una dirección destino
-invoice_must_be_larger_error: La factura debe ser mayor o igual a ${minInvoice} satoshis
 hours: horas
 minutes: minutos
 community_updated: Comunidad modificada correctamente

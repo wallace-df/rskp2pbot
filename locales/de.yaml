@@ -89,8 +89,6 @@ invoice_expired_long: |
   Die LN-Rechnung ist abgelaufen. Du kannst mir mit folgendem Befehl eine neue LN-Rechnung schicken, um die sats zu erhalten 👇
 setinvoice_cmd_order: |
   /setinvoice ${orderId} \\<Lightning Invoice\\>
-invoice_require_destination: Die LN-Rechnung braucht eine Empfängeradresse
-invoice_require_hash: LN-Rechnung braucht einen Hash
 order_id_invalid: Ungültige Auftrags-ID
 order_invalid_type: Der ${type} Auftrag ist ungültig
 order_already_taken: Dieser Auftrag wurde bereits von einem anderen Nutzer übernommen.
@@ -381,10 +379,6 @@ invoice_invalid_error: |
   Fehler beim Parsen der LN-Rechnung. Bitte füge eine Lightning-Netzwerk LN-Rechnung ein, die mit "lnbc" beginnt.
 
   Wenn du abbrechen und in den Befehlseingabemodus zurückkehren willst, tippe einfach /exit
-invoice_expiry_too_short_error: LN-Rechnungsablauf ist zu kurz
-invoice_has_expired_error: Die LN-Rechnung ist abgelaufen
-invoice_has_wrong_destination_error: Die LN-Rechnung hat ein falsches Ziel
-invoice_must_be_larger_error: Die LN-Rechnung muss für mindestens ${minInvoice} Sats gelten
 hours: Stunden
 minutes: Minuten
 community_updated: Community erfolgreich aktualisiert

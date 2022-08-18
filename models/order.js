@@ -78,7 +78,6 @@ const OrderSchema = new mongoose.Schema({
   price_margin: { type: Number, default: 0 },
   calculated: { type: Boolean, default: false },
   admin_warned: { type: Boolean, default: false }, // We set this to true when the bot warns admins the order is about to expire
-  paid_hold_buyer_invoice_updated: { type: Boolean, default: false }, // We set this to true when buyer executes /setinvoice on a order PAID_HOLD_INVOICE
   community_id: { type: String },
 });
 

@@ -89,8 +89,6 @@ invoice_expired_long: |
   Invoice has expired. You can use the following command to send me a new invoice so as to receive the satoshis 👇
 setinvoice_cmd_order: |
   /setinvoice ${orderId} \\<Lightning Invoice\\>
-invoice_require_destination: Invoice needs a receiver adress
-invoice_require_hash: Invoice needs a hash
 order_id_invalid: Invalid order ID
 order_invalid_type: This ${type} order is invalid
 order_already_taken: This order has already been taken by another user.
@@ -379,10 +377,6 @@ invoice_invalid_error: |
   Error parsing the invoice. Please copy-paste a lightning invoice starting with 'lnbc'.
 
   If you want to abort and return to the command entering mode just run /exit
-invoice_expiry_too_short_error: Invoice expiry is too short
-invoice_has_expired_error: Invoice has expired
-invoice_has_wrong_destination_error: Invoice has wrong destination
-invoice_must_be_larger_error: Invoice must be for at least ${minInvoice} sats
 hours: hours
 minutes: minutes
 community_updated: Community successfully updated

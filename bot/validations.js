@@ -1,9 +1,7 @@
-const { parsePaymentRequest } = require('invoices');
 const { ObjectId } = require('mongoose').Types;
 const messages = require('./messages');
 const { Order, User, Community } = require('../models');
 const { isIso4217, isDisputeSolver, isSupportedToken } = require('../util');
-const { existLightningAddress } = require('../lnurl/lnurl-pay');
 const logger = require('../logger');
 
 // We look in database if the telegram user exists,
@@ -241,97 +239,29 @@ const validateBuyOrder = async ctx => {
     return false;
   }
 };
-const validateLightningAddress = async lightningAddress => {
-  const pattern = /^[\w-.]+@([\w-]+.)+[\w-]{2,4}$/g;
 
-  return (
-    pattern.test(lightningAddress) && existLightningAddress(lightningAddress)
-  );
-};
-
-const validateInvoice = async (ctx, lnInvoice) => {
+const validateWalletAddress = async (ctx, walletAddress) => {
   try {
-    const invoice = parsePaymentRequest({ request: lnInvoice });
-    const latestDate = new Date(
-      Date.now() + parseInt(process.env.INVOICE_EXPIRATION_WINDOW)
-    ).toISOString();
-    if (!!invoice.tokens && invoice.tokens < process.env.MIN_PAYMENT_AMT) {
-      await messages.minimunAmountInvoiceMessage(ctx);
-      return false;
-    }
 
-    if (new Date(invoice.expires_at) < latestDate) {
-      await messages.minimunExpirationTimeInvoiceMessage(ctx);
-      return false;
-    }
+    // if (new Date(invoice.expires_at) < latestDate) {
+    //   await messages.minimunExpirationTimeInvoiceMessage(ctx);
+    //   return false;
+    // }
 
-    if (invoice.is_expired !== false) {
-      await messages.expiredInvoiceMessage(ctx);
-      return false;
-    }
-
-    if (!invoice.destination) {
-      await messages.requiredAddressInvoiceMessage(ctx);
-      return false;
-    }
-
-    if (!invoice.id) {
-      await messages.requiredHashInvoiceMessage(ctx);
-      return false;
-    }
-
-    return invoice;
+    return walletAddress;
   } catch (error) {
     logger.error(error);
-    logger.debug(lnInvoice);
+    logger.debug(walletAddress);
     return false;
   }
 };
 
-const isValidInvoice = async (ctx, lnInvoice) => {
+const isValidWalletAddress = async (ctx, walletAddress) => {
   try {
-    const invoice = parsePaymentRequest({ request: lnInvoice });
-    const latestDate = new Date(
-      Date.now() + parseInt(process.env.INVOICE_EXPIRATION_WINDOW)
-    ).toISOString();
-    if (!!invoice.tokens && invoice.tokens < process.env.MIN_PAYMENT_AMT) {
-      await messages.invoiceMustBeLargerMessage(ctx);
-      return {
-        success: false,
-      };
-    }
-
-    if (new Date(invoice.expires_at) < latestDate) {
-      await messages.invoiceExpiryTooShortMessage(ctx);
-      return {
-        success: false,
-      };
-    }
-
-    if (invoice.is_expired !== false) {
-      await messages.invoiceHasExpiredMessage(ctx);
-      return {
-        success: false,
-      };
-    }
-
-    if (!invoice.destination) {
-      await messages.invoiceHasWrongDestinationMessage(ctx);
-      return {
-        success: false,
-      };
-    }
-
-    if (!invoice.id) {
-      await messages.requiredHashInvoiceMessage(ctx);
-      return {
-        success: false,
-      };
-    }
 
     return {
       success: true,
-      invoice,
+      walletAddress
     };
   } catch (error) {
     await messages.invoiceInvalidMessage(ctx);
@@ -609,7 +539,7 @@ module.exports = {
   validateBuyOrder,
   validateUser,
   validateAdmin,
-  validateInvoice,
+  validateWalletAddress,
   validateTakeSellOrder,
   validateTakeBuyOrder,
   validateReleaseOrder,
@@ -618,8 +548,7 @@ module.exports = {
   validateSeller,
   validateParams,
   validateObjectId,
-  validateLightningAddress,
-  isValidInvoice,
+  isValidWalletAddress,
   validateUserWaitingOrder,
   isBannedFromCommunity,
 };

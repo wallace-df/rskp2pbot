@@ -144,36 +144,6 @@ const buyOrderCorrectFormatMessage = async ctx => {
   }
 };
 
-const minimunAmountInvoiceMessage = async ctx => {
-  try {
-    await ctx.reply(
-      ctx.i18n.t('min_invoice_amount', {
-        minPaymentAmount: process.env.MIN_PAYMENT_AMT,
-      })
-    );
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const minimunExpirationTimeInvoiceMessage = async ctx => {
-  try {
-    const expirationTime =
-      parseInt(process.env.INVOICE_EXPIRATION_WINDOW) / 60 / 1000;
-    await ctx.reply(ctx.i18n.t('min_expiration_time', { expirationTime }));
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const expiredInvoiceMessage = async ctx => {
-  try {
-    await ctx.reply(ctx.i18n.t('invoice_expired'));
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
 const expiredInvoiceOnPendingMessage = async (bot, user, order, i18n) => {
   try {
     await bot.telegram.sendMessage(user.tg_id, i18n.t('invoice_expired_long'));
@@ -182,58 +152,6 @@ const expiredInvoiceOnPendingMessage = async (bot, user, order, i18n) => {
       i18n.t('setinvoice_cmd_order', { orderId: order._id }),
       { parse_mode: 'MarkdownV2' }
     );
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const requiredAddressInvoiceMessage = async ctx => {
-  try {
-    await ctx.reply(ctx.i18n.t('invoice_require_destination'));
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const invoiceMustBeLargerMessage = async ctx => {
-  try {
-    await ctx.reply(
-      ctx.i18n.t('invoice_must_be_larger_error', {
-        minInvoice: process.env.MIN_PAYMENT_AMT,
-      })
-    );
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const invoiceExpiryTooShortMessage = async ctx => {
-  try {
-    await ctx.reply(ctx.i18n.t('invoice_expiry_too_short_error'));
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const invoiceHasExpiredMessage = async ctx => {
-  try {
-    await ctx.reply(ctx.i18n.t('invoice_has_expired_error'));
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const invoiceHasWrongDestinationMessage = async ctx => {
-  try {
-    await ctx.reply(ctx.i18n.t('invoice_has_wrong_destination_error'));
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const requiredHashInvoiceMessage = async ctx => {
-  try {
-    await ctx.reply(ctx.i18n.t('invoice_require_hash'));
   } catch (error) {
     logger.error(error);
   }
@@ -1546,16 +1464,7 @@ module.exports = {
   invoicePaymentRequestMessage,
   sellOrderCorrectFormatMessage,
   buyOrderCorrectFormatMessage,
-  minimunAmountInvoiceMessage,
-  minimunExpirationTimeInvoiceMessage,
-  expiredInvoiceMessage,
-  requiredAddressInvoiceMessage,
-  invoiceMustBeLargerMessage,
-  invoiceExpiryTooShortMessage,
-  invoiceHasExpiredMessage,
-  invoiceHasWrongDestinationMessage,
   invoiceInvalidMessage,
-  requiredHashInvoiceMessage,
   publishBuyOrderMessage,
   invalidOrderMessage,
   invalidTypeOrderMessage,

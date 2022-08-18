@@ -89,8 +89,6 @@ invoice_expired_long: |
   Fatura expirou. Você pode usar o seguinte comando para me enviar uma nova fatura para receber os satoshis 👇
 setinvoice_cmd_order: |
   /setinvoice ${orderId} \\<Lightning Invoice\\>
-invoice_require_destination: Fatura precisa de um endereço de receptor
-invoice_require_hash: Fatura precisa de um hash
 order_id_invalid: ID do pedido inválido
 order_invalid_type: Este ${type} pedido é inválido
 order_already_taken: Este pedido já foi feito por outro usuário.
@@ -379,10 +377,6 @@ invoice_invalid_error: |
   Erro analisando a fatura. Por favor, copiar-colar uma fatura de lightning começando com 'lnbc'.
 
   Se você deseja abortar e retornar ao modo de entrada de comando, basta executar /exit
-invoice_expiry_too_short_error: A expiração da fatura é muito curta
-invoice_has_expired_error: Fatura expirou
-invoice_has_wrong_destination_error: Fatura tem destino errado
-invoice_must_be_larger_error: Fatura deve ser por pelo menos ${minInvoice} sats
 hours: horas
 minutes: minutos
 community_updated: Comunidade atualizada com sucesso

@@ -8,12 +8,6 @@ const {
   validateFiatSentOrder,
   validateReleaseOrder,
 } = require('./validations');
-const {
-  createHoldInvoice,
-  subscribeInvoice,
-  cancelHoldInvoice,
-  settleHoldInvoice,
-} = require('../ln');
 const { Order, User, Dispute } = require('../models');
 const messages = require('./messages');
 const {
@@ -96,7 +90,7 @@ const takesell = async (ctx, bot) => {
   }
 };
 
-const waitPayment = async (ctx, bot, buyer, seller, order, buyerInvoice) => {
+const waitPayment = async (ctx, bot, buyer, seller, order, walletAddress) => {
   try {
     // If there is not fiat amount the function don't do anything
     if (order.fiat_amount === undefined) {
@@ -106,7 +100,7 @@ const waitPayment = async (ctx, bot, buyer, seller, order, buyerInvoice) => {
       return;
     }
 
-    order.buyer_invoice = buyerInvoice;
+    order.wallet_address = walletAddress;
     // We need the i18n context to send the message with the correct language
     const i18nCtx = await getUserI18nContext(seller);
     // If the buyer is the creator, at this moment the seller already paid the hold invoice
@@ -212,7 +206,7 @@ const addWalletAddress = async (ctx, bot, order) => {
     if (buyer.wallet_address) {
       await waitPayment(ctx, bot, buyer, seller, order, buyer.wallet_address);
     } else {
-      ctx.scene.enter('ADD_INVOICE_WIZARD_SCENE_ID', {
+      ctx.scene.enter('ADD_WALLET_ADDRESS_WIZARD_SCENE_ID', {
         order,
         seller,
         buyer,
@@ -519,35 +513,6 @@ const cancelShowHoldInvoice = async (ctx, bot, order) => {
   }
 };
 
-/**
- *
- * This triggers a scene asking for a new invoice after a payment to a buyer failed
- * @param {*} bot
- * @param {*} order
- * @returns
- */
-const addInvoicePHI = async (ctx, bot, orderId) => {
-  try {
-    ctx.deleteMessage();
-    const order = await Order.findOne({ _id: orderId });
-    // orders with status PAID_HOLD_INVOICE are released payments
-    if (order.status !== 'PAID_HOLD_INVOICE') {
-      return;
-    }
-
-    const buyer = await User.findOne({ _id: order.buyer_id });
-    if (!buyer) return;
-    if (order.amount === 0) {
-      await messages.genericErrorMessage(bot, buyer, ctx.i18n);
-      return;
-    }
-
-    ctx.scene.enter('ADD_INVOICE_PHI_WIZARD_SCENE_ID', { order, buyer, bot });
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
 const cancelOrder = async (ctx, orderId, user) => {
   try {
     if (!user) {
@@ -738,7 +703,6 @@ module.exports = {
   addWalletAddress,
   cancelShowHoldInvoice,
   showHoldInvoice,
-  addInvoicePHI,
   cancelOrder,
   fiatSent,
   release,

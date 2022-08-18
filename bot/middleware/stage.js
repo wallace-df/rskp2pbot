@@ -4,8 +4,7 @@ const CommunityModule = require('../modules/community');
 const OrdersModule = require('../modules/orders');
 const {
   addInvoiceWizard,
-  addFiatAmountWizard,
-  addInvoicePHIWizard,
+  addFiatAmountWizard
 } = require('../scenes');
 
 exports.stageMiddleware = () => {
@@ -21,8 +20,7 @@ exports.stageMiddleware = () => {
     CommunityModule.Scenes.updateFeeCommunityWizard,
     CommunityModule.Scenes.updateDisputeChannelCommunityWizard,
     CommunityModule.Scenes.addEarningsInvoiceWizard,
-    addInvoicePHIWizard,
-    OrdersModule.Scenes.createOrder,
+    OrdersModule.Scenes.createOrder
   ];
   scenes.forEach(addGenericCommands);
   const stage = new Scenes.Stage(scenes, {

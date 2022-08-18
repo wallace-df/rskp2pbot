@@ -30,7 +30,6 @@ const {
   cancelShowHoldInvoice,
   showHoldInvoice,
   waitPayment,
-  addInvoicePHI,
   cancelOrder,
   fiatSent,
   release,
@@ -46,7 +45,6 @@ const {
   validateParams,
   validateObjectId,
   validateInvoice,
-  validateLightningAddress,
 } = require('./validations');
 const messages = require('./messages');
 const {
@@ -476,73 +474,6 @@ const initialize = (botToken, options) => {
     }
   });
 
-  // Only buyers can use this command
-  bot.command('setinvoice', userMiddleware, async ctx => {
-    try {
-      const [orderId, lnInvoice] = await validateParams(
-        ctx,
-        3,
-        '\\<_order id_\\> \\<_lightning invoice_\\>'
-      );
-
-      if (!orderId) return;
-      if (!(await validateObjectId(ctx, orderId))) return;
-      const invoice = await validateInvoice(ctx, lnInvoice);
-      if (!invoice) return;
-      const order = await Order.findOne({
-        _id: orderId,
-        buyer_id: ctx.user.id,
-      });
-      if (!order) return await messages.notActiveOrderMessage(ctx);
-
-      if (order.status === 'SUCCESS')
-        return await messages.successCompleteOrderMessage(ctx, order);
-
-      if (invoice.tokens && invoice.tokens !== order.amount)
-        return await messages.incorrectAmountInvoiceMessage(ctx);
-
-      order.buyer_invoice = lnInvoice;
-      // When a seller release funds but the buyer didn't get the invoice paid
-      if (order.status === 'PAID_HOLD_INVOICE') {
-        const isScheduled = await PendingPayment.findOne({
-          order_id: order._id,
-          attempts: { $lt: process.env.PAYMENT_ATTEMPTS },
-          is_invoice_expired: false,
-        });
-        // We check if the payment is on flight
-        const isPending = await isPendingPayment(order.buyer_invoice);
-
-        if (!!isScheduled || !!isPending)
-          return await messages.invoiceAlreadyUpdatedMessage(ctx);
-
-        if (!order.paid_hold_buyer_invoice_updated) {
-          order.paid_hold_buyer_invoice_updated = true;
-          const pp = new PendingPayment({
-            amount: order.amount,
-            payment_request: lnInvoice,
-            user_id: ctx.user.id,
-            description: order.description,
-            hash: order.hash,
-            order_id: order._id,
-          });
-          await pp.save();
-          await messages.invoiceUpdatedPaymentWillBeSendMessage(ctx);
-        } else {
-          await messages.invoiceAlreadyUpdatedMessage(ctx);
-        }
-      } else if (order.status === 'WAITING_BUYER_ADDRESS') {
-        const seller = await User.findOne({ _id: order.seller_id });
-        await waitPayment(ctx, bot, ctx.user, seller, order, lnInvoice);
-      } else {
-        await messages.invoiceUpdatedMessage(ctx);
-      }
-
-      await order.save();
-    } catch (error) {
-      logger.error(error);
-    }
-  });
-
   OrdersModule.configure(bot);
 
   bot.action('addWalletAddressBtn', userMiddleware, async ctx => {
@@ -563,10 +494,6 @@ const initialize = (botToken, options) => {
 
   bot.action(/^showStarBtn\(([1-5]),(\w{24})\)$/, userMiddleware, async ctx => {
     await rateUser(ctx, bot, ctx.match[1], ctx.match[2]);
-  });
-
-  bot.action(/^addInvoicePHIBtn_([0-9a-f]{24})$/, userMiddleware, async ctx => {
-    await addInvoicePHI(ctx, bot, ctx.match[1]);
   });
 
   bot.action(/^cancel_([0-9a-f]{24})$/, userMiddleware, async ctx => {
