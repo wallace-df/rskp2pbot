@@ -12,8 +12,8 @@ const cancelOrders = async bot => {
       holdInvoiceTime.getSeconds() -
         parseInt(process.env.HOLD_INVOICE_EXPIRATION_WINDOW)
     );
-    // We get the orders where the seller didn't pay the hold invoice before expired
-    // or where the buyer didn't add the wallet address
+    // We get the orders where the seller didn't lock the tokens 
+    // or where the buyer didn't add the wallet address before the timeout
     const waitingPaymentOrders = await Order.find({
       $or: [{ status: 'WAITING_PAYMENT' }, { status: 'WAITING_BUYER_ADDRESS' }],
       taken_at: { $lte: holdInvoiceTime },
