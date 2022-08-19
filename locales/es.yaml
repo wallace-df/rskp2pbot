@@ -30,7 +30,7 @@ start: |
   ¡Intercambia seguro y rápido!
 init_bot_error: Para usar este Bot primero debes inicializar el bot con el comando /start
 non_handle_error: 👤 Para usar este bot debes activar tu username de telegram, para activarlo abre el menú de hamburguesa arriba a la izquierda, selecciona ajustes -> editar perfil -> username
-invoice_payment_request: |
+lock_tokens_request: |
   Un usuario quiere comprarte ${order.amount} sats por ${currency} ${order.fiat_amount}.
 
   Reputación del comprador: ${rate}
@@ -185,8 +185,7 @@ seller_started_dispute_to_buyer: '🥴 El vendedor ha iniciado una disputa por t
 must_be_valid_token: 'Token_code must be a valid code for example: RBTC, RIF, you can see a complete list executing /listtokens'
 must_be_valid_currency: 'codigo_fiat debe ser un código de moneda válido, ejemplo: USD, EUR, puedes ver una lista completa ejecutando /listcurrencies'
 must_be_number_or_range: 'monto_en_fiat debe ser un número o un rango numerico de la forma: <mínimo>-<máximo>.'
-invalid_lightning_address: Dirección lightning no válida
-unavailable_lightning_address: Dirección lightning ${la} no disponible
+invalid_wallet_address: Dirección lightning no válida
 help: |
   /sell <_monto en sats_> <_monto en fiat_> <_código fiat_> <_método de pago_> [prima/descuento] - Crea una orden de venta
   /buy <_monto en sats_> <_monto en fiat_> <_código fiat_> <_método de pago_> [prima/descuento] - Crea una orden de compra
@@ -194,7 +193,6 @@ help: |
   /showusername - Permite mostrar u ocultar el username en cada nueva orden creada, el valor predeterminado es no (falso)
   /showvolume - Permite mostrar el volumen de comercio en cada nueva orden creada, el valor predeterminado es no (falso)
   /setinvoice <_id orden_> <_factura lightning_> - Le permite al comprador actualizar la factura lightning en la que recibirá sats
-  /setaddress <_lightning address / off_> - Permite al comprador indicar una dirección de pago estática (lightning address), _off_ para desactivarla
   /setlang - Le permite al usuario cambiar el idioma
   /listorders - El usuario puede listar sus órdenes no finalizadas
   /listcurrencies - Lista las monedas que podemos utilizar sin indicar el monto en satoshis
@@ -234,11 +232,9 @@ not_rate_for_currency: |
   Si quieres que esta moneda sea incluida en la lista /listcurrencies puedes hacerles una solicitud aquí 👇
 
   🌐 https://yadio.io/api.html
-invoice_with_incorrect_amount: La factura tiene un monto incorrecto
 invoice_updated: 📝 ¡La factura ha sido actualizada correctamente!
 invoice_updated_and_will_be_paid: ¡La factura ha sido actualizada correctamente y será pagada en los próximos segundos!
 invoice_already_being_paid: Ya has enviado una factura para esta orden y estoy intentando pagarla en este momento
-lightning_address_saved: Dirección lightning guardada con éxito
 cancel_error: Esta orden no puede ser cancelada en este momento
 cancel_success: '¡Has cancelado la orden Id: ${orderId}!'
 cancelall_success: ¡Has cancelado todas tus órdenes publicadas!
@@ -259,7 +255,6 @@ your_purchase_is_completed: |
   ⚡️🍊⚡️
 problem_getting_price: Ha ocurrido un problema obteniendo el precio de esta moneda, por favor intenta más tarde, si el problema persiste contacta a algún administrador
 update_user_setting: He modificado el campo ${field} a ${newState}
-lightning_address_disabled: Lightning address desactivada
 invalid_range_with_amount: |
   Los rangos solo estan habilitados para tasas flotantes.
 
@@ -312,7 +307,7 @@ wizard_add_fiat_amount: |
 wizard_add_fiat_wrong_amount: Monto incorrecto, ingrese un número entre ${minAmount} y ${maxAmount}, ingrese solo números.
 wizard_add_fiat_correct_amount: 'Cantidad elegida: ${currency} ${fiatAmount}.'
 order_expired: ¡Esta orden ya expiró!
-cant_add_invoice: ¡Ya no puedes agregar una factura para esta orden!
+cant_add_wallet_address: ¡Ya no puedes agregar una factura para esta orden!
 expired_order: |
   Esta orden ha expirado sin haberse completado
 
@@ -368,7 +363,7 @@ generic_error: Ha ocurrido un error
 sats: sats
 no_capital_letters: 🤖 Estás intentando ejecutar un comando con la primera letra en mayúscula. Por favor, escribe todo el comando en minúscula.
 unknown_command: 😕 No entiendo lo que me dices. Por favor, consulta el comando /help para ver los comandos disponibles.
-invalid_wallet_address: |
+error_parsing_wallet_address: |
   Error parseando la factura, recuerda que solo debes indicarme la factura lightning, debe comenzar por lnbc,
 
   Para volver al modo donde puedes ingresar comandos solo ejecuta /exit
@@ -392,7 +387,7 @@ new_dispute: ⚠️⚠️⚠️ Un usuario ha iniciado una disputa, para tomarla
 take_dispute: Tomar disputa
 not_authorized: 🤨 No estás autorizado para realizar esta operación
 need_default_community: Para realizar esta operación necesitar tener una comunidad por defecto
-enter_sats_amount: Especifique el monto de satoshis (solo números) o presiona *Precio del mercado*
+enter_coins_amount: Especifique el monto de satoshis (solo números) o presiona *Precio del mercado*
 market_price: Precio del mercado
 enter_currency: 'Especifique una moneda por su código, ej: USD'
 choose_currency: Elija una moneda

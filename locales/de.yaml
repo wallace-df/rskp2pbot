@@ -30,7 +30,7 @@ start: |
   Mache eine schnelle und sichere Transaktion!
 init_bot_error: Um diesen Bot zu verwenden, musst du zuerst den Boot mit dem Befehl /start initialisieren
 non_handle_error: 👤 Um diesen Bot zu nutzen, musst du deinen Telegram-Benutzernamen aktivieren. Um ihn zu aktivieren, öffne das Hamburger-Menü oben links und wähle Einstellungen -> Profil bearbeiten -> Benutzernamen
-invoice_payment_request: |
+lock_tokens_request: |
   Jemand möchte ${order.amount} Sats für ${currency} ${order.fiat_amount} kaufen.
 
   Buyer Reputation: ${rate}
@@ -185,8 +185,7 @@ seller_started_dispute_to_buyer: '🥴 Der Verkäufer hat einen Streitfall für 
 must_be_valid_token: 'Token_code must be a valid code for example: RBTC, RIF, you can see a complete list executing /listtokens'
 must_be_valid_currency: 'Fiat_code muss ein gültiger Code sein, zum Beispiel: USD, EUR, eine vollständige Liste kannst du unter /listcurrencies sehen.'
 must_be_number_or_range: 'Fiat_amount muss eine Zahl oder ein numerischer Bereich im Format <minimum>-<maximum> sein'
-invalid_lightning_address: Ungültige Lightning-Adresse
-unavailable_lightning_address: Nicht verfügbare Lightning-Adresse ${la}
+invalid_wallet_address: Ungültige Lightning-Adresse
 help: |
   /sell <_Anzahl sats_> <_fiat Wert_> <_fiat code_> <_Zahlungsmethode_> \[_Zuschlag/Rabatt_] - Erstellt einen Bitcoin Verkaufsauftrag
   /buy <_Anzahl sats_> <_fiat Wert_> <_fiat code_> <_Zahlungsmethode_> \[_Zuschlag/Rabatt_] - Erstellt eine Bitcoin Kaufauftrag
@@ -194,7 +193,6 @@ help: |
   /showusername - Schaltet die Anzeige des Benutzernamens in jedem neu erstellten Auftrag aus. Der Standardwert ist *nein* (false).
   /showvolume - zeigt das Handelsvolumen an, wenn eine Auftrag erstellt wird, Standardwert ist *nein* (false)
   /setinvoice <_order id_> <_lightning LN-Rechnung_> - Mit diesem Befehl kann der Käufer die Ligthning-Rechnung aktualisieren, mit welcher er die Sats empfangen will. 
-  /setaddress <_lightning Adresse / off_> - Ermöglicht es dem Käufer, eine statische Zahlungsadresse (Lightning-Adresse) einzurichten, _off_ zum Deaktivieren 
   /setlang - Ermöglicht dem Benutzer, die Sprache zu ändern
   /listorders - Benutze diesen Befehl, um alle deine ausstehenden Transaktionen aufzulisten.
   /listcurrencies - Listet alle FIAT Währungen auf, die wir verwenden können. 
@@ -234,11 +232,9 @@ not_rate_for_currency: |
   Wenn du diese FIAT-Währung in der Liste haben möchtest, kannst du die Funktion /listcurrencies verwenden, um eine Anfrage zu stellen. 👇****
 
   🌐 https://yadio.io/api.html
-invoice_with_incorrect_amount: Der in der LN-Rechnung angegebene Betrag falsch ist
 invoice_updated: 📝 Die LN-Rechnung wurde korrekt aktualisiert!
 invoice_updated_and_will_be_paid: Die LN-Rechnungen wurden aktualisiert und werden in den nächsten Sekunden bezahlt!
 invoice_already_being_paid: Du hast bereits eine LN-Rechnung für diesen Auftrag geschickt und ich versuche, sie gerade jetzt zu bezahlen.
-lightning_address_saved: Lightning-Adresse wurde gespeichert
 cancel_error: Dieser Auftrag kann im Moment nicht storniert werden
 cancel_success: 'Du hast den Auftrag mit der Id ${orderId} storniert!'
 cancelall_success: Du hast alle deine veröffentlichten Aufträge storniert!
@@ -259,7 +255,6 @@ your_purchase_is_completed: |
   ⚡️🍊⚡️
 problem_getting_price: Es gibt ein Problem beim Zugriff auf den Preis-Feed. Bitte versuche es später noch einmal, wenn das Problem weiterhin besteht, wende dich bitte an einen Adminstrator.
 update_user_setting: Ich habe das Feld ${field} in ${newState} geändert
-lightning_address_disabled: Lightning-Adresse deaktiviert
 invalid_range_with_amount: |
   Bandbreiten sind nur für variable Sätze verfügbar
 
@@ -312,7 +307,7 @@ wizard_add_fiat_amount: |
 wizard_add_fiat_wrong_amount: Ungültiger Betrag, die Eingabe muss zwischen ${minAmount} und ${maxAmount} liegen
 wizard_add_fiat_correct_amount: 'Betrag: ${currency} ${fiatAmount}.'
 order_expired: Dieser Auftrag ist abgelaufen!
-cant_add_invoice: Du kannst keine LN-Rechnung mehr zu diesem Auftrag hinzufügen!
+cant_add_wallet_address: Du kannst keine LN-Rechnung mehr zu diesem Auftrag hinzufügen!
 expired_order: |
   Dieser Auftrag ist abgelaufen
 
@@ -370,7 +365,7 @@ generic_error: Ein Fehler ist aufgetreten
 sats: sats
 no_capital_letters: 🤖 Du versuchst, einen Befehl auszuführen, bei dem der erste Buchstabe groß geschrieben wird. Bitte schreibe den gesamten Befehl in Kleinbuchstaben.
 unknown_command: 😕 Ich verstehe das nicht. Bitte benutze /help, um die Liste der verfügbaren Befehle zu sehen
-invalid_wallet_address: |
+error_parsing_wallet_address: |
   Fehler beim Parsen der LN-Rechnung. Bitte füge eine Lightning-Netzwerk LN-Rechnung ein, die mit "lnbc" beginnt.
 
   Wenn du abbrechen und in den Befehlseingabemodus zurückkehren willst, tippe einfach /exit
@@ -394,7 +389,7 @@ new_dispute: ⚠️⚠️⚠️ Ein Benutzer hat einen Streitfall eröffnet. Dr�
 take_dispute: Streitfall übernehmen
 not_authorized: 🤨 Du bist nicht berechtigt diese Aktion durchzuführen
 need_default_community: Um diese Aktion durchzufüren, musst du eine Standart-Community gesetzt haben
-enter_sats_amount: Sats-Betrag eingeben, Geben Sie nur Zahlen ein.
+enter_coins_amount: Sats-Betrag eingeben, Geben Sie nur Zahlen ein.
 market_price: Marktpreis
 enter_currency: 'Gib eine Währung anhand des Codes ein, z.B.: USD'
 choose_currency: Wähle eine Währung

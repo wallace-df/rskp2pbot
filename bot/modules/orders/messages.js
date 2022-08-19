@@ -39,15 +39,16 @@ exports.listOrdersResponse = async orders => {
 exports.createOrderWizardStatus = (i18n, state) => {
   const { type, priceMargin } = state;
   const action = type === 'sell' ? i18n.t('selling') : i18n.t('buying');
-  const sats = state.sats ? state.sats + ' ' : '';
+  const tokenAmount = state.tokenAmount ? state.tokenAmount + ' ' : '';
   const paymentAction =
     type === 'sell' ? i18n.t('receive_payment') : i18n.t('pay');
   const fiatAmount =
     undefined === state.fiatAmount ? '__' : state.fiatAmount.join('-');
+  const token = state.tokenCode || '__';
   const currency = state.currency || '__';
 
   const text = [
-    `${action} ${sats}${i18n.t('sats')}`,
+    `${action} ${tokenAmount}${token}`,
     `${i18n.t('for')} ${fiatAmount} ${currency}.`,
     `${paymentAction} ${i18n.t('by')} ${state.method || '__'}`,
     priceMargin

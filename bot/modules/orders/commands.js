@@ -159,6 +159,8 @@ async function enterWizard(ctx, user, type) {
       state.currency = comm.currencies[0];
     }
   }
+
+  state.tokens = ['RBTC', 'RIF'];
   await ctx.scene.enter(Scenes.CREATE_ORDER, state);
 }
 

@@ -24,9 +24,10 @@ const createOrder = (exports.createOrder = new Scenes.WizardScene(
         community,
         statusMessage,
         type,
+        tokenCode,
         currency,
         fiatAmount,
-        sats,
+        tokenAmount,
         priceMargin,
         method,
       } = ctx.wizard.state;
@@ -57,16 +58,18 @@ const createOrder = (exports.createOrder = new Scenes.WizardScene(
           }
         };
       }
+      if (undefined === tokenCode) return createOrderSteps.token(ctx);
       if (undefined === currency) return createOrderSteps.currency(ctx);
       if (undefined === fiatAmount) return createOrderSteps.fiatAmount(ctx);
-      if (undefined === sats) return createOrderSteps.sats(ctx);
-      if (undefined === priceMargin && sats === 0)
+      if (undefined === tokenAmount) return createOrderSteps.tokenAmount(ctx);
+      if (undefined === priceMargin && tokenAmount === 0)
         return createOrderSteps.priceMargin(ctx);
       if (undefined === method) return createOrderSteps.method(ctx);
 
       const order = await ordersActions.createOrder(ctx.i18n, ctx, user, {
         type,
-        amount: sats,
+        tokenCode,
+        amount: tokenAmount,
         fiatAmount,
         fiatCode: currency,
         paymentMethod: method,
@@ -102,6 +105,33 @@ const createOrder = (exports.createOrder = new Scenes.WizardScene(
 ));
 
 const createOrderSteps = {
+  async token(ctx) {
+    const prompt = await createOrderPrompts.token(ctx);
+    const deletePrompt = () =>
+      ctx.telegram.deleteMessage(prompt.chat.id, prompt.message_id);
+    ctx.wizard.state.handler = async ctx => {
+      ctx.wizard.state.error = null;
+      if (!ctx.wizard.state.tokens) {
+        await ctx.deleteMessage();
+        if (ctx.message === undefined) return ctx.scene.leave();
+        const token = getToken(ctx.message.text.toUpperCase());
+        if (!token) {
+          ctx.wizard.state.error = ctx.i18n.t('invalid_currency');
+          return await ctx.wizard.state.updateUI();
+        }
+        ctx.wizard.state.tokenCode = token.code;
+        await ctx.wizard.state.updateUI();
+      } else {
+        if (!ctx.callbackQuery) return;
+        const tokenCode = ctx.callbackQuery.data;
+        ctx.wizard.state.tokenCode = tokenCode;
+        await ctx.wizard.state.updateUI();
+      }
+      return deletePrompt();
+    };
+    return ctx.wizard.next();
+  },
+
   async currency(ctx) {
     const prompt = await createOrderPrompts.currency(ctx);
     const deletePrompt = () =>
@@ -182,10 +212,10 @@ const createOrderSteps = {
     };
     return ctx.wizard.next();
   },
-  async sats(ctx) {
-    const prompt = await createOrderPrompts.sats(ctx);
+  async tokenAmount(ctx) {
+    const prompt = await createOrderPrompts.tokenAmount(ctx);
     ctx.wizard.state.handler = async ctx => {
-      const ret = await createOrderHandlers.sats(ctx);
+      const ret = await createOrderHandlers.tokenAmount(ctx);
       if (!ret) return;
       return await ctx.telegram.deleteMessage(
         prompt.chat.id,
@@ -219,6 +249,24 @@ const createOrderPrompts = {
       Markup.inlineKeyboard(rows)
     );
   },
+  async token(ctx) {
+    const { tokens } = ctx.wizard.state;
+    if (!tokens) return ctx.reply(ctx.i18n.t('enter_currency'));
+    const buttons = tokens.map(token =>
+      Markup.button.callback(token, token)
+    );
+    const rows = [];
+    const chunkSize = 3;
+    for (let i = 0; i < buttons.length; i += chunkSize) {
+      const chunk = buttons.slice(i, i + chunkSize);
+      rows.push(chunk);
+    }
+    return ctx.reply(
+      ctx.i18n.t('choose_currency'),
+      Markup.inlineKeyboard(rows)
+    );
+  },
+
   async currency(ctx) {
     const { currencies } = ctx.wizard.state;
     if (!currencies) return ctx.reply(ctx.i18n.t('enter_currency'));
@@ -240,13 +288,14 @@ const createOrderPrompts = {
     const { currency } = ctx.wizard.state;
     return ctx.reply(ctx.i18n.t('enter_currency_amount', { currency }));
   },
-  async sats(ctx) {
+  async tokenAmount(ctx) {
+    const { tokenCode } = ctx.wizard.state;
     const button = Markup.button.callback(
       ctx.i18n.t('market_price'),
       'marketPrice'
     );
     return ctx.reply(
-      ctx.i18n.t('enter_sats_amount'),
+      ctx.i18n.t('enter_coins_amount', {tokenCode}),
       Markup.inlineKeyboard([button])
     );
   },
@@ -275,9 +324,9 @@ const createOrderHandlers = {
 
     return true;
   },
-  async sats(ctx) {
+  async tokenAmount(ctx) {
     if (ctx.callbackQuery) {
-      ctx.wizard.state.sats = 0;
+      ctx.wizard.state.tokenAmount = 0;
       await ctx.wizard.state.updateUI();
       return true;
     }
@@ -293,7 +342,7 @@ const createOrderHandlers = {
       await ctx.wizard.state.updateUI();
       return;
     }
-    ctx.wizard.state.sats = parseInt(input);
+    ctx.wizard.state.tokenAmount = parseInt(input);
     await ctx.wizard.state.updateUI();
     return true;
   },

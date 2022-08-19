@@ -38,7 +38,7 @@ const OrderSchema = new mongoose.Schema({
   creator_id: { type: String },
   seller_id: { type: String },
   buyer_id: { type: String },
-  buyer_invoice: { type: String },
+  buyer_address: { type: String },
   buyer_dispute: { type: Boolean, default: false },
   seller_dispute: { type: Boolean, default: false },
   buyer_cooperativecancel: { type: Boolean, default: false },
@@ -47,7 +47,7 @@ const OrderSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: [
-      'WAITING_PAYMENT', // buyer waiting for seller pay hold invoice
+      'WAITING_PAYMENT', // buyer waiting for seller to lock tokens
       'WAITING_BUYER_ADDRESS', // seller waiting for buyer inform the address where he/she will receive the tokens
       'PENDING', // order published on CHANNEL but not taken yet
       'ACTIVE', //  order taken

@@ -243,10 +243,9 @@ const validateBuyOrder = async ctx => {
 const validateWalletAddress = async (ctx, walletAddress) => {
   try {
 
-    // if (new Date(invoice.expires_at) < latestDate) {
-    //   await messages.minimunExpirationTimeInvoiceMessage(ctx);
-    //   return false;
-    // }
+    if (walletAddress.length < 5) {
+      return false;   
+    }
 
     return walletAddress;
   } catch (error) {
@@ -259,12 +258,16 @@ const validateWalletAddress = async (ctx, walletAddress) => {
 const isValidWalletAddress = async (ctx, walletAddress) => {
   try {
 
+    if (walletAddress.length < 5) {
+      throw "test";   
+    }
+
     return {
       success: true,
       walletAddress
     };
   } catch (error) {
-    await messages.invalidWalletAddressMessage(ctx);
+    await messages.errorParsingWalletAddressMessage(ctx);
     return {
       success: false,
     };

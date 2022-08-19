@@ -158,25 +158,12 @@ const buildDescription = (
     let amountText = `${numberFormat(fiatCode, amount)} `;
     let tasaText = '';
     if (priceFromAPI) {
-      const exchangePrice = 123;
       amountText = '';
-      tasaText =
-        i18n.t('rate') + `: ${process.env.FIAT_RATE_NAME} ${priceMarginText}\n`;
-
-        tasaText +=
-        'Fair market price:' +
-        `: ${numberFormat(fiatCode, exchangePrice.toFixed(2))}\n`;
-
-      } else {
+      tasaText = i18n.t('rate') + `: ${process.env.FIAT_RATE_NAME} ${priceMarginText}\n`;
+    } else {
       const exchangePrice = getBtcExchangePrice(fiatAmount[0], amount);
-      tasaText =
-        i18n.t('price') +
-        `: ${numberFormat(fiatCode, exchangePrice.toFixed(2))}\n`;
-
-        tasaText +=
-        'Fair market price:' +
-        `: ${numberFormat(fiatCode, exchangePrice.toFixed(2))}\n`;
-
+      tasaText = i18n.t('price') + `: ${numberFormat(fiatCode, exchangePrice.toFixed(2))}\n`;
+      tasaText += `Fair market price: ${numberFormat(fiatCode, exchangePrice.toFixed(2))}\n`;
     }
 
     let rateText = '';

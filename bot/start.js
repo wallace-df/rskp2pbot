@@ -38,13 +38,12 @@ const {
   settleHoldInvoice,
   cancelHoldInvoice,
   payToBuyer,
-  isPendingPayment,
 } = require('../ln');
 const {
   validateUser,
   validateParams,
   validateObjectId,
-  validateInvoice,
+  validateWalletAddress,
 } = require('./validations');
 const messages = require('./messages');
 const {
@@ -448,31 +447,43 @@ const initialize = (botToken, options) => {
     }
   });
 
+  // Only buyers can use this command
   bot.command('setaddress', userMiddleware, async ctx => {
     try {
-      const [wallet_address] = await validateParams(
+      const [orderId, walletAddress] = await validateParams(
         ctx,
-        2,
-        '\\<_wallet_address / off_\\>'
+        3,
+        '\\<_order id_\\> \\<_wallet address_\\>'
       );
-      if (!wallet_address) return;
 
-      if (wallet_address === 'off') {
-        ctx.user.wallet_address = null;
-        await ctx.user.save();
-        return await messages.disableLightningAddress(ctx);
+      if (!orderId) return;
+      if (!(await validateObjectId(ctx, orderId))) return;
+      const address = await validateWalletAddress(ctx, walletAddress);
+      if (!address){
+        return await messages.invalidWalletAddressMessage(ctx);
+      };
+      const order = await Order.findOne({
+        _id: orderId,
+        buyer_id: ctx.user.id,
+      });
+      if (!order) return await messages.notActiveOrderMessage(ctx);
+
+      if (order.status === 'SUCCESS')
+        return await messages.successCompleteOrderMessage(ctx, order);
+
+
+      if (order.status === 'WAITING_BUYER_ADDRESS') {
+        order.buyer_address = address;
+        const seller = await User.findOne({ _id: order.seller_id });
+        await waitPayment(ctx, bot, ctx.user, seller, order, address);
       }
 
-      if (!(await validateLightningAddress(lightningAddress)))
-        return await messages.invalidLightningAddress(ctx);
-
-      ctx.user.wallet_address = lightningAddress;
-      await ctx.user.save();
-      await messages.successSetAddress(ctx);
+      await order.save();
     } catch (error) {
       logger.error(error);
     }
   });
+
 
   OrdersModule.configure(bot);
 

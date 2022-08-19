@@ -21,7 +21,6 @@ const {
 } = require('../util');
 const ordersActions = require('./ordersActions');
 
-const { resolvLightningAddress } = require('../lnurl/lnurl-pay');
 const logger = require('../logger');
 
 const takebuy = async (ctx, bot) => {
@@ -117,35 +116,38 @@ const waitPayment = async (ctx, bot, buyer, seller, order, walletAddress) => {
         i18nCtx
       );
     } else {
+
+      // FIXME: this should appear on the lock tokens page.
       // We create a hold invoice
-      const description = i18nCtx.t('hold_invoice_memo', {
-        botName: ctx.botInfo.username,
-        orderId: order._id,
-        fiatCode: order.fiat_code,
-        fiatAmount: order.fiat_amount,
-      });
+      // const description = i18nCtx.t('hold_invoice_memo', {
+      //   botName: ctx.botInfo.username,
+      //   orderId: order._id,
+      //   fiatCode: order.fiat_code,
+      //   fiatAmount: order.fiat_amount,
+      // });
       const amount = Math.floor(order.amount + order.fee);
-      const { request, hash, secret } = await createHoldInvoice({
-        amount,
-        description,
-      });
-      order.hash = hash;
-      order.secret = secret;
+      
+      // FIXME: generate secret, hash
+      // const { request, hash, secret } = await generateSecretAndHash({
+      //   amount,
+      //   description,
+      // });
+
+      order.hash = "hash";
+      order.secret = "secret";
       order.taken_at = Date.now();
       order.status = 'WAITING_PAYMENT';
-      // We monitor the invoice to know when the seller makes the payment
-      await subscribeInvoice(bot, hash);
 
       // We need the buyer rate
       const buyer = await User.findById(order.buyer_id);
       const stars = getEmojiRate(buyer.total_rating);
       const roundedRating = decimalRound(buyer.total_rating, -1);
       const rate = `${roundedRating} ${stars} (${buyer.total_reviews})`;
-      // We send the hold invoice to the seller
-      await messages.invoicePaymentRequestMessage(
+
+      // We send the lock tokens request to the seller
+      await messages.lockTokensRequestMessage(
         ctx,
         seller,
-        request,
         order,
         i18nCtx,
         rate
@@ -203,16 +205,13 @@ const addWalletAddress = async (ctx, bot, order) => {
     await order.save();
     const seller = await User.findOne({ _id: order.seller_id });
 
-    if (buyer.wallet_address) {
-      await waitPayment(ctx, bot, buyer, seller, order, buyer.wallet_address);
-    } else {
-      ctx.scene.enter('ADD_WALLET_ADDRESS_WIZARD_SCENE_ID', {
-        order,
-        seller,
-        buyer,
-        bot,
-      });
-    }
+    ctx.scene.enter('ADD_WALLET_ADDRESS_WIZARD_SCENE_ID', {
+      order,
+      seller,
+      buyer,
+      bot,
+    });
+
   } catch (error) {
     logger.error(error);
   }

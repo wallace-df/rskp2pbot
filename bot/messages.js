@@ -43,10 +43,9 @@ const nonHandleErrorMessage = async ctx => {
   }
 };
 
-const invoicePaymentRequestMessage = async (
+const lockTokensRequestMessage = async (
   ctx,
   user,
-  request,
   order,
   i18n,
   rate
@@ -59,24 +58,13 @@ const invoicePaymentRequestMessage = async (
         : order.fiat_code;
     const expirationTime =
       parseInt(process.env.HOLD_INVOICE_EXPIRATION_WINDOW) / 60;
-    const message = i18n.t('invoice_payment_request', {
+    const message = i18n.t('lock_tokens_request', {
       currency,
       order,
       expirationTime,
       rate,
     });
     await ctx.telegram.sendMessage(user.tg_id, message);
-    // Create QR code
-    const qrBytes = await QR.toBuffer(request);
-    // Send payment request in QR and text
-    await ctx.telegram.sendMediaGroup(user.tg_id, [
-      {
-        type: 'photo',
-        media: { source: qrBytes },
-        caption: ['`', request, '`'].join(''),
-        parse_mode: 'MarkdownV2',
-      },
-    ]);
   } catch (error) {
     logger.error(error);
   }
@@ -139,6 +127,14 @@ const buyOrderCorrectFormatMessage = async ctx => {
     await ctx.reply(ctx.i18n.t('buy_correct_format'), {
       parse_mode: 'MarkdownV2',
     });
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+const errorParsingWalletAddressMessage = async ctx => {
+  try {
+    await ctx.reply(ctx.i18n.t('error_parsing_wallet_address'));
   } catch (error) {
     logger.error(error);
   }
@@ -562,25 +558,6 @@ const mustBeANumberOrRange = async ctx => {
   }
 };
 
-const invalidLightningAddress = async ctx => {
-  try {
-    await ctx.reply(ctx.i18n.t('invalid_lightning_address'));
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const unavailableLightningAddress = async (ctx, bot, user, la) => {
-  try {
-    await bot.telegram.sendMessage(
-      user.tg_id,
-      ctx.i18n.t('unavailable_lightning_address', { la })
-    );
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
 const helpMessage = async ctx => {
   try {
     await ctx.reply(ctx.i18n.t('help'), { parse_mode: 'Markdown' });
@@ -666,14 +643,6 @@ const userBannedMessage = async ctx => {
 const notFoundUserMessage = async ctx => {
   try {
     await ctx.reply(ctx.i18n.t('user_not_found'));
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const errorParsingInvoiceMessage = async ctx => {
-  try {
-    await ctx.reply(ctx.i18n.t('parse_invoice_error'));
   } catch (error) {
     logger.error(error);
   }
@@ -778,14 +747,6 @@ const notRateForCurrency = async (bot, user, i18n) => {
   }
 };
 
-const incorrectAmountInvoiceMessage = async ctx => {
-  try {
-    await ctx.reply(ctx.i18n.t('invoice_with_incorrect_amount'));
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
 const invoiceUpdatedMessage = async ctx => {
   try {
     await ctx.reply(ctx.i18n.t('invoice_updated'));
@@ -805,13 +766,6 @@ const invoiceUpdatedPaymentWillBeSendMessage = async ctx => {
 const invoiceAlreadyUpdatedMessage = async ctx => {
   try {
     await ctx.reply(ctx.i18n.t('invoice_already_being_paid'));
-  } catch (error) {
-    logger.error(error);
-  }
-};
-const successSetAddress = async ctx => {
-  try {
-    await ctx.reply(ctx.i18n.t('lightning_address_saved'));
   } catch (error) {
     logger.error(error);
   }
@@ -1001,6 +955,19 @@ const buyerReceivedSatsMessage = async (bot, buyerUser, sellerUser, i18n) => {
   }
 };
 
+// FIXME: add command for that.
+const listTokensResponse = async (ctx, tokens) => {
+  try {
+    let response = `Code |   Name   |\n`;
+    tokens.forEach(token => {
+      response += `${token.code} | ${token.name} | ${token.emoji}\n`;
+    });
+    await ctx.reply(response);
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
 const listCurrenciesResponse = async (ctx, currencies) => {
   try {
     let response = `Code |   Name   |\n`;
@@ -1032,14 +999,6 @@ const updateUserSettingsMessage = async (ctx, field, newState) => {
         newState,
       })
     );
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const disableLightningAddress = async ctx => {
-  try {
-    await ctx.reply(ctx.i18n.t('lightning_address_disabled'));
   } catch (error) {
     logger.error(error);
   }
@@ -1111,9 +1070,9 @@ const orderExpiredMessage = async ctx => {
   }
 };
 
-const cantAddInvoiceMessage = async ctx => {
+const cantAddWalletAddressMessage = async ctx => {
   try {
-    await ctx.reply(ctx.i18n.t('cant_add_invoice'));
+    await ctx.reply(ctx.i18n.t('cant_add_wallet_address'));
   } catch (error) {
     logger.error(error);
   }
@@ -1448,9 +1407,10 @@ const showConfirmationButtons = async (ctx, orders, commandString) => {
 module.exports = {
   startMessage,
   initBotErrorMessage,
-  invoicePaymentRequestMessage,
+  lockTokensRequestMessage,
   sellOrderCorrectFormatMessage,
   buyOrderCorrectFormatMessage,
+  errorParsingWalletAddressMessage,
   invalidWalletAddressMessage,
   publishBuyOrderMessage,
   invalidOrderMessage,
@@ -1471,8 +1431,6 @@ module.exports = {
   mustBeValidToken,
   mustBeValidCurrency,
   mustBeANumberOrRange,
-  unavailableLightningAddress,
-  invalidLightningAddress,
   helpMessage,
   mustBeGreatherEqThan,
   bannedUserErrorMessage,
@@ -1481,14 +1439,12 @@ module.exports = {
   takeSellWaitingSellerToPayMessage,
   userBannedMessage,
   notFoundUserMessage,
-  errorParsingInvoiceMessage,
   notValidIdMessage,
   addInvoiceMessage,
   cantTakeOwnOrderMessage,
   notLightningInvoiceMessage,
   notOrdersMessage,
   notRateForCurrency,
-  incorrectAmountInvoiceMessage,
   beginTakeSellMessage,
   invoiceUpdatedMessage,
   counterPartyWantsCooperativeCancelMessage,
@@ -1511,19 +1467,17 @@ module.exports = {
   waitingForBuyerOrderMessage,
   invoiceUpdatedPaymentWillBeSendMessage,
   invoiceAlreadyUpdatedMessage,
-  successSetAddress,
   sellerPaidHoldMessage,
   showInfoMessage,
   sendBuyerInfo2SellerMessage,
   updateUserSettingsMessage,
   successCancelAllOrdersMessage,
-  disableLightningAddress,
   invalidRangeWithAmount,
   tooManyPendingOrdersMessage,
   wizardAddInvoiceInitMessage,
   wizardAddInvoiceExitMessage,
   orderExpiredMessage,
-  cantAddInvoiceMessage,
+  cantAddWalletAddressMessage,
   wizardExitMessage,
   wizardAddFiatAmountMessage,
   wizardAddFiatAmountWrongAmountMessage,

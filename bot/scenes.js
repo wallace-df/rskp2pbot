@@ -1,16 +1,15 @@
 const { Scenes } = require('telegraf');
 const { isValidWalletAddress } = require('./validations');
-const { Order, PendingPayment } = require('../models');
+const { Order } = require('../models');
 const { waitPayment, addWalletAddress, showHoldInvoice } = require('./commands');
-const { getCurrency, getUserI18nContext } = require('../util');
+const { getCurrency } = require('../util');
 const messages = require('./messages');
-const { isPendingPayment } = require('../ln');
 const logger = require('../logger');
 
 const addWalletAddressWizard = new Scenes.WizardScene(
   'ADD_WALLET_ADDRESS_WIZARD_SCENE_ID',
   async ctx => {
-    try {V
+    try {
       const { order } = ctx.wizard.state;
       const expirationTime =
         parseInt(process.env.HOLD_INVOICE_EXPIRATION_WINDOW) / 60;
@@ -47,7 +46,7 @@ const addWalletAddressWizard = new Scenes.WizardScene(
         await ctx.reply(ctx.i18n.t('generic_error'));
         return ctx.scene.leave();
       }
-
+      
       const res = await isValidWalletAddress(ctx, walletAddress);
       if (!res.success) {
         return;
@@ -59,12 +58,9 @@ const addWalletAddressWizard = new Scenes.WizardScene(
       }
 
       if (order.status !== 'WAITING_BUYER_ADDRESS') {
-        await messages.cantAddInvoiceMessage(ctx);
+        await messages.cantAddWalletAddressMessage(ctx);
         return ctx.scene.leave();
       }
-
-      if (res.invoice.tokens && res.invoice.tokens !== order.amount)
-        return await messages.incorrectAmountInvoiceMessage(ctx);
 
       await waitPayment(ctx, bot, buyer, seller, order, walletAddress);
 

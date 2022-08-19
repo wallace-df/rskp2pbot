@@ -19,7 +19,6 @@ const UserSchema = new mongoose.Schema({
   banned: { type: Boolean, default: false },
   show_username: { type: Boolean, default: false },
   show_volume_traded: { type: Boolean, default: false },
-  wallet_address: { type: String },
   disputes: { type: Number, min: 0, default: 0 },
   created_at: { type: Date, default: Date.now },
   default_community_id: { type: String },

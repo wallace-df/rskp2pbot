@@ -17,7 +17,7 @@ const {
 const {
   startMessage,
   initBotErrorMessage,
-  invoicePaymentRequestMessage,
+  lockTokensRequestMessage,
   sellOrderCorrectFormatMessage,
   buyOrderCorrectFormatMessage,
   publishBuyOrderMessage,
@@ -52,7 +52,7 @@ module.exports = {
   validateDisputeOrder,
   startMessage,
   initBotErrorMessage,
-  invoicePaymentRequestMessage,
+  lockTokensRequestMessage,
   sellOrderCorrectFormatMessage,
   buyOrderCorrectFormatMessage,
   publishBuyOrderMessage,
