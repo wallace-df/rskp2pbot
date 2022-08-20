@@ -82,7 +82,7 @@ const OrderSchema = new mongoose.Schema({
   fiat_code: { type: String },
   payment_method: { type: String },
   created_at: { type: Date, default: Date.now },
-  invoice_held_at: { type: Date },
+  tokens_held_at: { type: Date },
   taken_at: { type: Date },
   tg_chat_id: { type: String },
   tg_order_message: { type: String },

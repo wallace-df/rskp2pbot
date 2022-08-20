@@ -18,7 +18,7 @@ const addWalletAddressWizard = new Scenes.WizardScene(
         !!currency && !!currency.symbol_native
           ? currency.symbol_native
           : order.fiat_code;
-      await messages.wizardAddInvoiceInitMessage(
+      await messages.wizardAddWalletAddressInitMessage(
         ctx,
         order,
         symbol,

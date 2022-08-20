@@ -47,7 +47,7 @@ const subscribeInvoice = async (bot, id, resub) => {
             rate
           );
         }
-        order.invoice_held_at = Date.now();
+        order.tokens_held_at = Date.now();
         order.save();
       }
       if (invoice.is_confirmed) {

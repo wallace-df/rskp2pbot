@@ -104,7 +104,6 @@ const waitPayment = async (ctx, bot, buyer, seller, order, buyerAddress) => {
     order.buyer_address = buyerAddress;
 
     // FIXME: this should appear on the lock tokens page.
-    // We create a hold invoice
     // const description = i18nCtx.t('hold_invoice_memo', {
     //   botName: ctx.botInfo.username,
     //   orderId: order._id,
@@ -292,9 +291,9 @@ const cancelAddWalletAddress = async (ctx, bot, order) => {
     if (order.creator_id === order.buyer_id) {
       order.status = 'CLOSED';
       await order.save();
-      await messages.toBuyerDidntAddInvoiceMessage(bot, user, order, i18nCtx);
+      await messages.toBuyerDidntAddWalletAddressMessage(bot, user, order, i18nCtx);
       const i18nCtxSeller = await getUserI18nContext(sellerUser);
-      await messages.toSellerBuyerDidntAddInvoiceMessage(
+      await messages.toSellerBuyerDidntAddWalletAddressMessage(
         bot,
         sellerUser,
         order,
@@ -340,7 +339,7 @@ const cancelAddWalletAddress = async (ctx, bot, order) => {
           order,
           i18nCtx
         );
-        await messages.toBuyerDidntAddInvoiceMessage(bot, user, order, i18nCtx);
+        await messages.toBuyerDidntAddWalletAddressMessage(bot, user, order, i18nCtx);
       } else {
         await messages.successCancelOrderMessage(ctx, user, order, i18nCtx);
       }
@@ -417,6 +416,33 @@ const showHoldInvoice = async (ctx, bot, order) => {
   }
 };
 
+const cancelLockTokensRequest = async (bot, order) => {
+  try {
+    const sellerUser = await User.findOne({ _id: order.seller_id });
+    const buyerUser = await User.findOne({ _id: order.buyer_id });
+
+    if (!sellerUser || !buyerUser) {
+      return;
+    }
+
+    if (order.status !== 'WAITING_PAYMENT') {
+      return;
+    }
+
+    const i18nCtxSeller = await getUserI18nContext(sellerUser);
+    const i18nCtxBuyer = await getUserI18nContext(buyerUser);
+
+    order.status = 'CLOSED';
+    await order.save();
+
+    await messages.toSellerDidntLockTokensMessage(bot, sellerUser, order, i18nCtxSeller);
+    await messages.toBuyerSellerDidntLockTokensMessage(bot, buyerUser, order, i18nCtxBuyer);
+
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
 const cancelShowHoldInvoice = async (ctx, bot, order) => {
   try {
     if (ctx) ctx.deleteMessage();
@@ -440,8 +466,8 @@ const cancelShowHoldInvoice = async (ctx, bot, order) => {
     if (order.creator_id === order.seller_id) {
       order.status = 'CLOSED';
       await order.save();
-      await messages.toSellerDidntPayInvoiceMessage(bot, user, order, i18nCtx);
-      await messages.toBuyerSellerDidntPayInvoiceMessage(
+      await messages.toSellerDidntLockTokensMessage(bot, user, order, i18nCtx);
+      await messages.toBuyerSellerDidntLockTokensMessage(
         bot,
         buyerUser,
         order,
@@ -481,13 +507,13 @@ const cancelShowHoldInvoice = async (ctx, bot, order) => {
       }
       await order.save();
       if (!userAction) {
-        await messages.toSellerDidntPayInvoiceMessage(
+        await messages.toSellerDidntLockTokensMessage(
           bot,
           user,
           order,
           i18nCtx
         );
-        await messages.toAdminChannelSellerDidntPayInvoiceMessage(
+        await messages.toAdminChannelSellerDidntLockTokensMessage(
           bot,
           user,
           order,
@@ -521,7 +547,7 @@ const cancelOrder = async (ctx, orderId, user) => {
     if (order.status === 'PENDING') {
       // If we already have a holdInvoice we cancel it and return the money
       if (order.hash) {
-        await cancelHoldInvoice({ hash: order.hash });
+        //await cancelHoldInvoice({ hash: order.hash });
       }
 
       order.status = 'CANCELED';
@@ -535,7 +561,7 @@ const cancelOrder = async (ctx, orderId, user) => {
 
     // If a buyer is taking a sell offer and accidentally touch continue button we
     // let the user to cancel
-    if (order.seller_id != user._id && order.type === 'sell' && order.status === 'WAITING_BUYER_ADDRESS') {
+    if (order.buyer_id == user._id && order.type === 'sell' && order.status === 'WAITING_BUYER_ADDRESS') {
       return await cancelAddWalletAddress(null, ctx, order);
     }
 
@@ -688,6 +714,7 @@ module.exports = {
   rateUser,
   saveUserReview,
   cancelAddWalletAddress,
+  cancelLockTokensRequest,
   waitPayment,
   addWalletAddress,
   showHoldInvoice,

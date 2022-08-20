@@ -268,7 +268,7 @@ published: Veröffentlicht
 created: Erstellt
 yes: Ja
 no: Nein
-wizard_add_invoice_init: |
+wizard_add_wallet_address_init: |
   🤖 Du musst mir eine LN-Rechnung über ${satsAmount} Sats schicken, die ${currency} ${fiatAmount} wert ist, damit ich dir später die Sats weiterleiten kann.
 
   Wenn du mir die LN-Rechnung nicht innerhalb von ${expirationTime} Minuten sendest, wird der Auftrag storniert.
@@ -327,9 +327,9 @@ expired_order_to_seller: |
   Wenn du das FIAT-Geld erhalten hast, gibst du es bitte mit dem Befehl /release frei. Andernfalls läufst du Gefahr, dass der Käufer einen Streitfall eröffnet, der deinen Ruf beeinträchtigen wird.
 
   Wenn du Hilfe brauchst, kannst du an die Gruppe ${helpGroup} schreiben
-didnt_add_invoice: '🤨 Du hast die LN-Rechnung noch nicht gesendet, um Sats für den Auftrag zu erhalten: ${orderId}'
-buyer_havent_add_invoice: '😔 Der Käufer hat mir die LN-Rechnung für den Erhalt der Sats für deinen Auftrag nicht geschickt: Auftrag ${orderId}. Deine Sats wurden an dich zurückgeschickt.'
-buyer_havent_add_invoice_to_admin_channel: 'Käufer @${username} hat den Auftrag ${orderId} angenommen, aber keine LN-Rechnung gesendet. Die Zeit ist abgelaufen, der Auftrag wird neu veröffentlicht.'
+didnt_add_wallet_address: '🤨 Du hast die LN-Rechnung noch nicht gesendet, um Sats für den Auftrag zu erhalten: ${orderId}'
+buyer_havent_added_wallet_address: '😔 Der Käufer hat mir die LN-Rechnung für den Erhalt der Sats für deinen Auftrag nicht geschickt: Auftrag ${orderId}. Deine Sats wurden an dich zurückgeschickt.'
+buyer_havent_added_wallet_address_to_admin_channel: 'Käufer @${username} hat den Auftrag ${orderId} angenommen, aber keine LN-Rechnung gesendet. Die Zeit ist abgelaufen, der Auftrag wird neu veröffentlicht.'
 havent_locked_tokens: '🤨 Du hast die LN-Rechnung nicht bezahlt, um Sats für den Auftrag (${orderId}) zu verkaufen.'
 seller_havent_locked_tokens: '😔 Der Verkäufer hat die LN-Rechnung für deinen Auftrag (${orderId}) nicht bezahlt. Der Vorgang wurde storniert.'
 seller_havent_add_invoice_to_admin_channel: 'Verkäufer @${username} hat die LN-Rechnung des Auftrages (${orderId}) nicht bezahlt. Der Auftrag ist abgelaufen und wurde wieder veröffentlicht.'

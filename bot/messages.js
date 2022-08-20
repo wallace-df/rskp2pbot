@@ -1021,7 +1021,7 @@ const tooManyPendingOrdersMessage = async (ctx, user, i18n) => {
   }
 };
 
-const wizardAddInvoiceInitMessage = async (
+const wizardAddWalletAddressInitMessage = async (
   ctx,
   order,
   currency,
@@ -1029,7 +1029,7 @@ const wizardAddInvoiceInitMessage = async (
 ) => {
   try {
     await ctx.reply(
-      ctx.i18n.t('wizard_add_invoice_init', {
+      ctx.i18n.t('wizard_add_wallet_address_init', {
         expirationTime,
         satsAmount: numberFormat(order.fiat_code, order.amount),
         currency,
@@ -1169,22 +1169,22 @@ const toSellerExpiredOrderMessage = async (bot, user, i18n) => {
   }
 };
 
-const toBuyerDidntAddInvoiceMessage = async (bot, user, order, i18n) => {
+const toBuyerDidntAddWalletAddressMessage = async (bot, user, order, i18n) => {
   try {
     await bot.telegram.sendMessage(
       user.tg_id,
-      i18n.t('didnt_add_invoice', { orderId: order._id })
+      i18n.t('didnt_add_wallet_address', { orderId: order._id, tokenCode: order.token_code })
     );
   } catch (error) {
     logger.error(error);
   }
 };
 
-const toSellerBuyerDidntAddInvoiceMessage = async (bot, user, order, i18n) => {
+const toSellerBuyerDidntAddWalletAddressMessage = async (bot, user, order, i18n) => {
   try {
     await bot.telegram.sendMessage(
       user.tg_id,
-      i18n.t('buyer_havent_add_invoice', { orderId: order._id })
+      i18n.t('buyer_havent_added_wallet_address', { orderId: order._id, tokenCode: order.token_code })
     );
   } catch (error) {
     logger.error(error);
@@ -1200,7 +1200,7 @@ const toAdminChannelBuyerDidntAddInvoiceMessage = async (
   try {
     await bot.telegram.sendMessage(
       process.env.ADMIN_CHANNEL,
-      i18n.t('buyer_havent_add_invoice_to_admin_channel', {
+      i18n.t('buyer_havent_added_wallet_address_to_admin_channel', {
         orderId: order._id,
         username: user.username,
       })
@@ -1210,7 +1210,7 @@ const toAdminChannelBuyerDidntAddInvoiceMessage = async (
   }
 };
 
-const toSellerDidntPayInvoiceMessage = async (bot, user, order, i18n) => {
+const toSellerDidntLockTokensMessage = async (bot, user, order, i18n) => {
   try {
     await bot.telegram.sendMessage(
       user.tg_id,
@@ -1221,7 +1221,7 @@ const toSellerDidntPayInvoiceMessage = async (bot, user, order, i18n) => {
   }
 };
 
-const toBuyerSellerDidntPayInvoiceMessage = async (bot, user, order, i18n) => {
+const toBuyerSellerDidntLockTokensMessage = async (bot, user, order, i18n) => {
   try {
     await bot.telegram.sendMessage(
       user.tg_id,
@@ -1232,7 +1232,7 @@ const toBuyerSellerDidntPayInvoiceMessage = async (bot, user, order, i18n) => {
   }
 };
 
-const toAdminChannelSellerDidntPayInvoiceMessage = async (
+const toAdminChannelSellerDidntLockTokensMessage = async (
   bot,
   user,
   order,
@@ -1475,7 +1475,7 @@ module.exports = {
   successCancelAllOrdersMessage,
   invalidRangeWithAmount,
   tooManyPendingOrdersMessage,
-  wizardAddInvoiceInitMessage,
+  wizardAddWalletAddressInitMessage,
   wizardAddInvoiceExitMessage,
   orderExpiredMessage,
   cantAddWalletAddressMessage,
@@ -1484,12 +1484,12 @@ module.exports = {
   wizardAddFiatAmountWrongAmountMessage,
   wizardAddFiatAmountCorrectMessage,
   expiredOrderMessage,
-  toBuyerDidntAddInvoiceMessage,
-  toSellerBuyerDidntAddInvoiceMessage,
+  toBuyerDidntAddWalletAddressMessage,
+  toSellerBuyerDidntAddWalletAddressMessage,
   toAdminChannelBuyerDidntAddInvoiceMessage,
-  toSellerDidntPayInvoiceMessage,
-  toBuyerSellerDidntPayInvoiceMessage,
-  toAdminChannelSellerDidntPayInvoiceMessage,
+  toSellerDidntLockTokensMessage,
+  toBuyerSellerDidntLockTokensMessage,
+  toAdminChannelSellerDidntLockTokensMessage,
   toAdminChannelPendingPaymentSuccessMessage,
   toBuyerPendingPaymentSuccessMessage,
   toBuyerPendingPaymentFailedMessage,

@@ -1,44 +1,42 @@
 const { User, Order } = require('../models');
-const { cancelShowHoldInvoice, cancelAddWalletAddress } = require('../bot/commands');
+const { cancelAddWalletAddress, cancelLockTokensRequest } = require('../bot/commands');
 const messages = require('../bot/messages');
 const { getUserI18nContext } = require('../util');
 const logger = require('../logger');
 
 const cancelOrders = async bot => {
   try {
-    const holdInvoiceTime = new Date();
-    holdInvoiceTime.setSeconds(
-      holdInvoiceTime.getSeconds() -
-        parseInt(process.env.PAYMENT_EXPIRATION_WINDOW)
-    );
+    const takenTimeThreshold = new Date();
+    takenTimeThreshold.setSeconds(takenTimeThreshold.getSeconds() - parseInt(process.env.PAYMENT_EXPIRATION_WINDOW));
     // We get the orders where the seller didn't lock the tokens 
     // or where the buyer didn't add the wallet address before the timeout
-    const waitingPaymentOrders = await Order.find({
+    const waitingOrders = await Order.find({
       $or: [{ status: 'WAITING_PAYMENT' }, { status: 'WAITING_BUYER_ADDRESS' }],
-      taken_at: { $lte: holdInvoiceTime },
+      taken_at: { $lte: takenTimeThreshold },
     });
-    for (const order of waitingPaymentOrders) {
+    for (const order of waitingOrders) {
       //  await cancelHoldInvoice({ hash: order.hash });
       if (order.status === 'WAITING_PAYMENT') {
-        await cancelShowHoldInvoice(null, bot, order);
+        await cancelLockTokensRequest(null, bot, order);
       } else {
         await cancelAddWalletAddress(null, bot, order);
       }
     }
     // We get the expired order where the seller sent the sats but never released the order
-    // In this case we use another time field, `invoice_held_at` is the time when the
+    // In this case we use another time field, `tokens_held_at` is the time when the
     // seller sent the money to the hold invoice, this is an important moment cause
     // we don't want to have a CLTV timeout
     const orderTime = new Date();
-    orderTime.setSeconds(
-      orderTime.getSeconds() - parseInt(process.env.ORDER_EXPIRATION_WINDOW)
-    );
+    orderTime.setSeconds(orderTime.getSeconds() - parseInt(process.env.ORDER_EXPIRATION_WINDOW));
     const activeOrders = await Order.find({
-      invoice_held_at: { $lte: orderTime },
+      tokens_held_at: { $lte: orderTime },
       $or: [
         {
-          status: 'FIAT_SENT',
+          status: 'ACTIVE',
         },
+        {
+          status: 'FIAT_SENT',
+        }
       ],
       admin_warned: false,
     });
