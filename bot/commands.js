@@ -89,7 +89,7 @@ const takesell = async (ctx, bot) => {
   }
 };
 
-const waitPayment = async (ctx, bot, buyer, seller, order, walletAddress) => {
+const waitPayment = async (ctx, bot, buyer, seller, order, buyerAddress) => {
   try {
     // If there is not fiat amount the function don't do anything
     if (order.fiat_amount === undefined) {
@@ -99,61 +99,49 @@ const waitPayment = async (ctx, bot, buyer, seller, order, walletAddress) => {
       return;
     }
 
-    order.wallet_address = walletAddress;
-    // We need the i18n context to send the message with the correct language
-    const i18nCtx = await getUserI18nContext(seller);
-    // If the buyer is the creator, at this moment the seller already paid the hold invoice
-    if (order.creator_id === order.buyer_id) {
-      order.status = 'ACTIVE';
-      // Message to buyer
-      await messages.addInvoiceMessage(ctx, bot, buyer, seller, order);
-      // Message to seller
-      await messages.sendBuyerInfo2SellerMessage(
-        bot,
-        buyer,
-        seller,
-        order,
-        i18nCtx
-      );
-    } else {
+    const i18nCtxSeller = await getUserI18nContext(seller);
 
-      // FIXME: this should appear on the lock tokens page.
-      // We create a hold invoice
-      // const description = i18nCtx.t('hold_invoice_memo', {
-      //   botName: ctx.botInfo.username,
-      //   orderId: order._id,
-      //   fiatCode: order.fiat_code,
-      //   fiatAmount: order.fiat_amount,
-      // });
-      const amount = Math.floor(order.amount + order.fee);
-      
-      // FIXME: generate secret, hash
-      // const { request, hash, secret } = await generateSecretAndHash({
-      //   amount,
-      //   description,
-      // });
+    order.buyer_address = buyerAddress;
 
-      order.hash = "hash";
-      order.secret = "secret";
-      order.taken_at = Date.now();
-      order.status = 'WAITING_PAYMENT';
+    // FIXME: this should appear on the lock tokens page.
+    // We create a hold invoice
+    // const description = i18nCtx.t('hold_invoice_memo', {
+    //   botName: ctx.botInfo.username,
+    //   orderId: order._id,
+    //   fiatCode: order.fiat_code,
+    //   fiatAmount: order.fiat_amount,
+    // });
+    const amount = Math.floor(order.amount + order.fee);
+    
+    // FIXME: generate secret, hash
+    // const { request, hash, secret } = await generateSecretAndHash({
+    //   amount,
+    //   description,
+    // });
 
-      // We need the buyer rate
-      const buyer = await User.findById(order.buyer_id);
-      const stars = getEmojiRate(buyer.total_rating);
-      const roundedRating = decimalRound(buyer.total_rating, -1);
-      const rate = `${roundedRating} ${stars} (${buyer.total_reviews})`;
+    order.buyer_hash = "buyer_hash" + Math.random();
+    order.buyer_secret = "buyer_secret" + Math.random();
+    order.seller_hash = "seller_hash" + Math.random();
+    order.seller_secret = "seler_secret" + Math.random();
+    order.taken_at = Date.now();
+    order.status = 'WAITING_PAYMENT';
 
-      // We send the lock tokens request to the seller
-      await messages.lockTokensRequestMessage(
-        ctx,
-        seller,
-        order,
-        i18nCtx,
-        rate
-      );
-      await messages.takeSellWaitingSellerToPayMessage(ctx, bot, buyer, order);
-    }
+    // We need the buyer rate
+    const buyer = await User.findById(order.buyer_id);
+    const stars = getEmojiRate(buyer.total_rating);
+    const roundedRating = decimalRound(buyer.total_rating, -1);
+    const rate = `${roundedRating} ${stars} (${buyer.total_reviews})`;
+
+    // We send the lock tokens request to the seller
+    await messages.lockTokensRequestMessage(
+      ctx,
+      seller,
+      order,
+      i18nCtxSeller,
+      rate
+    );
+    await messages.takeSellWaitingSellerToPayMessage(ctx, bot, buyer, order);
+    
     await order.save();
   } catch (error) {
     logger.error(`Error in waitPayment: ${error}`);
@@ -331,8 +319,10 @@ const cancelAddWalletAddress = async (ctx, bot, order) => {
       if (order.price_from_api) {
         order.amount = 0;
         order.fee = 0;
-        order.hash = null;
-        order.secret = null;
+        order.buyer_hash = null;
+        order.buyer_secret = null;
+        order.seller_hash = null;
+        order.seller_secret = null;
       }
 
       if (order.type === 'buy') {
@@ -590,7 +580,7 @@ const cancelOrder = async (ctx, orderId, user) => {
     // If the counter party already requested a cooperative cancel order
     if (order[`${counterParty}_cooperativecancel`]) {
       // If we already have a holdInvoice we cancel it and return the money
-      if (order.hash) await cancelHoldInvoice({ hash: order.hash });
+      // if (order.hash) await cancelHoldInvoice({ hash: order.hash });
 
       order.status = 'CANCELED';
       let seller = initiatorUser;
@@ -700,7 +690,6 @@ module.exports = {
   cancelAddWalletAddress,
   waitPayment,
   addWalletAddress,
-  cancelShowHoldInvoice,
   showHoldInvoice,
   cancelOrder,
   fiatSent,

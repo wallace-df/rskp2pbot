@@ -57,7 +57,7 @@ const lockTokensRequestMessage = async (
         ? currency.symbol_native
         : order.fiat_code;
     const expirationTime =
-      parseInt(process.env.HOLD_INVOICE_EXPIRATION_WINDOW) / 60;
+      parseInt(process.env.PAYMENT_EXPIRATION_WINDOW) / 60;
     const message = i18n.t('lock_tokens_request', {
       currency,
       order,
@@ -197,7 +197,7 @@ const genericErrorMessage = async (bot, user, i18n) => {
 const beginTakeBuyMessage = async (ctx, bot, seller, order) => {
   try {
     const expirationTime =
-      parseInt(process.env.HOLD_INVOICE_EXPIRATION_WINDOW) / 60;
+      parseInt(process.env.PAYMENT_EXPIRATION_WINDOW) / 60;
     await bot.telegram.sendMessage(
       seller.tg_id,
       ctx.i18n.t('begin_take_buy', { expirationTime })
@@ -464,7 +464,7 @@ const publishBuyOrderMessage = async (
     const message1 = await bot.telegram.sendMessage(channel, publishMessage, {
       reply_markup: {
         inline_keyboard: [
-          [{ text: i18n.t('sell_sats'), callback_data: 'takebuy' }],
+          [{ text: i18n.t('sell_tokens', {tokenCode: order.token_code}), callback_data: 'takebuy' }],
         ],
       },
     });
@@ -493,11 +493,12 @@ const publishSellOrderMessage = async (
     let publishMessage = `⚡️🍊⚡️\n${order.description}\n`;
     publishMessage += `:${order._id}:`;
     const channel = await getOrderChannel(order);
+
     // We send the message to the channel
     const message1 = await ctx.telegram.sendMessage(channel, publishMessage, {
       reply_markup: {
         inline_keyboard: [
-          [{ text: i18n.t('buy_sats'), callback_data: 'takesell' }],
+          [{ text: i18n.t('buy_tokens',{tokenCode: order.token_code}), callback_data: 'takesell' }],
         ],
       },
     });
@@ -1213,7 +1214,7 @@ const toSellerDidntPayInvoiceMessage = async (bot, user, order, i18n) => {
   try {
     await bot.telegram.sendMessage(
       user.tg_id,
-      i18n.t('havent_paid_invoice', { orderId: order._id })
+      i18n.t('havent_locked_tokens', { orderId: order._id })
     );
   } catch (error) {
     logger.error(error);
@@ -1224,7 +1225,7 @@ const toBuyerSellerDidntPayInvoiceMessage = async (bot, user, order, i18n) => {
   try {
     await bot.telegram.sendMessage(
       user.tg_id,
-      i18n.t('seller_havent_paid_invoice', { orderId: order._id })
+      i18n.t('seller_havent_locked_tokens', { orderId: order._id })
     );
   } catch (error) {
     logger.error(error);

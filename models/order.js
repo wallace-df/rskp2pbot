@@ -21,20 +21,34 @@ const OrderSchema = new mongoose.Schema({
   bot_fee: { type: Number, min: 0 }, // bot MAX_FEE at the moment of order creation
   community_fee: { type: Number, min: 0 }, // community FEE_PERCENT at the moment of order creation
   routing_fee: { type: Number, min: 0, default: 0 },
-  hash: {
+  buyer_hash: {
     type: String,
     index: {
       unique: true,
-      partialFilterExpression: { hash: { $type: 'string' } },
+      partialFilterExpression: { buyer_hash: { $type: 'string' } },
     },
-  }, // hold invoice hash
-  secret: {
+  },
+  buyer_secret: {
     type: String,
     index: {
       unique: true,
-      partialFilterExpression: { secret: { $type: 'string' } },
+      partialFilterExpression: { buyer_secret: { $type: 'string' } },
     },
-  }, // hold invoice secret
+  }, 
+  seller_hash: {
+    type: String,
+    index: {
+      unique: true,
+      partialFilterExpression: { seller_hash: { $type: 'string' } },
+    },
+  },
+  seller_secret: {
+    type: String,
+    index: {
+      unique: true,
+      partialFilterExpression: { seller_secret: { $type: 'string' } },
+    },
+  }, 
   creator_id: { type: String },
   seller_id: { type: String },
   buyer_id: { type: String },

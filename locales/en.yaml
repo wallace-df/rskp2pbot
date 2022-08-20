@@ -31,13 +31,13 @@ start: |
 init_bot_error: to use this Bot you need to first initialize the boot with the command /start
 non_handle_error: 👤 To use this bot you need to activate your Telegram Username, to activate it open the hamburger menu on the top left and select settings -> edit profile -> username
 lock_tokens_request: |
-  Somebody wants to buy you ${order.amount} ${order.tokenCode} for ${currency} ${order.fiat_amount}.
+  Somebody wants to buy you ${order.amount} ${order.token_code} for ${currency} ${order.fiat_amount}.
 
   Buyer Reputation: ${rate}
 
-  To start the selling process, please use this link to lock your ${order.amount} ${order.tokenCode}: https://wallace-df.github.com/rskp2pbot/lock?token=${tokenCode}&tokenAmount=${order.amount}
+  To start the selling process, please use this link to lock ${order.amount} ${order.token_code} : wallace-df.github.com/rskp2pbot/ 
 
-  You have ${expirationTime} minutes to lock the coins, after that, the trade will be cancelled and your coins will be refunded to you.
+  You have ${expirationTime} minutes to lock the tokens. After that, the trade will be cancelled and any locked tokens will be refunded to you.
 pending_sell: |
   📝 Your offer has been published in the ${channel} channel
 
@@ -136,8 +136,8 @@ rate_counterpart: 'Please qualify your counterparty:'
 cant_process_order: This order cannot be processed, please check the Id is correct.
 cant_release_order: This order cannot be released, the buyer has not sent an invoice where to pay
 no_id_related: You do not have any order associated with this Id.
-sell_sats: Sell satoshis
-buy_sats: Buy satoshis
+sell_tokens: Sell ${tokenCode}
+buy_tokens: Buy ${tokenCode}
 order_detail: |
   Id: `${order._id}`
 
@@ -332,8 +332,8 @@ expired_order_to_seller: |
 didnt_add_invoice: '🤨 You have not send the invoice to receive sats for the Order Id: ${orderId}'
 buyer_havent_add_invoice: '😔 Buyer has not send me the invoice to receive the sats for your Id Order: ${orderId}, your sats were sent back to you'
 buyer_havent_add_invoice_to_admin_channel: 'Buyer @${username} took the orderId: ${orderId} but has not sent the invoice where to receive sats, time has expired, the order has being republished.'
-havent_paid_invoice: '🤨 You have not paid the invoice so as to sell sats for the Order Id: ${orderId}'
-seller_havent_paid_invoice: '😔 Seller has not paid the invoice for your purchase Id: ${orderId}, the operation was canceled.'
+havent_locked_tokens: '🤨 I could not detect that you have locked the tokens for the Order Id: ${orderId}. If you have locked it already, use this link to get a withdraw your tokens'
+seller_havent_locked_tokens: '😔 Seller has not locked the tokens for your purchase Id: ${orderId}, the operation was canceled.'
 seller_havent_add_invoice_to_admin_channel: 'Seller @${username} has not paid the invoice of order Id: ${orderId} time lapse ended and the order has been published again.'
 pending_payment_success_to_admin: |
   User @${username} had a pending invoice, they payment for buying order Id: ${orderId} for ${amount} satoshis, was finally executed after ${attempts} attempts.

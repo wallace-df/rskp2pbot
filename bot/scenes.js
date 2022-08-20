@@ -12,7 +12,7 @@ const addWalletAddressWizard = new Scenes.WizardScene(
     try {
       const { order } = ctx.wizard.state;
       const expirationTime =
-        parseInt(process.env.HOLD_INVOICE_EXPIRATION_WINDOW) / 60;
+        parseInt(process.env.PAYMENT_EXPIRATION_WINDOW) / 60;
       const currency = getCurrency(order.fiat_code);
       const symbol =
         !!currency && !!currency.symbol_native

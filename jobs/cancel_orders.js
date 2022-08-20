@@ -1,4 +1,3 @@
-const { cancelHoldInvoice } = require('../ln');
 const { User, Order } = require('../models');
 const { cancelShowHoldInvoice, cancelAddWalletAddress } = require('../bot/commands');
 const messages = require('../bot/messages');
@@ -10,7 +9,7 @@ const cancelOrders = async bot => {
     const holdInvoiceTime = new Date();
     holdInvoiceTime.setSeconds(
       holdInvoiceTime.getSeconds() -
-        parseInt(process.env.HOLD_INVOICE_EXPIRATION_WINDOW)
+        parseInt(process.env.PAYMENT_EXPIRATION_WINDOW)
     );
     // We get the orders where the seller didn't lock the tokens 
     // or where the buyer didn't add the wallet address before the timeout
@@ -19,7 +18,7 @@ const cancelOrders = async bot => {
       taken_at: { $lte: holdInvoiceTime },
     });
     for (const order of waitingPaymentOrders) {
-      await cancelHoldInvoice({ hash: order.hash });
+      //  await cancelHoldInvoice({ hash: order.hash });
       if (order.status === 'WAITING_PAYMENT') {
         await cancelShowHoldInvoice(null, bot, order);
       } else {
@@ -38,7 +37,6 @@ const cancelOrders = async bot => {
       invoice_held_at: { $lte: orderTime },
       $or: [
         {
-          // status: 'ACTIVE',
           status: 'FIAT_SENT',
         },
       ],

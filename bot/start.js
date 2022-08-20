@@ -235,7 +235,7 @@ const initialize = (botToken, options) => {
         }
       }
 
-      if (order.hash) await cancelHoldInvoice({ hash: order.hash });
+      //if (order.hash) await cancelHoldInvoice({ hash: order.hash });
 
       if (dispute) {
         dispute.status = 'SELLER_REFUNDED';

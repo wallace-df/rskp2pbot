@@ -69,6 +69,7 @@ const createOrder = async (
         user,
         type,
         amount,
+        token,
         fiatAmount,
         fiatCode,
         paymentMethod,
@@ -119,6 +120,7 @@ const buildDescription = (
     user,
     type,
     amount,
+    token,
     fiatAmount,
     fiatCode,
     paymentMethod,
@@ -174,7 +176,7 @@ const buildDescription = (
     }
 
     let description =
-      `${username}${action} ${amountText}` + i18n.t('sats') + `\n`;
+      `${username}${action} ${amountText}` + token.code + `\n`;
     description += i18n.t('for') + ` ${currencyString}\n`;
     description += `${paymentAction} ` + i18n.t('by') + ` ${paymentMethod}\n`;
     description += i18n.t('has_successful_trades', { trades }) + `\n`;
