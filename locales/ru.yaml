@@ -81,7 +81,7 @@ buy_correct_format: |
   Вместо точного количества валюты, можно указывать диапазон:
 
   `/buy 0 100\-500 rub "на мобильный" \-2`
-setinvoice_cmd_order: /setinvoice ${orderId} <счет-фактура lightning>
+setaddress_cmd_order: /setaddress ${orderId} <счет-фактура lightning>
 order_id_invalid: Номер заявки неверен
 order_invalid_type: Это заявка типа ${type}
 order_already_taken: Эту заявку уже исполнил другой пользователь
@@ -190,7 +190,7 @@ help: |
   /info - Показать информацию о Боте
   /showusername - Позволяет показывать или скрывать имя пользователя в каждой новой созданной заявке, значение по умолчанию — нет (false) 
   /showvolume - Позволяет отображать объем торгов по каждому новому созданному ордеру, по умолчанию - нет (false)
-  /setinvoice <_order id_> <_factura lightning_> - Позволяет покупателю обновить счет-фактуру Lightning, по которой он получает сатоши.
+  /setaddress <_order id_> <_factura lightning_> - Позволяет покупателю обновить счет-фактуру Lightning, по которой он получает сатоши.
   /setlang - Allows the user to change the language
   /listorders - Пользователь может перечислить свои незавершенные заявки
   /listcurrencies - Перечислите валюты, которые мы можем использовать без указания суммы в сатоши
@@ -221,7 +221,7 @@ user_not_found: Пользователь не найден!
 error_parsing_invoice: Ошибка анализа счета-фактуры.
 invalid_id: Неверный ID.
 cant_take_own_order: Вы не можете взять свой собственный заказ!
-send_me_lninvoice: Пожалуйста, пришлите мне счет-фактуру Lightning на ${order.amount} сат, although to make things easier for you I also accept invoices without amount, I will make the payment of ${amount} sats.
+send_me_wallet_address: Пожалуйста, пришлите мне счет-фактуру Lightning на ${order.amount} сат, although to make things easier for you I also accept invoices without amount, I will make the payment of ${amount} sats.
 you_have_no_orders: У вас сейчас нет заявок.
 not_rate_for_currency: |
   ${fiatRateProvider} для этой фиатной валюты нет обменного курсас.
@@ -269,10 +269,10 @@ wizard_add_wallet_address_init: |
   Чтобы отправить вам сатоши, мне нужно, чтобы вы выставили мне счет на сумму ${satsAmount} сат. Это эквивалентно ${currency} ${fiatAmount}.
 
   Если вы не отправите его в течение ${expirationTime} минут, сделка будет отменена.
-wizard_add_invoice_exit: |
-  Вы вышли из режима мастера\\. Теперь вы можете вводить команды. Вы все еще можете ввести счет на заявку командой /setinvoice с указанием Id заявки и счета\\. Вы можете отправить мне счет на сумму ${amount} сатоши, но я также принимаю счета без суммы\\.
+wizard_add_wallet_exit: |
+  Вы вышли из режима мастера\\. Теперь вы можете вводить команды. Вы все еще можете ввести счет на заявку командой /setaddress с указанием Id заявки и счета\\. Вы можете отправить мне счет на сумму ${amount} сатоши, но я также принимаю счета без суммы\\.
 
-  /setinvoice ${orderId} \\<счет фактура lightning\\>
+  /setaddress ${orderId} \\<счет фактура lightning\\>
 wizard_community_enter_name: Введите название вашего сообщества
 wizard_community_too_long_name: Имя должно содержать не более ${length} символов.
 wizard_community_enter_currency: Enter the code of the fiat currency(ies) with which users can operate in this community, if there is more than one you must enter each code separated by a blank space.

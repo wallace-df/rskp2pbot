@@ -82,8 +82,8 @@ buy_correct_format: |
   Wenn du einen Auftrag in einem gewissen Bereich erstellen willst, anstatt einen festen FIAT\-Betrag anzugeben, kannst du das Minimum und das Maximum für die Transaktion durch einen Bindestrich getrennt angeben *\-*
 
   `/buy 0 100\-500 EUR "Banküberweisung" \-2`
-setinvoice_cmd_order: |
-  /setinvoice ${orderId} \\<Lightning Invoice\\>
+setaddress_cmd_order: |
+  /setaddress ${orderId} \\<Lightning Invoice\\>
 order_id_invalid: Ungültige Auftrags-ID
 order_invalid_type: Der ${type} Auftrag ist ungültig
 order_already_taken: Dieser Auftrag wurde bereits von einem anderen Nutzer übernommen.
@@ -192,7 +192,7 @@ help: |
   /info - Zeigt zusätzliche Informationen über das Bot an
   /showusername - Schaltet die Anzeige des Benutzernamens in jedem neu erstellten Auftrag aus. Der Standardwert ist *nein* (false).
   /showvolume - zeigt das Handelsvolumen an, wenn eine Auftrag erstellt wird, Standardwert ist *nein* (false)
-  /setinvoice <_order id_> <_lightning LN-Rechnung_> - Mit diesem Befehl kann der Käufer die Ligthning-Rechnung aktualisieren, mit welcher er die Sats empfangen will. 
+  /setaddress <_order id_> <_lightning LN-Rechnung_> - Mit diesem Befehl kann der Käufer die Ligthning-Rechnung aktualisieren, mit welcher er die Sats empfangen will. 
   /setlang - Ermöglicht dem Benutzer, die Sprache zu ändern
   /listorders - Benutze diesen Befehl, um alle deine ausstehenden Transaktionen aufzulisten.
   /listcurrencies - Listet alle FIAT Währungen auf, die wir verwenden können. 
@@ -224,7 +224,7 @@ user_not_found: Benutzer wurde in der Datenbank nicht gefunden!
 parse_invoice_error: Fehler beim Parsen der LN-Rechnung
 invalid_id: Ungültige Id
 cant_take_own_order: Du kannst deinen eigenen Auftrag nicht annehmen.
-send_me_lninvoice: Bitte sende mir ein Lightning-Network LN-Rechnung für ${amount} sats
+send_me_wallet_address: Bitte sende mir ein Lightning-Network LN-Rechnung für ${amount} sats
 you_have_no_orders: Du hast keine aktiven Aufträge
 not_rate_for_currency: |
   ${fiatRateProvider} Es gibt keinen Wechselkurs für diese FIAT-Währung,
@@ -272,10 +272,10 @@ wizard_add_wallet_address_init: |
   🤖 Du musst mir eine LN-Rechnung über ${satsAmount} Sats schicken, die ${currency} ${fiatAmount} wert ist, damit ich dir später die Sats weiterleiten kann.
 
   Wenn du mir die LN-Rechnung nicht innerhalb von ${expirationTime} Minuten sendest, wird der Auftrag storniert.
-wizard_add_invoice_exit: |
-  Du hast den Assistentenmodus verlassen, du kannst die Befehle aufschreiben. Du kannst immer noch eine LN-Rechnung zum Auftrag hinzufügen mit dem Befehl /setinvoice, der die Auftrags\-ID und die LN-Rechnung angibt, du kannst mir eine LN-Rechnung über ${Betrag} Sats schicken, aber ich akzeptiere auch LN-Rechnungen ohne Betrag:
+wizard_add_wallet_exit: |
+  Du hast den Assistentenmodus verlassen, du kannst die Befehle aufschreiben. Du kannst immer noch eine LN-Rechnung zum Auftrag hinzufügen mit dem Befehl /setaddress, der die Auftrags\-ID und die LN-Rechnung angibt, du kannst mir eine LN-Rechnung über ${Betrag} Sats schicken, aber ich akzeptiere auch LN-Rechnungen ohne Betrag:
 
-  `/setinvoice ${orderId} `\\<Lightning LN-Rechnung mit oder ohne Betrag\\>
+  `/setaddress ${orderId} `\\<Lightning LN-Rechnung mit oder ohne Betrag\\>
 wizard_community_enter_name: Wähle einen Namen für deine Community
 wizard_community_too_long_name: Der Name kann eine maximale Länge von ${length} Zeichen haben.
 wizard_community_enter_currency: Gib den Code der FIAT-Währung(en) ein, welche die Nutzer dieser Community verwenden können. Gibt es mehr als einen, musst du jeden Code durch ein Leerzeichen getrennt eingeben.

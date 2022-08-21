@@ -82,8 +82,8 @@ buy_correct_format: |
   Se si desidera creare un ordine d'acquisto in un range, invece di indicare un importo Fiat fisso, è possibile impostare il minimo e il massimo da transare, separati da un trattino *\-*
 
   `/buy 0 100\-500 EUR "metodo di pagamento" \-2`
-setinvoice_cmd_order: |
-  /setinvoice ${orderId} \\<Lightning Invoice\\>
+setaddress_cmd_order: |
+  /setaddress ${orderId} \\<Lightning Invoice\\>
 order_id_invalid: IOrder ID non valido
 order_invalid_type: Questo ${type} ordine non è valido
 order_already_taken: Quest'ordine è già stato preso da un altro utente.
@@ -192,7 +192,7 @@ help: |
   /info - Mostra indo aggiuntive sul Bot
   /showusername - Disattiva la visualizzazione del nome utente in ogni nuovo ordine creato. Il valore predefinito è settato su no (false)
   /showvolume - mostra il volume degli scambi quando ogni ordine viene creato; il valore predefinito è *no* (false)
-  /setinvoice <_order id_> <_lightning invoice_> - Questo comando consente all'acquirente di aggiornare la invoice LN su cui ricevere i sats. 
+  /setaddress <_order id_> <_wallet address_> - Questo comando consente all'acquirente di aggiornare la invoice LN su cui ricevere i sats. 
   /setlang - Consente all'utente di cambiare lingua
   /listorders - Utilizzare questo comando per verificare tutte le transazioni in sospeso. 
   /listcurrencies - Elenca tutte le valute che si possono usare senza indicare l'importo in sats. 
@@ -224,7 +224,7 @@ user_not_found: L'utente non è stato trovato!
 parse_invoice_error: Errore nell'elaborazione della invoice
 invalid_id: Id non valido
 cant_take_own_order: Non puoi accettare il tuo stesso ordine.
-send_me_lninvoice: Mandami una invoice per ${amount} sats, Sebbene per facilitarvi le cose accetto anche invoice senza importo, effettuerò il pagamento di ${amount} sats.
+send_me_wallet_address: Mandami una invoice per ${amount} sats, Sebbene per facilitarvi le cose accetto anche invoice senza importo, effettuerò il pagamento di ${amount} sats.
 you_have_no_orders: Non hai ordini attivi
 not_rate_for_currency: |
   ${fiatRateProvider} Non c'è tasso di cambio per questa valuta,
@@ -271,10 +271,10 @@ wizard_add_wallet_address_init: |
   🤖 Ho bisogno che mi invii la invoice si ${satsAmount} satoshi che valgono ${currency} ${fiatAmount} in modo da poterti inviare il denaro.
 
   Se non mandi la invoice entro ${expirationTime} minuti l'ordine verrà cancellato.
-wizard_add_invoice_exit: |
-  Sei uscito dalla modalità wizard, ora dovrai segnarti i comandi, ma puoi comunque aggiungere una invoice all'ordine con il comando  /setinvoice indicando l'ID dell'ordine e la invoice, puoi inviarmi una richiesta di pagamento pari a ${amount} satoshi, ma accetto anche fatture senza importo:
+wizard_add_wallet_exit: |
+  Sei uscito dalla modalità wizard, ora dovrai segnarti i comandi, ma puoi comunque aggiungere una invoice all'ordine con il comando  /setaddress indicando l'ID dell'ordine e la invoice, puoi inviarmi una richiesta di pagamento pari a ${amount} satoshi, ma accetto anche fatture senza importo:
 
-  `/setinvoice ${orderId} `\\<Invoice LN con o senza importo\\>
+  `/setaddress ${orderId} `\\<Invoice LN con o senza importo\\>
 wizard_community_enter_name: Scegli un nome per la community
 wizard_community_too_long_name: Il nome può avere una lunghezza massima di ${length} caratteri.
 wizard_community_enter_currency: Inserisci il fiat-code della valuta o le valute con cui gli utenti possono operare in questa community; se ce n'è più di una, è necessario inserire ogni codice separato da uno spazio vuoto.

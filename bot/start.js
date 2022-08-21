@@ -36,7 +36,6 @@ const {
 } = require('./commands');
 const {
   settleHoldInvoice,
-  cancelHoldInvoice,
   payToBuyer,
 } = require('../ln');
 const {

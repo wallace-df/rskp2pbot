@@ -82,8 +82,8 @@ buy_correct_format: |
   Замість точної кількості валюти можна вказати діапазон:
 
   `/buy 0 100\-500 uah "на мобільний" \-2`
-setinvoice_cmd_order: |
-  /setinvoice ${orderId} \\<рахунок-фактура lightning\\>
+setaddress_cmd_order: |
+  /setaddress ${orderId} \\<рахунок-фактура lightning\\>
 order_id_invalid: Номер заявки невірний
 order_invalid_type: Заявка ${type} невірна
 order_already_taken: Цю заявку вже використав інший користувач
@@ -192,7 +192,7 @@ help: |
   /info - Показати інформацію про Бот
   /showusername - Дозволяє показувати або приховувати ім'я користувача в кожній новій заявці, значення за замовчуванням — ні (false)
   /showvolume - Дозволяє відображати обсяг торгів за кожним новим створеним ордером, за замовчуванням - ні (false)
-  /setinvoice <_order id_> <_factura lightning_> - Дозволяє покупцеві поновити рахунок-фактуру Lightning, за якою він отримує сатоші.
+  /setaddress <_order id_> <_factura lightning_> - Дозволяє покупцеві поновити рахунок-фактуру Lightning, за якою він отримує сатоші.
   /setlang - Allows the user to change the language
   /listorders - Використовуйте цю команду, щоб переглянути всі Ваші транзакції, що очікують на розгляд.
   /listcurrencies - Перелічує всі валюти, які ми можемо використовувати, не вказуючи суми в сатоші
@@ -224,7 +224,7 @@ user_not_found: Користувач не знайдений!
 error_parsing_invoice: Помилка аналізу рахунку-фактури.
 invalid_id: Невірний ID.
 cant_take_own_order: Ви не можете взяти своє власне замовлення!
-send_me_lninvoice: Будь ласка, надішліть мені рахунок-фактуру Lightning на ${order.amount} сат, although to make things easier for you I also accept invoices without amount, I will make the payment of ${amount} sats.
+send_me_wallet_address: Будь ласка, надішліть мені рахунок-фактуру Lightning на ${order.amount} сат, although to make things easier for you I also accept invoices without amount, I will make the payment of ${amount} sats.
 you_have_no_orders: Наразі у Вас немає заявок.
 not_rate_for_currency: |
   ${fiatRateProvider} для цієї фіатної валюти немає обмінного курсу.
@@ -272,10 +272,10 @@ wizard_add_wallet_address_init: |
   Щоб надіслати Вам сатоші, мені потрібно, щоб Ви виставили мені рахунок на суму ${satsAmount} сат. Це еквівалентно ${currency} ${fiatAmount}.
 
   Якщо Ви не відправите його протягом ${expirationTime} хвилин, угода буде скасована.
-wizard_add_invoice_exit: |
-  Ви вийшли з режиму майстра\\. Тепер можна вводити команди. Ви все ще можете ввести рахунок на заявку командою /setinvoice із зазначенням Id заявки та рахунку\. Ви можете надіслати мені рахунок на ${amount} сатоші, але я також приймаю рахунки без суми\\.
+wizard_add_wallet_exit: |
+  Ви вийшли з режиму майстра\\. Тепер можна вводити команди. Ви все ще можете ввести рахунок на заявку командою /setaddress із зазначенням Id заявки та рахунку\. Ви можете надіслати мені рахунок на ${amount} сатоші, але я також приймаю рахунки без суми\\.
 
-  /setinvoice ${orderId} \\<счет фактура lightning\\>
+  /setaddress ${orderId} \\<счет фактура lightning\\>
 wizard_community_enter_name: Введіть назву Вашої спільноти
 wizard_community_too_long_name: Ім'я має містити не більше ${length} символів.
 wizard_community_enter_currency: Введіть код фіатної валюти, з яким користувачі можуть працювати в цій спільноті, Якщо є більше одного, ви повинні вводити кожен код, розділений порожнім простором.

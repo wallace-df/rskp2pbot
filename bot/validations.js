@@ -427,8 +427,8 @@ const validateFiatSentOrder = async (ctx, user, orderId) => {
       return false;
     }
 
-    if (!order.buyer_invoice) {
-      await messages.notLightningInvoiceMessage(ctx, order);
+    if (!order.buyer_address) {
+      await messages.noWalletAddressMessage(ctx, order);
       return false;
     }
 

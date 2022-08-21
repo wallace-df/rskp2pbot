@@ -813,7 +813,7 @@ exports.addEarningsInvoiceWizard = new Scenes.WizardScene(
       if (community.earnings === 0) return ctx.scene.leave();
 
       await ctx.reply(
-        ctx.i18n.t('send_me_lninvoice', { amount: community.earnings })
+        ctx.i18n.t('send_me_wallet_address', { amount: community.earnings })
       );
 
       return ctx.wizard.next();

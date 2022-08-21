@@ -84,8 +84,8 @@ buy_correct_format: |
   If you want to create purchase order by range instead of indicating a fixed Fiat amount, you can set the minimum and maximum to transact separated by a hyphen *\-*
 
   `/buy 0 100\-500 USD "payment method" \-2`
-setinvoice_cmd_order: |
-  /setinvoice ${orderId} \\<Lightning Invoice\\>
+setaddress_cmd_order: |
+  /setaddress ${orderId} \\<Lightning Invoice\\>
 order_id_invalid: Invalid order ID
 order_invalid_type: This ${type} order is invalid
 order_already_taken: This order has already been taken by another user.
@@ -194,7 +194,7 @@ help: |
   /info - Shows additional info about the BOT
   /showusername - Toggles off the display of the username in each new order created. Default value is se to no (false)
   /showvolume - shows trade volume when each order is created, default value is *no* (false)
-  /setinvoice <_order id_> <_lightning invoice_> - This command allows the buyer to update the ligthning invoice where to receive the sats. 
+  /setaddress <_order id_> <_wallet address_> - This command allows the buyer to update the ligthning invoice where to receive the sats. 
   /setlang - Allows the user to change the language
   /listorders - Use this command to list all your pending transactions. 
   /listcurrencies - Lists all the currencies we can use to without indicatin the amount in sats. 
@@ -226,7 +226,7 @@ user_not_found: User was not found in the database!
 parse_invoice_error: Error parsing invoice
 invalid_id: Invalid Id
 cant_take_own_order: You cannot take your own order.
-send_me_lninvoice: Please send me a lightning invoice for ${amount} sats, although to make things easier for you I also accept invoices without amount, I will make the payment of ${amount} sats.
+send_me_wallet_address: Please send me the wallet address to receive ${amount} ${tokenCode}.
 you_have_no_orders: You don't have active orders
 not_rate_for_currency: |
   ${fiatRateProvider} Theres is no exchange rate for this currency,
@@ -274,10 +274,10 @@ wizard_add_wallet_address_init: |
   🤖 I need you to send me and invoice for ${satsAmount} satoshis that are worth ${currency} ${fiatAmount} so I can send you the money.
 
   If you do not send the invoice within ${expirationTime} minutes the order will be cancelled
-wizard_add_invoice_exit: |
-  You have exit the wizard mode, you can know write down the commands, you can still add an invoice to the order with the comand  /setinvoice indicating Order ID and Invoice, you can send me an invoice for ${amount} satoshis, but I will also accept invoices with no amount:
+wizard_add_wallet_exit: |
+  You have exit the wizard mode, you can know write down the commands, you can still add a wallet address to the order with the comand /setaddress indicating Order ID and Wallet Address:
 
-  `/setinvoice ${orderId} `\\<lightning invoice with or without amount\\>
+  `/setaddress ${orderId} `\\<wallet address\\>
 wizard_community_enter_name: Pick a name for your community
 wizard_community_too_long_name: The name can have a maximum length of ${length} characters.
 wizard_community_enter_currency: Enter the code of the fiat currency(ies) with which users can operate in this community, if there is more than one you must enter each code separated by a blank space.

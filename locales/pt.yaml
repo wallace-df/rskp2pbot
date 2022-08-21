@@ -82,8 +82,8 @@ buy_correct_format: |
   Se você deseja criar o pedido de compra por intervalo, em vez de indicar uma quantidade fiduciária fixa, pode definir o mínimo e o máximo para transações separadas por um hífen *\-*
 
   `/buy 0 100\-500 USD "forma de pagamento" \-2`
-setinvoice_cmd_order: |
-  /setinvoice ${orderId} \\<Lightning Invoice\\>
+setaddress_cmd_order: |
+  /setaddress ${orderId} \\<Lightning Invoice\\>
 order_id_invalid: ID do pedido inválido
 order_invalid_type: Este ${type} pedido é inválido
 order_already_taken: Este pedido já foi feito por outro usuário.
@@ -192,7 +192,7 @@ help: |
   /info - Mostra informações sobre o bot
   /showusername - Permite mostrar ou ocultar o nome de usuário em cada novo pedido criado, o valor padrão é não (falso)
   /showvolume - Permite mostrar o volume de negócios em cada novo pedido criado, o padrão é não (falso)
-  /setinvoice <ID do pedido> <Fatura Lightning> - Permite que o comprador atualize a fatura Lightning na qual receberá sats
+  /setaddress <ID do pedido> <Fatura Lightning> - Permite que o comprador atualize a fatura Lightning na qual receberá sats
   /setlang - Permite que o usuário altere o idioma
   /listorders - O usuário pode listar seus pedidos inacabados
   /listcurrencies - Lista as moedas que podemos usar sem indicar o valor em satoshis
@@ -224,7 +224,7 @@ user_not_found: O usuário não foi encontrado no banco de dados!
 parse_invoice_error: Erro analisando a fatura
 invalid_id: ID Inválido
 cant_take_own_order: Você não pode fazer seu próprio pedido.
-send_me_lninvoice: Por favor, envie-me uma fatura de lightning para ${amount} sats, Embora para facilitar as coisas para você, eu também aceito faturas sem valor, farei o pagamento de ${amount} sats.
+send_me_wallet_address: Por favor, envie-me uma fatura de lightning para ${amount} sats, Embora para facilitar as coisas para você, eu também aceito faturas sem valor, farei o pagamento de ${amount} sats.
 you_have_no_orders: Você não tem ordens ativas
 not_rate_for_currency: |
   ${fiatRateProvider} Há uma taxa de câmbio para esta moeda,
@@ -272,10 +272,10 @@ wizard_add_wallet_address_init: |
   🤖 Eu preciso que você me envie e a fatura por ${satsAmount} satoshis que valem ${currency} ${fiatAmount} para que eu possa enviar o dinheiro.
 
   Se você não enviar a fatura dentro de ${expirationTime} minutos, o pedido será cancelado
-wizard_add_invoice_exit: |
-  Você sai do modo assistente, você pode saber escrever os comandos, ainda pode adicionar uma fatura ao pedido com o comand /setinvoice Indicando o ID do pedido e a fatura, você pode me enviar uma fatura para ${amount} satoshis, mas também aceitarei faturas sem quantidade:
+wizard_add_wallet_exit: |
+  Você sai do modo assistente, você pode saber escrever os comandos, ainda pode adicionar uma fatura ao pedido com o comand /setaddress Indicando o ID do pedido e a fatura, você pode me enviar uma fatura para ${amount} satoshis, mas também aceitarei faturas sem quantidade:
 
-  `/setinvoice ${orderId} `\\<fatura lightning com ou sem quantidade\\>
+  `/setaddress ${orderId} `\\<fatura lightning com ou sem quantidade\\>
 wizard_community_enter_name: Escolha um nome para sua comunidade
 wizard_community_too_long_name: O nome pode ter um comprimento máximo de ${length} caracteres.
 wizard_community_enter_currency: Digite o código da moeda(s) fiduciária com a qual os usuários podem operar nesta comunidade, se houver mais de um, você deve inserir cada código separado por um espaço em branco.

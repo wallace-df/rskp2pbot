@@ -657,32 +657,6 @@ const notValidIdMessage = async ctx => {
   }
 };
 
-const addInvoiceMessage = async (ctx, bot, buyer, seller, order) => {
-  try {
-    let currency = getCurrency(order.fiat_code);
-    currency =
-      !!currency && !!currency.symbol_native
-        ? currency.symbol_native
-        : order.fiat_code;
-    await bot.telegram.sendMessage(
-      buyer.tg_id,
-      ctx.i18n.t('get_in_touch_with_seller', {
-        currency,
-        sellerUsername: seller.username,
-        fiatAmount: numberFormat(order.fiat_code, order.fiat_amount),
-        paymentMethod: order.payment_method,
-      })
-    );
-    await bot.telegram.sendMessage(
-      buyer.tg_id,
-      ctx.i18n.t('fiatsent_order_cmd', { orderId: order._id }),
-      { parse_mode: 'MarkdownV2' }
-    );
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
 const sendBuyerInfo2SellerMessage = async (bot, buyer, seller, order, i18n) => {
   try {
     let currency = getCurrency(order.fiat_code);
@@ -715,11 +689,11 @@ const cantTakeOwnOrderMessage = async (ctx, bot, user) => {
   }
 };
 
-const notLightningInvoiceMessage = async (ctx, order) => {
+const noWalletAddressMessage = async (ctx, order) => {
   try {
-    await ctx.reply(ctx.i18n.t('send_me_lninvoice', { amount: order.amount }));
+    await ctx.reply(ctx.i18n.t('send_me_wallet_address', { amount: order.amount, tokenCode: order.token_code }));
     await ctx.reply(
-      ctx.i18n.t('setinvoice_cmd_order', { orderId: order._id }),
+      ctx.i18n.t('setaddress_cmd_order', { orderId: order._id }),
       { parse_mode: 'MarkdownV2' }
     );
   } catch (error) {
@@ -1041,10 +1015,10 @@ const wizardAddWalletAddressInitMessage = async (
   }
 };
 
-const wizardAddInvoiceExitMessage = async (ctx, order) => {
+const wizardAddWalletExitMessage = async (ctx, order) => {
   try {
     await ctx.reply(
-      ctx.i18n.t('wizard_add_invoice_exit', {
+      ctx.i18n.t('wizard_add_wallet_exit', {
         amount: numberFormat(order.fiat_code, order.amount),
         orderId: order._id,
       }),
@@ -1074,14 +1048,6 @@ const orderExpiredMessage = async ctx => {
 const cantAddWalletAddressMessage = async ctx => {
   try {
     await ctx.reply(ctx.i18n.t('cant_add_wallet_address'));
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const sendMeAnInvoiceMessage = async (ctx, amount, i18nCtx) => {
-  try {
-    await ctx.reply(i18nCtx.t('send_me_lninvoice', { amount }));
   } catch (error) {
     logger.error(error);
   }
@@ -1441,9 +1407,8 @@ module.exports = {
   userBannedMessage,
   notFoundUserMessage,
   notValidIdMessage,
-  addInvoiceMessage,
   cantTakeOwnOrderMessage,
-  notLightningInvoiceMessage,
+  noWalletAddressMessage,
   notOrdersMessage,
   notRateForCurrency,
   beginTakeSellMessage,
@@ -1476,7 +1441,7 @@ module.exports = {
   invalidRangeWithAmount,
   tooManyPendingOrdersMessage,
   wizardAddWalletAddressInitMessage,
-  wizardAddInvoiceExitMessage,
+  wizardAddWalletExitMessage,
   orderExpiredMessage,
   cantAddWalletAddressMessage,
   wizardExitMessage,
@@ -1499,7 +1464,6 @@ module.exports = {
   toBuyerExpiredOrderMessage,
   toSellerExpiredOrderMessage,
   currencyNotSupportedMessage,
-  sendMeAnInvoiceMessage,
   notAuthorized,
   mustBeANumber,
   showConfirmationButtons,
