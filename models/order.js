@@ -70,10 +70,8 @@ const OrderSchema = new mongoose.Schema({
       'FIAT_SENT', // buyer indicates the fiat payment is already done
       'RELEASED', // seller released funds
       'DISPUTE', // one of the parties started a dispute
-      'SUCCESS', // fixme: simplified by RELEASED status.
-      'CANCELED_BY_ADMIN',
-      'EXPIRED', // Expired orders, stated changed by a job
-      'COMPLETED_BY_ADMIN',
+      'CANCELED_BY_ADMIN', // set when admin refunds the seller on a dispute
+      'COMPLETED_BY_ADMIN', // set when the admin releases funds to the buyer on a dispute
     ],
   },
   type: { type: String },

@@ -83,7 +83,7 @@ buy_correct_format: |
 
   `/buy 0 100\-500 USD "forma de pagamento" \-2`
 setaddress_cmd_order: |
-  /setaddress ${orderId} \\<Lightning Invoice\\>
+  /setaddress ${orderId} \\<wallet address\\>
 order_id_invalid: ID do pedido inválido
 order_invalid_type: Este ${type} pedido é inválido
 order_already_taken: Este pedido já foi feito por outro usuário.
@@ -220,12 +220,11 @@ release_order_cmd: |
 you_have_orders_waiting: 🤖 Você tem um ou mais pedidos em que o comprador informa que o dinheiro fiduciário foi enviado a você, mas você não lançou os SATs.Você não poderá criar novos pedidos até lançar esses fundos.
 user_banned: Usuário proibido!
 user_not_found: O usuário não foi encontrado no banco de dados!
-parse_invoice_error: Erro analisando a fatura
 invalid_id: ID Inválido
 cant_take_own_order: Você não pode fazer seu próprio pedido.
 send_me_wallet_address: Por favor, envie-me uma fatura de lightning para ${amount} sats, Embora para facilitar as coisas para você, eu também aceito faturas sem valor, farei o pagamento de ${amount} sats.
 you_have_no_orders: Você não tem ordens ativas
-not_rate_for_currency: |
+no_rate_for_currency: |
   ${fiatRateProvider} Há uma taxa de câmbio para esta moeda,
   Se você quiser usar esta moeda, você deve indicar quantos Satoshis você deseja
   Se você quiser essa moeda na listagem, vá para este link para fazer uma solicitação. 👇
@@ -245,7 +244,6 @@ ok_cooperativecancel: '👍 Contraparte concordou e o pedido Id: ${orderId} foi 
 refund_cooperativecancel: 💰 Você recebeu um reembolso do seu pagamento de lightning, não há mais ações para fazer
 init_cooperativecancel: '🕒 Você começou o cancelamento do pedido Id: ${orderId}, Sua contraparte também deve concordar com o cancelamento.'
 counterparty_wants_cooperativecancel: '😳 Sua contraparte quer cancelar o pedido Id: ${orderId}, Se você concorda com esse cancelamento, execute o seguinte comando 👇'
-invoice_payment_failed: ⛔ Eu tentei enviar -lhe os sats, mas o pagamento da sua fatura falhou, vou tentar ${attempts} mais vezes em ${pendingPaymentWindow} janela de minutos, verifique seu nó/carteira está online
 cant_take_more_orders: ⛔ Desculpe!Você não pode fazer outro pedido enquanto tem outras pessoas esperando por você
 seller_released: 💸 O vendedor já lançou os Satoshis, você deve esperar que sua fatura seja paga.
 your_purchase_is_completed: |

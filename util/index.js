@@ -133,19 +133,39 @@ const handleReputationItems = async (buyer, seller, amount) => {
   }
 };
 
-const getBtcFiatPrice = async (fiatCode, fiatAmount) => {
+const getTokenAmountFromMarketPrice = async (fiatCode, fiatAmount, tokenCode) => {
   try {
     const currency = getCurrency(fiatCode);
-    if (!currency.price) return;
-    // Before hit the endpoint we make sure the code have only 3 chars
-    const code = currency.code.substring(0, 3);
-    const response = await axios.get(`${process.env.FIAT_RATE_EP}/${code}`);
-    if (response.data.error) {
+    const token = getToken(tokenCode);
+
+    if (!currency || !currency.price || !token || (!token.stablecoin && !token.price) || !token.decimals) {
       return 0;
     }
-    const sats = (fiatAmount / response.data.btc) * 100000000;
 
-    return parseInt(sats);
+    let usdRate = 0;
+
+    if (token.stablecoin) {
+      usdRate = 1;
+    } else {
+      // FIXME: use API3 to get exchange rate.
+      usdRate = 21500;
+    }
+
+    let fiatRate;
+
+    if (currency.code === 'USD') {
+      fiatRate = usdRate;
+    } else {
+      // Before hit the endpoint we make sure the code have only 3 chars
+      const code = currency.code.substring(0, 3);
+      const response = await axios.get(`${process.env.FIAT_RATE_EP}/${code}/USD`);
+      if (response.data.error) {
+        return 0;
+      }
+      fiatRate = usdRate * response.data.rate;
+    }
+    const amount = (fiatAmount / fiatRate) * (10 ** token.decimals);
+    return parseInt(amount);
   } catch (error) {
     logger.error(error);
   }
@@ -401,7 +421,7 @@ module.exports = {
   getToken,
   getCurrency,
   handleReputationItems,
-  getBtcFiatPrice,
+  getTokenAmountFromMarketPrice,
   getBtcExchangePrice,
   getCurrenciesWithPrice,
   getEmojiRate,

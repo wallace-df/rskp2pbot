@@ -354,7 +354,7 @@ const onGoingTakeSellMessage = async (
     );
     await bot.telegram.sendMessage(
       sellerUser.tg_id,
-      i18nSeller.t('buyer_took_your_order', {
+      i18nSeller.t('get_in_touch_with_buyer', {
         tokenCode: order.token_code,
         fiatAmount: order.fiat_amount,
         paymentMethod: order.payment_method,
@@ -667,27 +667,6 @@ const notValidIdMessage = async ctx => {
   }
 };
 
-const sendBuyerInfo2SellerMessage = async (bot, buyer, seller, order, i18n) => {
-  try {
-    let currency = getCurrency(order.fiat_code);
-    currency =
-      !!currency && !!currency.symbol_native
-        ? currency.symbol_native
-        : order.fiat_code;
-    await bot.telegram.sendMessage(
-      seller.tg_id,
-      i18n.t('get_in_touch_with_buyer', {
-        currency,
-        buyerUsername: buyer.username,
-        fiatAmount: numberFormat(order.fiat_code, order.fiat_amount),
-        paymentMethod: order.payment_method,
-      })
-    );
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
 const cantTakeOwnOrderMessage = async (ctx, bot, user) => {
   try {
     await bot.telegram.sendMessage(
@@ -719,11 +698,11 @@ const notOrdersMessage = async ctx => {
   }
 };
 
-const notRateForCurrency = async (bot, user, i18n) => {
+const noRateForCurrency = async (bot, user, i18n) => {
   try {
     await bot.telegram.sendMessage(
       user.tg_id,
-      i18n.t('not_rate_for_currency', {
+      i18n.t('no_rate_for_currency', {
         fiatRateProvider: process.env.FIAT_RATE_NAME,
       })
     );
@@ -731,6 +710,20 @@ const notRateForCurrency = async (bot, user, i18n) => {
     logger.error(error);
   }
 };
+
+const noRateForToken = async (bot, user, i18n) => {
+  try {
+    await bot.telegram.sendMessage(
+      user.tg_id,
+      i18n.t('no_rate_for_token', {
+        fiatRateProvider: process.env.FIAT_RATE_NAME,
+      })
+    );
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
 
 const badStatusOnCancelOrderMessage = async ctx => {
   try {
@@ -847,20 +840,6 @@ const counterPartyWantsCooperativeCancelMessage = async (
       user.tg_id,
       i18n.t('cancel_order_cmd', { orderId: order._id }),
       { parse_mode: 'MarkdownV2' }
-    );
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const invoicePaymentFailedMessage = async (bot, user, i18n) => {
-  try {
-    await bot.telegram.sendMessage(
-      user.tg_id,
-      i18n.t('invoice_payment_failed', {
-        pendingPaymentWindow: process.env.PENDING_PAYMENT_WINDOW,
-        attempts: process.env.PAYMENT_ATTEMPTS,
-      })
     );
   } catch (error) {
     logger.error(error);
@@ -1384,7 +1363,8 @@ module.exports = {
   cantTakeOwnOrderMessage,
   noWalletAddressMessage,
   notOrdersMessage,
-  notRateForCurrency,
+  noRateForCurrency,
+  noRateForToken,
   beginTakeSellMessage,
   counterPartyWantsCooperativeCancelMessage,
   initCooperativeCancelMessage,
@@ -1395,7 +1375,6 @@ module.exports = {
   successCancelOrderByAdminMessage,
   successCancelOrderMessage,
   badStatusOnCancelOrderMessage,
-  invoicePaymentFailedMessage,
   userCantTakeMoreThanOneWaitingOrderMessage,
   releaseInstructionsMessage,
   fundsReleasedMessages,
@@ -1406,7 +1385,6 @@ module.exports = {
   waitingForBuyerOrderMessage,
   sellerReleasedMessage,
   showInfoMessage,
-  sendBuyerInfo2SellerMessage,
   updateUserSettingsMessage,
   successCancelAllOrdersMessage,
   invalidRangeWithAmount,

@@ -83,7 +83,7 @@ buy_correct_format: |
 
   `/buy 0 100\-500 EUR "Banküberweisung" \-2`
 setaddress_cmd_order: |
-  /setaddress ${orderId} \\<Lightning Invoice\\>
+  /setaddress ${orderId} \\<wallet address\\>
 order_id_invalid: Ungültige Auftrags-ID
 order_invalid_type: Der ${type} Auftrag ist ungültig
 order_already_taken: Dieser Auftrag wurde bereits von einem anderen Nutzer übernommen.
@@ -220,12 +220,11 @@ release_order_cmd: |
 you_have_orders_waiting: 🤖 Du hast eine oder mehrere Aufträge, bei denen der Käufer dir mitteilt, dass das Geld an dich geschickt wurde, du es aber noch nicht freigegeben hast. Du kannst keine neuen Aufträge erstellen, bis du das Geld freigibst.
 user_banned: Gesperrter Benutzer!
 user_not_found: Benutzer wurde in der Datenbank nicht gefunden!
-parse_invoice_error: Fehler beim Parsen der LN-Rechnung
 invalid_id: Ungültige Id
 cant_take_own_order: Du kannst deinen eigenen Auftrag nicht annehmen.
 send_me_wallet_address: Bitte sende mir ein Lightning-Network LN-Rechnung für ${amount} sats
 you_have_no_orders: Du hast keine aktiven Aufträge
-not_rate_for_currency: |
+no_rate_for_currency: |
   ${fiatRateProvider} Es gibt keinen Wechselkurs für diese FIAT-Währung,
   Wenn du diese FIAT-Währung verwenden willst, musst du angeben, wie viele Sats du haben möchtest.
   Wenn du diese FIAT-Währung in der Liste haben möchtest, kannst du die Funktion /listcurrencies verwenden, um eine Anfrage zu stellen. 👇****
@@ -245,7 +244,6 @@ ok_cooperativecancel: '👍 Die Gegenpartei hat zugestimmt und der Auftrag mit d
 refund_cooperativecancel: 💰 Du hast eine Rückerstattung deiner Lightning-Zahlung erhalten, es gibt keine weiteren Schritte zu unternehmen
 init_cooperativecancel: '🕒 Du hast mit der Stornierung des Auftrages mit der Id ${orderId} gestartet. Deine Gegenpartei muss der Stornierung ebenfalls zustimmen.'
 counterparty_wants_cooperativecancel: '😳 Deine Gegenpartei möchte den Auftrag mit der Id ${orderId} stornieren. Wenn du mit der Stornierung einverstanden bist, führe bitte den folgenden Befehl aus 👇'
-invoice_payment_failed: ⛔ Ich habe versucht, dir die Sats zu schicken, aber die Bezahlung deiner LN-Rechnung ist fehlgeschlagen. Ich werde es noch ${attempts} weitere Male in ${pendingPaymentWindow} Minuten-Intervallen versuchen. Bitte überprüfe, ob dein Node/Wallet online ist.
 cant_take_more_orders: ⛔ Sorry! Du kannst keinen weiteren Auftrag annehmen, während andere auf dich warten
 seller_released: 💸 Der Verkäufer hat die Sats bereits freigegeben, du musst warten, bis deine LN-Rechnung bezahlt ist.
 your_purchase_is_completed: |

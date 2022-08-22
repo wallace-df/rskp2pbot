@@ -83,7 +83,7 @@ buy_correct_format: |
 
   `/buy 0 100\-500 EUR "metodo di pagamento" \-2`
 setaddress_cmd_order: |
-  /setaddress ${orderId} \\<Lightning Invoice\\>
+  /setaddress ${orderId} \\<wallet address\\>
 order_id_invalid: IOrder ID non valido
 order_invalid_type: Questo ${type} ordine non è valido
 order_already_taken: Quest'ordine è già stato preso da un altro utente.
@@ -220,12 +220,11 @@ release_order_cmd: |
 you_have_orders_waiting: 🤖 hai uno o più ordini in cui l'acquirente comunica che il denaro ti è stato inviato ma non hai ancora rilasciato i sats. Non ti sarà possibile creare nuovi ordini fino a quando non si sbloccherai tali fondi..
 user_banned: Utente bannato!
 user_not_found: L'utente non è stato trovato!
-parse_invoice_error: Errore nell'elaborazione della invoice
 invalid_id: Id non valido
 cant_take_own_order: Non puoi accettare il tuo stesso ordine.
 send_me_wallet_address: Mandami una invoice per ${amount} sats, Sebbene per facilitarvi le cose accetto anche invoice senza importo, effettuerò il pagamento di ${amount} sats.
 you_have_no_orders: Non hai ordini attivi
-not_rate_for_currency: |
+no_rate_for_currency: |
   ${fiatRateProvider} Non c'è tasso di cambio per questa valuta,
   se si desidera utilizzare questa valuta è necessario indicare quanti satoshi si desiderano
   Se desideri che questa valuta sia presente nell'inserzione, vai a questo link per fare una richiesta. 👇
@@ -245,7 +244,6 @@ ok_cooperativecancel: "👍 La controparte ha accettato e l'ordine ID: ${orderId
 refund_cooperativecancel: 💰 Hai ricevuto il rimborso del pagamento LN, non ci sono altre azioni da eseguire.
 init_cooperativecancel: "🕒 Hai avviato la cancellazione dell'ordine ID: ${orderId}, anche la controparte deve essere d'accordo sulla cancellazione."
 counterparty_wants_cooperativecancel: "😳 La controparte vuole annullare l'ordine ID: ${orderId}, Se anche ti sei d'accordo con questa cancellazione, premi questo comando 👇"
-invoice_payment_failed: ⛔ Ho cercato di inviarti i dati, ma il pagamento della invoice non è andato a buon fine, proverò a farlo ${attempts} volte in ${pendingPaymentWindow} finestra di minuti, verifica che il tuo nodo/wallet sia online
 cant_take_more_orders: ⛔ Mi dispiace! Non è possibile accettare un altro ordine mentre ce ne sono altri in attesa.
 seller_released: 💸 Il venditore ha già rilasciato i satoshi, è necessario attendere il pagamento della invoice.
 your_purchase_is_completed: |

@@ -81,7 +81,7 @@ const payToBuyer = async (bot, order) => {
       );
       await messages.rateUserMessage(bot, buyerUser, order, i18nCtx);
     } else {
-      await messages.invoicePaymentFailedMessage(bot, buyerUser, i18nCtx);
+      //await messages.invoicePaymentFailedMessage(bot, buyerUser, i18nCtx);
       const pp = new PendingPayment({
         amount: order.amount,
         payment_request: order.buyer_invoice,

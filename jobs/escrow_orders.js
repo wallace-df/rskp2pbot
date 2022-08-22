@@ -5,10 +5,6 @@ const { handleReputationItems, getUserI18nContext } = require('../util');
 const logger = require('../logger');
 
 const escrowOrders = async bot => {
-
-  if(1==1){
-    return;
-  }
   try {
     // We get the orders where the seller must lock tokens before continuing.
     const waitingOrders = await Order.find({
@@ -24,11 +20,14 @@ const escrowOrders = async bot => {
       
       const buyerUser = await User.findOne({ _id: order.buyer_id });
       const sellerUser = await User.findOne({ _id: order.seller_id });
-      order.status = 'ACTIVE';
       
       // This is the i18n context we need to pass to the message
       const i18nCtxBuyer = await getUserI18nContext(buyerUser);
       const i18nCtxSeller = await getUserI18nContext(sellerUser);
+
+      order.status = 'ACTIVE';
+      order.tokens_held_at = Date.now();
+      order.save();
 
       if (order.type === 'sell') {
         await messages.onGoingTakeSellMessage(
@@ -44,8 +43,6 @@ const escrowOrders = async bot => {
         // FIXME: handle.
       }
 
-      order.tokens_held_at = Date.now();
-      order.save();
     }
 
     // We get the orders where the seller tokens have been locked but not released yet.
@@ -59,10 +56,19 @@ const escrowOrders = async bot => {
       if (!released) {
         continue;
       }
-      
+
+      // We look for a dispute for this order
+      const dispute = await Dispute.findOne({ order_id: order._id });
+
+      if (dispute) {
+        dispute.status = 'RELEASED';
+        await dispute.save();
+      } 
+
       order.status = 'RELEASED';
       await order.save();
-      
+
+
       const buyerUser = await User.findOne({ _id: order.buyer_id });
       const sellerUser = await User.findOne({ _id: order.seller_id });
 

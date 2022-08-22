@@ -11,7 +11,7 @@ const {
 const { Order, User, Dispute } = require('../models');
 const messages = require('./messages');
 const {
-  getBtcFiatPrice,
+  getTokenAmountFromMarketPrice,
   extractId,
   deleteOrderFromChannel,
   getUserI18nContext,
@@ -176,12 +176,14 @@ const addWalletAddress = async (ctx, bot, order) => {
 
     let amount = order.amount;
     if (amount === 0) {
-      amount = await getBtcFiatPrice(order.fiat_code, order.fiat_amount);
-      const marginPercent = order.price_margin / 100;
-      amount = amount - amount * marginPercent;
-      amount = Math.floor(amount);
-      order.fee = await getFee(amount, order.community_id);
-      order.amount = amount;
+      amount = await getTokenAmountFromMarketPrice(order.fiat_code, order.fiat_amount, order.token_code);
+      if (amount) {
+        const marginPercent = order.price_margin / 100;
+        amount = amount - amount * marginPercent;
+        amount = Math.floor(amount);
+        order.fee = await getFee(amount, order.community_id);
+        order.amount = amount;  
+      }
     }
 
     // If the price API fails we can't continue with the process
@@ -381,7 +383,7 @@ const showHoldInvoice = async (ctx, bot, order) => {
     });
     let amount;
     if (order.amount === 0) {
-      amount = await getBtcFiatPrice(order.fiat_code, order.fiat_amount);
+      amount = await getTokenAmountFromMarketPrice(order.fiat_code, order.fiat_amount);
       const marginPercent = order.price_margin / 100;
       amount = amount - amount * marginPercent;
       amount = Math.floor(amount);
@@ -689,14 +691,6 @@ const release = async (ctx, orderId, user) => {
     if (user.banned) return await messages.bannedUserErrorMessage(ctx, user);
     const order = await validateReleaseOrder(ctx, user, orderId);
     if (!order) return;
-
-    // // We look for a dispute for this order
-    // const dispute = await Dispute.findOne({ order_id: order._id });
-
-    // if (dispute) {
-    //   dispute.status = 'RELEASED';
-    //   await dispute.save();
-    // } 
 
     await messages.releaseInstructionsMessage(ctx, user, order);
   } catch (error) {

@@ -85,7 +85,7 @@ buy_correct_format: |
 
   `/buy 0 100\-500 USD "payment method" \-2`
 setaddress_cmd_order: |
-  /setaddress ${orderId} \\<Lightning Invoice\\>
+  /setaddress ${orderId} \\<wallet address\\>
 order_id_invalid: Invalid order ID
 order_invalid_type: This ${type} order is invalid
 order_already_taken: This order has already been taken by another user.
@@ -130,7 +130,7 @@ buyer_took_your_order: |
 waiting_seller_to_pay: 'I have sent a request to the seller to lock your ${tokenCode} for the order ${orderId}, as soon the tokens are locked, I will put you both in touch'
 sell_success: Your sale of sats has been completed after confirming payment from @${buyerUsername} ⚡️🍊⚡️
 your_purchase_is_completed: |
-  🪙 Your satoshis purchase has been completed successful, @${sellerUsername} has confirmed your fiat payment and I have paid your invoice, enjoy sound money!
+  Your purchase has been completed successful, @${sellerUsername} has confirmed your fiat payment and I have paid your invoice, enjoy sound money!
 
   ⚡️🍊⚡️
 rate_counterpart: 'Please qualify your counterparty:'
@@ -195,7 +195,7 @@ help: |
   /info - Shows additional info about the BOT
   /showusername - Toggles off the display of the username in each new order created. Default value is se to no (false)
   /showvolume - shows trade volume when each order is created, default value is *no* (false)
-  /setaddress <_order id_> <_wallet address_> - This command allows the buyer to update the ligthning invoice where to receive the sats. 
+  /setaddress <_order id_> <_wallet address_> - This command allows the buyer to set the wallet address where to receive tokens. 
   /setlang - Allows the user to change the language
   /listorders - Use this command to list all your pending transactions. 
   /listcurrencies - Lists all the currencies we can use to without indicatin the amount in sats. 
@@ -230,17 +230,22 @@ release_instructions: |
 you_have_orders_waiting: 🤖 you have one or more orders where the buyer informs that the fiat money was sent to you but you haven´t released the funds yet. You will not be able to create new orders until you release such funds.
 user_banned: Banned user!
 user_not_found: User was not found in the database!
-parse_invoice_error: Error parsing invoice
 invalid_id: Invalid Id
 cant_take_own_order: You cannot take your own order.
 send_me_wallet_address: Please send me the wallet address to receive ${amount} ${tokenCode}.
 you_have_no_orders: You don't have active orders
-not_rate_for_currency: |
+no_rate_for_currency: |
   ${fiatRateProvider} Theres is no exchange rate for this currency,
-  if you want to use this currency you must indicate how many satoshis you want
+  if you want to use this currency you must indicate how many tokens you want
   If you woud like this currency in the listing go to this link to place a request. 👇
 
   🌐 https://yadio.io/api.html
+no_rate_for_token: |
+  ${fiatRateProvider} Theres is no exchange rate for this currency,
+  if you want to use this currency you must indicate how many tokens you want
+  If you woud like this currency in the listing go to this link to place a request. 👇
+
+  🌐 https://api3.org/beacons
 invoice_already_being_paid: You have alreday send an invoice for this order and I am trying to pay it in this very rightmoment.
 cancel_error: This order cannot be cancelled at this moment
 cancel_success: 'You have cancelled the order Id: ${orderId}!'
@@ -250,10 +255,12 @@ order_completed: 'You have completed the order Id: ${orderId}!'
 order_completed_by_admin: 'Admin has completed the order Id: ${orderId}!'
 have_to_wait_for_counterpart: 🕒 You have already made this operation, you must wait for the other party to take action
 ok_cooperativecancel: '👍 Counterparty agreed and the order Id: ${orderId} has been cancelled'
-refund_cooperativecancel: 💰 You have received a refund of your lightning payment, there is no further action to make
+refund_cooperativecancel: |
+  💰 Use this link to get a refund on your loked tokens: wallace-df.github.com/rsbp2pbot/refund
+
+  You can also get the refund link at any type by using the /refundlink command
 init_cooperativecancel: '🕒 You have started the cancelation of the order Id: ${orderId}, your counterparty must agree on cancellation too.'
 counterparty_wants_cooperativecancel: '😳 Your counterparty wants to cancel order Id: ${orderId}, If you agree on such cancellation please execute the follwing command 👇'
-invoice_payment_failed: ⛔ I tried to send you the sats but the payment of your invoice failed, I will try ${attempts} more times in ${pendingPaymentWindow} minutes window, please check your node/wallet is online
 cant_take_more_orders: ⛔ Sorry! You can't take another order while you have others waiting for you
 seller_released: 💸 Seller has already released your funds.
 problem_getting_price: There is a problem accessing this coin price, please try later, if the problem persists, please contact an administrator.
@@ -333,7 +340,12 @@ expired_order_to_seller: |
 didnt_add_wallet_address: '🤨 You have not send the wallet address to receive ${tokenCode} for the Order Id: ${orderId}'
 buyer_havent_added_wallet_address: '😔 Buyer has not sent me the wallet address to receive ${tokenCode} for your Id Order: ${orderId}, your ${tokenCode} will be refunded to you'
 buyer_havent_added_wallet_address_to_admin_channel: 'Buyer @${username} took the orderId: ${orderId} but has not sent the invoice where to receive sats, time has expired, the order has being republished.'
-havent_locked_tokens: '🤨 I could not detect that you have locked the tokens for the Order Id: ${orderId}. If you have locked it already, use this link to get a withdraw your tokens'
+havent_locked_tokens: |
+  '🤨 I could not detect that you have locked the tokens for the Order Id: ${orderId}.'
+
+  If you have locked it already, use this link to get a withdraw your tokens: wallace-df.github.com/rskp2pbot
+
+  You can also get the refund link at any type by using the /refundlink command
 seller_havent_locked_tokens: '😔 Seller has not locked the tokens for your Order Id: ${orderId}, the operation was canceled.'
 seller_havent_add_invoice_to_admin_channel: 'Seller @${username} has not locked the tokens of order Id: ${orderId} time lapse ended and the order has been published again.'
 pending_payment_success_to_admin: |
@@ -399,6 +411,7 @@ enter_premium_discount: Enter the premium(+) or discount(-) to apply to the mark
 no_premium_or_discount: No premium or discount
 enter_payment_method: Enter the payment method
 invalid_currency: Invalid currency
+invalid_token: Invalid currency
 not_number: It must be a number
 not_zero: Cannot be 0 (zero)
 not_negative: Cannot be a negative number

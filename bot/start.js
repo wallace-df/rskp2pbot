@@ -126,7 +126,7 @@ const initialize = (botToken, options) => {
     }
   );
 
-  schedule.scheduleJob(`*/30 * * * * *`, async () => {
+  schedule.scheduleJob(`*/1 * * * *`, async () => {
     //console.log("will escrow orders");
     await escrowOrders(bot);
   });
@@ -203,70 +203,6 @@ const initialize = (botToken, options) => {
 
   DisputeModule.configure(bot);
 
-  bot.command('cancelorder', adminMiddleware, async ctx => {
-    try {
-      const [orderId] = await validateParams(ctx, 2, '\\<_order id_\\>');
-
-      if (!orderId) return;
-      if (!(await validateObjectId(ctx, orderId))) return;
-      const order = await Order.findOne({ _id: orderId });
-
-      if (!order) return;
-
-      // We look for a dispute for this order
-      const dispute = await Dispute.findOne({ order_id: order._id });
-
-      // We check if this is a solver, the order must be from the same community
-      if (!ctx.admin.admin) {
-        if (!order.community_id) {
-          logger.debug(
-            `cancelorder ${order._id}: The order is not in a community`
-          );
-          return await messages.notAuthorized(ctx);
-        }
-
-        if (order.community_id != ctx.admin.default_community_id) {
-          logger.debug(
-            `cancelorder ${order._id}: The community and the default user community are not the same`
-          );
-          return await messages.notAuthorized(ctx);
-        }
-
-        // We check if this dispute is from a community we validate that
-        // the solver is running this command
-        if (dispute && dispute.solver_id != ctx.admin._id) {
-          logger.debug(
-            `cancelorder ${order._id}: @${ctx.admin.username} is not the solver of this dispute`
-          );
-          return await messages.notAuthorized(ctx);
-        }
-      }
-
-      //if (order.hash) await cancelHoldInvoice({ hash: order.hash });
-
-      if (dispute) {
-        dispute.status = 'SELLER_REFUNDED';
-        await dispute.save();
-      }
-
-      logger.info(`order ${order._id}: cancelled by admin`);
-
-      order.status = 'CANCELED_BY_ADMIN';
-      order.canceled_by = ctx.admin._id;
-      const buyer = await User.findOne({ _id: order.buyer_id });
-      const seller = await User.findOne({ _id: order.seller_id });
-      await order.save();
-      // we sent a private message to the admin
-      await messages.successCancelOrderMessage(ctx, ctx.admin, order, ctx.i18n);
-      // we sent a private message to the seller
-      await messages.successCancelOrderByAdminMessage(ctx, bot, seller, order);
-      // we sent a private message to the buyer
-      await messages.successCancelOrderByAdminMessage(ctx, bot, buyer, order);
-    } catch (error) {
-      logger.error(error);
-    }
-  });
-
   // We allow users cancel pending orders,
   // pending orders are the ones that are not taken by another user
   bot.command('cancel', userMiddleware, async ctx => {
@@ -306,63 +242,6 @@ const initialize = (botToken, options) => {
       }
       // we sent a private message to the user
       await messages.successCancelAllOrdersMessage(ctx);
-    } catch (error) {
-      logger.error(error);
-    }
-  });
-
-  bot.command('settleorder', adminMiddleware, async ctx => {
-    try {
-      const [orderId] = await validateParams(ctx, 2, '\\<_order id_\\>');
-
-      if (!orderId) return;
-      if (!(await validateObjectId(ctx, orderId))) return;
-
-      const order = await Order.findOne({ _id: orderId });
-      if (!order) return;
-
-      // We look for a dispute for this order
-      const dispute = await Dispute.findOne({ order_id: order._id });
-
-      // We check if this is a solver, the order must be from the same community
-      if (!ctx.admin.admin) {
-        if (!order.community_id) {
-          return await messages.notAuthorized(ctx);
-        }
-
-        if (order.community_id != ctx.admin.default_community_id) {
-          return await messages.notAuthorized(ctx);
-        }
-
-        // We check if this dispute is from a community we validate that
-        // the solver is running this command
-        if (dispute && dispute.solver_id != ctx.admin.id) {
-          return await messages.notAuthorized(ctx);
-        }
-      }
-
-      if (order.secret) await settleHoldInvoice({ secret: order.secret });
-
-      if (dispute) {
-        dispute.status = 'SETTLED';
-        await dispute.save();
-      }
-
-      order.status = 'COMPLETED_BY_ADMIN';
-      const buyer = await User.findOne({ _id: order.buyer_id });
-      const seller = await User.findOne({ _id: order.seller_id });
-      await order.save();
-      // we sent a private message to the admin
-      await messages.successCompleteOrderMessage(ctx, order);
-      // we sent a private message to the seller
-      await messages.successCompleteOrderByAdminMessage(
-        ctx,
-        bot,
-        seller,
-        order
-      );
-      // we sent a private message to the buyer
-      await messages.successCompleteOrderByAdminMessage(ctx, bot, buyer, order);
     } catch (error) {
       logger.error(error);
     }
@@ -611,8 +490,8 @@ const start = (botToken, options) => {
   logger.notice('Bot launched.');
 
   // Enable graceful stop
-  process.once('SIGINT', () => bot.stop('SIGINT'));
-  process.once('SIGTERM', () => bot.stop('SIGTERM'));
+  process.on('SIGINT', async () => { bot.stop('SIGINT'); await schedule.gracefulShutdown(); process.exit(0) } );
+  process.on('SIGTERM', async () => { bot.stop('SIGINT'); await schedule.gracefulShutdown(); process.exit(0) } );
 
   return bot;
 };

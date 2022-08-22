@@ -116,7 +116,7 @@ const createOrderSteps = {
         if (ctx.message === undefined) return ctx.scene.leave();
         const token = getToken(ctx.message.text.toUpperCase());
         if (!token) {
-          ctx.wizard.state.error = ctx.i18n.t('invalid_currency');
+          ctx.wizard.state.error = ctx.i18n.t('invalid_token');
           return await ctx.wizard.state.updateUI();
         }
         ctx.wizard.state.tokenCode = token.code;
