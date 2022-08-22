@@ -52,7 +52,7 @@ pending_buy: |
   È possibile annullare l'ordine prima che un altro utente lo accetti eseguendo il comando 👇
 must_be_int: ${fieldName} indicare un numero
 must_be_numeric: ${fieldName} deve essere numerico
-sats_amount: importo in sats
+tokens_amount: importo in sats
 fiat_amount: importo in fiat
 sell_correct_format: |
   /sell \<_token amount_\> \<_token code_\> \<_fiat amount_\> \<_fiat code_\> \<_payment method_\> \[_premium/discount_\]
@@ -129,7 +129,6 @@ buyer_took_your_order: |
   Una volta confermata la ricezione dell'importo totale, è necessario sbloccare i satoshi
 waiting_seller_to_pay: "Ho inviato una richiesta di pagamento al venditore in modo che invii i sats per l' ${orderId}, Non appena il pagamento sarà effettuato, vi metterò in contatto"
 sell_success: La vendita di sats è stata completata dopo la conferma del pagamento da parte di @${buyerUsername} ⚡️🍊⚡️
-funds_released: 🕐 @${sellerUsername} ha rilasciato i satoshi, la vostra invoice verrà pagata da un momento all'altro. Ricordata che il tuo wallet deve essere online per ricevere attraverso la rete Lightning.
 rate_counterpart: 'Dai un voto alla tua controparte:'
 cant_process_order: Quest'ordine non può essere elaborato, si prega di controllare che l'ID sia corretto.
 cant_release_order: L'ordine non può essere evaso, l'acquirente non ha inviato la richiesta di pagamento LN

@@ -55,14 +55,14 @@ const subscribeInvoice = async (bot, id, resub) => {
         logger.info(
           `Order ${order._id} - Invoice with hash: ${id} was settled!`
         );
-        order.status = 'PAID_HOLD_INVOICE';
+        order.status = 'RELEASED';
         await order.save();
         const buyerUser = await User.findOne({ _id: order.buyer_id });
         const sellerUser = await User.findOne({ _id: order.seller_id });
         // We need two i18n contexts to send messages to each user
         const i18nCtxBuyer = await getUserI18nContext(buyerUser);
         const i18nCtxSeller = await getUserI18nContext(sellerUser);
-        await messages.releasedSatsMessage(
+        await messages.fundsReleasedMessages(
           bot,
           sellerUser,
           buyerUser,

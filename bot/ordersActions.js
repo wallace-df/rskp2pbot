@@ -235,7 +235,7 @@ const getOrders = async (ctx, user, status) => {
         { status: 'PENDING' },
         { status: 'ACTIVE' },
         { status: 'FIAT_SENT' },
-        { status: 'PAID_HOLD_INVOICE' },
+        { status: 'RELEASED' },
         { status: 'DISPUTE' },
       ];
       where.$and.push({ $or });
@@ -265,6 +265,7 @@ const getNewRangeOrderPayload = async order => {
       const orderData = {
         type: order.type,
         amount: 0,
+        tokenCode: order.token_code,
         // drop newMaxAmount if it is equal to min_amount and create a
         // not range order.
         // Set preserves insertion order, so min_amount will be always

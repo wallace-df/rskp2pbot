@@ -54,7 +54,7 @@ pending_buy: |
   You can cancel this order before another user picks it up by executting the command 👇
 must_be_int: ${fieldName} must be a number
 must_be_numeric: ${fieldName} must be numeric
-sats_amount: sats amount
+tokens_amount: tokens amount
 fiat_amount: fiat amount
 sell_correct_format: |
   /sell \<_token amount_\> \<_token code_\> \<_fiat amount_\> \<_fiat code_\> \<_payment method_\> \[_premium/discount_\]
@@ -110,9 +110,7 @@ someone_took_your_order: |
 
   If you agree with the above, press the button to continue 👇
 you_took_someone_order: |
-  🤖 You took this selling order, please use a fiat payment processor that allows you to send the money immediately and in which there is no risk of freezing funds\\.
-
-  *If for any reason your payment processor puts the payment on pause and the funds do not arrive in less than ${expirationTime}, the sats will return to the seller, putting the buyer at risk and I will not be able to force the seller to send the sats again\\.*
+  🤖 You took this selling order, please use a fiat payment processor that allows you to send the money immediately and in which there is no risk of freezing funds
 
   If you agree with the above, press the button to continue 👇
 get_in_touch_with_seller: |
@@ -122,19 +120,22 @@ get_in_touch_with_seller: |
 fiatsent_order_cmd: |
   /fiatsent ${orderId}
 get_in_touch_with_buyer: |
-  🤖 Get in touch with  @${buyerUsername} so as to give information on how to send you${currency} ${fiatAmount} through ${paymentMethod}. Do not release those sats until you verify that the buyer paid you the fiat.
+  🤖 Get in touch with  @${buyerUsername} so as to give information on how to send you ${currency} ${fiatAmount} through ${paymentMethod}. Do not release your tokens until you verify that the buyer paid you the fiat.
 
-  Once you confirm receeption of the money you must unlock the sats.
+  Once you confirm reception of the money you must release the funds.
 buyer_took_your_order: |
-  @${buyerUsername} has taken your order and wants to buy your sats. Get in touch and tell him how to send you  ${currency} ${fiatAmount} through ${paymentMethod}.
+  @${buyerUsername} has taken your order and wants to buy your ${tokenCode}. Get in touch to receive your ${currency} ${fiatAmount} through ${paymentMethod}.
 
-  Once you verify you have received the full amount you have to release the sats
-waiting_seller_to_pay: 'I have sent a payment request to the seller so he sends your sats for the ${orderId}, as soon as payment is made i will put you both in touch'
+  Once you verify you have received the full amount you have to release the funds
+waiting_seller_to_pay: 'I have sent a request to the seller to lock your ${tokenCode} for the order ${orderId}, as soon the tokens are locked, I will put you both in touch'
 sell_success: Your sale of sats has been completed after confirming payment from @${buyerUsername} ⚡️🍊⚡️
-funds_released: 🕐 @${sellerUsername} already released the satoshis, expect your invoice to be paid any time, remember your wallet needs to be online to receive through lighntning network.
+your_purchase_is_completed: |
+  🪙 Your satoshis purchase has been completed successful, @${sellerUsername} has confirmed your fiat payment and I have paid your invoice, enjoy sound money!
+
+  ⚡️🍊⚡️
 rate_counterpart: 'Please qualify your counterparty:'
 cant_process_order: This order cannot be processed, please check the Id is correct.
-cant_release_order: This order cannot be released, the buyer has not sent an invoice where to pay
+cant_release_order: This order cannot be released, the buyer has not sent the wallet address where to pay
 no_id_related: You do not have any order associated with this Id.
 sell_tokens: Sell ${tokenCode}
 buy_tokens: Buy ${tokenCode}
@@ -199,7 +200,7 @@ help: |
   /listorders - Use this command to list all your pending transactions. 
   /listcurrencies - Lists all the currencies we can use to without indicatin the amount in sats. 
   /fiatsent <_order id_> - Buyer informs that has already sent FIAT money to seller
-  /release <_order id_> - Seller releases satoshis 
+  /release <_order id_> - Seller releases the tokens 
   /dispute <_order id_> - Opens a dispute between participant parties
   /cancel <_order id_> - Cancel an order that has not been taken yet
   /cancelall - Cancel all posted and untaken orders
@@ -216,11 +217,17 @@ help: |
   /help - help messages
 must_be_gt_or_eq: ${fieldName} Must be more or equal to ${qty}
 you_have_been_banned: You have been banned!
-I_told_seller_you_sent_fiat: 🤖 I told  @${sellerUsername} that you have sent fiat money once the seller confirms the money was received, the sats should be sent to you.
-buyer_told_me_that_sent_fiat: 🤖 @${buyerUsername} has informed that already sent you the fiat money, once you confirmed you received it, please release funds. You will not be able to create another order until you release funds.
+I_told_seller_you_sent_fiat: 🤖 I told  @${sellerUsername} that you have sent fiat money. Once the seller confirms it, ${amount} ${tokenCode} should be sent to you.
+buyer_told_me_that_sent_fiat: 🤖 @${buyerUsername} has informed that already sent you the fiat money, once you confirm it, please release the funds. You will not be able to create another order until you release funds.
 release_order_cmd: |
   /release ${orderId}
-you_have_orders_waiting: 🤖 you have one or more orders where the buyer informs that the fiat money was sent to you but you haven´t released the sats ye. You will not be able to create new orders until you release such funds.
+release_instructions: |
+  Use this link to release the funds to the buyer: wallace-df.github.com/rskp2pbot/release/${order._id}
+
+  Only release the funds after you confirm that the buyer has sent the fiat since this operation cannot be reversed.
+
+  Once you release the funds with the link above, the order will be updated automatically.
+you_have_orders_waiting: 🤖 you have one or more orders where the buyer informs that the fiat money was sent to you but you haven´t released the funds yet. You will not be able to create new orders until you release such funds.
 user_banned: Banned user!
 user_not_found: User was not found in the database!
 parse_invoice_error: Error parsing invoice
@@ -234,8 +241,6 @@ not_rate_for_currency: |
   If you woud like this currency in the listing go to this link to place a request. 👇
 
   🌐 https://yadio.io/api.html
-invoice_updated: 📝 Invoice has been correctly updated!
-invoice_updated_and_will_be_paid: Invoices has been correctly updated and will be paid in the next few seconds!
 invoice_already_being_paid: You have alreday send an invoice for this order and I am trying to pay it in this very rightmoment.
 cancel_error: This order cannot be cancelled at this moment
 cancel_success: 'You have cancelled the order Id: ${orderId}!'
@@ -250,11 +255,7 @@ init_cooperativecancel: '🕒 You have started the cancelation of the order Id: 
 counterparty_wants_cooperativecancel: '😳 Your counterparty wants to cancel order Id: ${orderId}, If you agree on such cancellation please execute the follwing command 👇'
 invoice_payment_failed: ⛔ I tried to send you the sats but the payment of your invoice failed, I will try ${attempts} more times in ${pendingPaymentWindow} minutes window, please check your node/wallet is online
 cant_take_more_orders: ⛔ Sorry! You can't take another order while you have others waiting for you
-seller_released: 💸 Seller has already released the satoshis, you must wait for your invoice to be paid.
-your_purchase_is_completed: |
-  🪙 Your satoshis purchase has been completed successful, @${sellerUsername} has confirmed your fiat payment and I have paid your invoice, enjoy sound money!
-
-  ⚡️🍊⚡️
+seller_released: 💸 Seller has already released your funds.
 problem_getting_price: There is a problem accessing this coin price, please try later, if the problem persists, please contact an administrator.
 update_user_setting: I have modify the field  ${field} to ${newState}
 invalid_range_with_amount: |
@@ -271,9 +272,9 @@ created: Created
 yes: Yes
 no: No
 wizard_add_wallet_address_init: |
-  🤖 I need you to send me and invoice for ${satsAmount} satoshis that are worth ${currency} ${fiatAmount} so I can send you the money.
+  🤖 I need you to send me your wallet address where you'll receive ${amount} ${tokenCode} that are worth ${currency} ${fiatAmount}.
 
-  If you do not send the invoice within ${expirationTime} minutes the order will be cancelled
+  If you do not send the address within ${expirationTime} minutes, the order will be cancelled
 wizard_add_wallet_exit: |
   You have exit the wizard mode, you can know write down the commands, you can still add a wallet address to the order with the comand /setaddress indicating Order ID and Wallet Address:
 
@@ -309,7 +310,7 @@ wizard_add_fiat_amount: |
 wizard_add_fiat_wrong_amount: Invalid amount, input must be between ${minAmount} and ${maxAmount}, it must be only numbers.
 wizard_add_fiat_correct_amount: 'Amount: ${currency} ${fiatAmount}.'
 order_expired: This order has expired!
-cant_add_wallet_address: You can no  longer add an invoice to this order!
+cant_add_wallet_address: You can no longer add a wallet address to this order!
 expired_order: |
   This order has expired without completion
 
@@ -320,7 +321,7 @@ expired_order: |
 expired_order_to_buyer: |
   🚨🚨🚨 This order is about to expire and must be completed or canceled immediately, if you haven't sent the fiat money yet you can still cancel with the /cancel command.
 
-  If you sent the fiat money but the seller refuses to release the sats, you can open a dispute with the /dispute command.
+  If you sent the fiat money but the seller refuses to release the funds, you can open a dispute with the /dispute command.
 
   If you need help you can write to the group ${helpGroup}
 expired_order_to_seller: |
@@ -333,8 +334,8 @@ didnt_add_wallet_address: '🤨 You have not send the wallet address to receive 
 buyer_havent_added_wallet_address: '😔 Buyer has not sent me the wallet address to receive ${tokenCode} for your Id Order: ${orderId}, your ${tokenCode} will be refunded to you'
 buyer_havent_added_wallet_address_to_admin_channel: 'Buyer @${username} took the orderId: ${orderId} but has not sent the invoice where to receive sats, time has expired, the order has being republished.'
 havent_locked_tokens: '🤨 I could not detect that you have locked the tokens for the Order Id: ${orderId}. If you have locked it already, use this link to get a withdraw your tokens'
-seller_havent_locked_tokens: '😔 Seller has not locked the tokens for your purchase Id: ${orderId}, the operation was canceled.'
-seller_havent_add_invoice_to_admin_channel: 'Seller @${username} has not paid the invoice of order Id: ${orderId} time lapse ended and the order has been published again.'
+seller_havent_locked_tokens: '😔 Seller has not locked the tokens for your Order Id: ${orderId}, the operation was canceled.'
+seller_havent_add_invoice_to_admin_channel: 'Seller @${username} has not locked the tokens of order Id: ${orderId} time lapse ended and the order has been published again.'
 pending_payment_success_to_admin: |
   User @${username} had a pending invoice, they payment for buying order Id: ${orderId} for ${amount} satoshis, was finally executed after ${attempts} attempts.
 

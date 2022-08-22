@@ -47,6 +47,7 @@ const {
 const messages = require('./messages');
 const {
   attemptPendingPayments,
+  escrowOrders,
   cancelOrders,
   deleteOrders,
   calculateEarnings,
@@ -125,11 +126,18 @@ const initialize = (botToken, options) => {
     }
   );
 
-  schedule.scheduleJob(`*/3 * * * *`, async () => {
+  schedule.scheduleJob(`*/30 * * * * *`, async () => {
+    //console.log("will escrow orders");
+    await escrowOrders(bot);
+  });
+
+  schedule.scheduleJob(`*/30 * * * * *`, async () => {
+    //console.log("will cancel orders");
     await cancelOrders(bot);
   });
 
-  schedule.scheduleJob(`25 * * * *`, async () => {
+  schedule.scheduleJob(`*/30 * * * * *`, async () => {
+    //console.log("will delete orders");
     await deleteOrders(bot);
   });
 
@@ -467,7 +475,7 @@ const initialize = (botToken, options) => {
       });
       if (!order) return await messages.notActiveOrderMessage(ctx);
 
-      if (order.status === 'SUCCESS')
+      if (order.status === 'RELEASE')
         return await messages.successCompleteOrderMessage(ctx, order);
 
 
@@ -482,7 +490,6 @@ const initialize = (botToken, options) => {
       logger.error(error);
     }
   });
-
 
   OrdersModule.configure(bot);
 
@@ -519,30 +526,6 @@ const initialize = (botToken, options) => {
   bot.action(/^release_([0-9a-f]{24})$/, userMiddleware, async ctx => {
     ctx.deleteMessage();
     await release(ctx, ctx.match[1]);
-  });
-
-  bot.command('paytobuyer', adminMiddleware, async ctx => {
-    try {
-      const [orderId] = await validateParams(ctx, 2, '\\<_order id_\\>');
-      if (!orderId) return;
-      if (!(await validateObjectId(ctx, orderId))) return;
-      const order = await Order.findOne({
-        _id: orderId,
-      });
-      if (!order) return await messages.notActiveOrderMessage(ctx);
-
-      // We make sure the buyers invoice is not being paid
-      const isPending = await PendingPayment.findOne({
-        order_id: order._id,
-        attempts: { $lt: process.env.PAYMENT_ATTEMPTS },
-      });
-
-      if (isPending) return;
-
-      await payToBuyer(bot, order);
-    } catch (error) {
-      logger.error(error);
-    }
   });
 
   bot.command('listcurrencies', userMiddleware, async ctx => {

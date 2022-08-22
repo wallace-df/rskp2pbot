@@ -82,7 +82,7 @@ const validateSellOrder = async ctx => {
     amount = parseInt(amount);
     if (isNaN(amount)) {
       await ctx.reply(
-        ctx.i18n.t('must_be_int', { fieldName: ctx.i18n.t('sats_amount') })
+        ctx.i18n.t('must_be_int', { fieldName: ctx.i18n.t('tokens_amount') })
       );
 
       return false;
@@ -175,7 +175,7 @@ const validateBuyOrder = async ctx => {
     amount = parseInt(amount);
     if (isNaN(amount)) {
       await ctx.reply(
-        ctx.i18n.t('must_be_int', { fieldName: ctx.i18n.t('sats_amount') })
+        ctx.i18n.t('must_be_int', { fieldName: ctx.i18n.t('tokens_amount') })
       );
       return false;
     }
@@ -409,7 +409,7 @@ const validateFiatSentOrder = async (ctx, user, orderId) => {
     const where = {
       $and: [
         { buyer_id: user._id },
-        { $or: [{ status: 'ACTIVE' }, { status: 'PAID_HOLD_INVOICE' }] },
+        { $or: [{ status: 'ACTIVE' }, { status: 'RELEASED' }] },
       ],
     };
 
@@ -422,8 +422,8 @@ const validateFiatSentOrder = async (ctx, user, orderId) => {
       return false;
     }
 
-    if (order.status === 'PAID_HOLD_INVOICE') {
-      await messages.sellerPaidHoldMessage(ctx, user);
+    if (order.status === 'RELEASED') {
+      await messages.sellerReleasedMessage(ctx, user);
       return false;
     }
 

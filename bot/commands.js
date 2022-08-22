@@ -223,7 +223,7 @@ const rateUser = async (ctx, bot, rating, orderId) => {
     }
 
     // User can only rate other after a successful exchange
-    if (!(order.status === 'SUCCESS' || order.status === 'PAID_HOLD_INVOICE')) {
+    if (order.status !== 'RELEASED') {
       await messages.invalidDataMessage(ctx, bot, targetUser);
       return;
     }
@@ -333,13 +333,8 @@ const cancelAddWalletAddress = async (ctx, bot, order) => {
       }
       await order.save();
       if (!userAction) {
-        await messages.toAdminChannelBuyerDidntAddInvoiceMessage(
-          bot,
-          user,
-          order,
-          i18nCtx
-        );
         await messages.toBuyerDidntAddWalletAddressMessage(bot, user, order, i18nCtx);
+        await messages.toAdminChannelBuyerDidntAddInvoiceMessage(bot, user, order, i18nCtx);
       } else {
         await messages.successCancelOrderMessage(ctx, user, order, i18nCtx);
       }
@@ -416,7 +411,7 @@ const showHoldInvoice = async (ctx, bot, order) => {
   }
 };
 
-const cancelLockTokensRequest = async (bot, order) => {
+const cancelLockTokensRequest = async (ctx, bot, order) => {
   try {
     const sellerUser = await User.findOne({ _id: order.seller_id });
     const buyerUser = await User.findOne({ _id: order.buyer_id });
@@ -694,15 +689,16 @@ const release = async (ctx, orderId, user) => {
     if (user.banned) return await messages.bannedUserErrorMessage(ctx, user);
     const order = await validateReleaseOrder(ctx, user, orderId);
     if (!order) return;
-    // We look for a dispute for this order
-    const dispute = await Dispute.findOne({ order_id: order._id });
 
-    if (dispute) {
-      dispute.status = 'RELEASED';
-      await dispute.save();
-    }
+    // // We look for a dispute for this order
+    // const dispute = await Dispute.findOne({ order_id: order._id });
 
-    await settleHoldInvoice({ secret: order.secret });
+    // if (dispute) {
+    //   dispute.status = 'RELEASED';
+    //   await dispute.save();
+    // } 
+
+    await messages.releaseInstructionsMessage(ctx, user, order);
   } catch (error) {
     logger.error(error);
   }

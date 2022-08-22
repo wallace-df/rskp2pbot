@@ -64,13 +64,13 @@ const OrderSchema = new mongoose.Schema({
       'WAITING_PAYMENT', // buyer waiting for seller to lock tokens
       'WAITING_BUYER_ADDRESS', // seller waiting for buyer inform the address where he/she will receive the tokens
       'PENDING', // order published on CHANNEL but not taken yet
+      'CLOSED', // order closed before being accepted
       'ACTIVE', //  order taken
+      'CANCELED', // order cancelled
       'FIAT_SENT', // buyer indicates the fiat payment is already done
-      'CLOSED', // order closed
+      'RELEASED', // seller released funds
       'DISPUTE', // one of the parties started a dispute
-      'CANCELED',
-      'SUCCESS',
-      'PAID_HOLD_INVOICE', // seller released funds
+      'SUCCESS', // fixme: simplified by RELEASED status.
       'CANCELED_BY_ADMIN',
       'EXPIRED', // Expired orders, stated changed by a job
       'COMPLETED_BY_ADMIN',

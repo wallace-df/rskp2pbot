@@ -72,7 +72,7 @@ const handleReputationItems = async (buyer, seller, amount) => {
   try {
     const yesterday = new Date(Date.now() - 86400000).toISOString();
     const orders = await Order.find({
-      status: 'SUCCESS',
+      status: 'RELEASED',
       seller_id: buyer._id,
       buyer_id: seller._id,
       taken_at: { $gte: yesterday },

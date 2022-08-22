@@ -22,10 +22,7 @@ const cancelOrders = async bot => {
         await cancelAddWalletAddress(null, bot, order);
       }
     }
-    // We get the expired order where the seller sent the sats but never released the order
-    // In this case we use another time field, `tokens_held_at` is the time when the
-    // seller sent the money to the hold invoice, this is an important moment cause
-    // we don't want to have a CLTV timeout
+    // We get orders where the seller locked the tokens but never released them.
     const orderTime = new Date();
     orderTime.setSeconds(orderTime.getSeconds() - parseInt(process.env.ORDER_EXPIRATION_WINDOW));
     const activeOrders = await Order.find({

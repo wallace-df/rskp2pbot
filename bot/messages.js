@@ -355,6 +355,7 @@ const onGoingTakeSellMessage = async (
     await bot.telegram.sendMessage(
       sellerUser.tg_id,
       i18nSeller.t('buyer_took_your_order', {
+        tokenCode: order.token_code,
         fiatAmount: order.fiat_amount,
         paymentMethod: order.payment_method,
         currency,
@@ -375,14 +376,22 @@ const takeSellWaitingSellerToPayMessage = async (
   try {
     await bot.telegram.sendMessage(
       buyerUser.tg_id,
-      ctx.i18n.t('waiting_seller_to_pay', { orderId: order._id })
+      ctx.i18n.t('waiting_seller_to_pay', { orderId: order._id, tokenCode: order.token_code })
     );
   } catch (error) {
     logger.error(error);
   }
 };
 
-const releasedSatsMessage = async (
+const releaseInstructionsMessage = async(ctx, user, order) => {
+  try {
+    await ctx.telegram.sendMessage(user.tg_id, ctx.i18n.t('release_instructions', { order }));
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+const fundsReleasedMessages = async (
   bot,
   sellerUser,
   buyerUser,
@@ -396,7 +405,7 @@ const releasedSatsMessage = async (
     );
     await bot.telegram.sendMessage(
       buyerUser.tg_id,
-      i18nBuyer.t('funds_released', { sellerUsername: sellerUser.username })
+      i18nBuyer.t('your_purchase_is_completed', { sellerUsername: sellerUser.username })
     );
   } catch (error) {
     logger.error(error);
@@ -533,7 +542,6 @@ const checkOrderMessage = async (ctx, order, buyer, seller) => {
   }
 };
 
-
 const mustBeValidToken = async ctx => {
   try {
     await ctx.reply(ctx.i18n.t('must_be_valid_token'));
@@ -604,6 +612,8 @@ const fiatSentMessages = async (
       buyer.tg_id,
       i18nBuyer.t('I_told_seller_you_sent_fiat', {
         sellerUsername: seller.username,
+        amount: order.amount,
+        tokenCode: order.token_code
       })
     );
     await ctx.telegram.sendMessage(
@@ -717,30 +727,6 @@ const notRateForCurrency = async (bot, user, i18n) => {
         fiatRateProvider: process.env.FIAT_RATE_NAME,
       })
     );
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const invoiceUpdatedMessage = async ctx => {
-  try {
-    await ctx.reply(ctx.i18n.t('invoice_updated'));
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const invoiceUpdatedPaymentWillBeSendMessage = async ctx => {
-  try {
-    await ctx.reply(ctx.i18n.t('invoice_updated_and_will_be_paid'));
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const invoiceAlreadyUpdatedMessage = async ctx => {
-  try {
-    await ctx.reply(ctx.i18n.t('invoice_already_being_paid'));
   } catch (error) {
     logger.error(error);
   }
@@ -892,7 +878,7 @@ const userCantTakeMoreThanOneWaitingOrderMessage = async (ctx, bot, user) => {
   }
 };
 
-const sellerPaidHoldMessage = async (ctx, user) => {
+const sellerReleasedMessage = async (ctx, user) => {
   try {
     await ctx.telegram.sendMessage(user.tg_id, ctx.i18n.t('seller_released'));
   } catch (error) {
@@ -912,19 +898,6 @@ const showInfoMessage = async (bot, user, info) => {
     // if (status) {
     //   await bot.telegram.sendMessage(user.tg_id, `*Node pubkey*: ${info.public_key}\n`, { parse_mode: "MarkdownV2" });
     // }
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const buyerReceivedSatsMessage = async (bot, buyerUser, sellerUser, i18n) => {
-  try {
-    await bot.telegram.sendMessage(
-      buyerUser.tg_id,
-      i18n.t('your_purchase_is_completed', {
-        sellerUsername: sellerUser.username,
-      })
-    );
   } catch (error) {
     logger.error(error);
   }
@@ -1005,7 +978,8 @@ const wizardAddWalletAddressInitMessage = async (
     await ctx.reply(
       ctx.i18n.t('wizard_add_wallet_address_init', {
         expirationTime,
-        satsAmount: numberFormat(order.fiat_code, order.amount),
+        amount: numberFormat(order.fiat_code, order.amount),
+        tokenCode: order.token_code,
         currency,
         fiatAmount: numberFormat(order.fiat_code, order.fiat_amount),
       })
@@ -1412,7 +1386,6 @@ module.exports = {
   notOrdersMessage,
   notRateForCurrency,
   beginTakeSellMessage,
-  invoiceUpdatedMessage,
   counterPartyWantsCooperativeCancelMessage,
   initCooperativeCancelMessage,
   okCooperativeCancelMessage,
@@ -1424,16 +1397,14 @@ module.exports = {
   badStatusOnCancelOrderMessage,
   invoicePaymentFailedMessage,
   userCantTakeMoreThanOneWaitingOrderMessage,
-  buyerReceivedSatsMessage,
-  releasedSatsMessage,
+  releaseInstructionsMessage,
+  fundsReleasedMessages,
   rateUserMessage,
   listCurrenciesResponse,
   priceApiFailedMessage,
   showHoldInvoiceMessage,
   waitingForBuyerOrderMessage,
-  invoiceUpdatedPaymentWillBeSendMessage,
-  invoiceAlreadyUpdatedMessage,
-  sellerPaidHoldMessage,
+  sellerReleasedMessage,
   showInfoMessage,
   sendBuyerInfo2SellerMessage,
   updateUserSettingsMessage,

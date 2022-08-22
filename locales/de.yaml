@@ -52,7 +52,7 @@ pending_buy: |
   Bevor ein anderer Benutzer dein Angebot annimmt, kannst du diesen mit dem folgenden Befehl stornieren 👇
 must_be_int: ${fieldName} muss eine gültige Nummer sein
 must_be_numeric: ${fieldName} muss numerisch sein
-sats_amount: sats Wert
+tokens_amount: sats Wert
 fiat_amount: fiat Wert
 sell_correct_format: |
   /sell \<_token amount_\> \<_token code_\> \<_fiat amount_\> \<_fiat code_\> \<_payment method_\> \[_premium/discount_\]
@@ -129,7 +129,6 @@ buyer_took_your_order: |
   Sobald du überprüft hast, dass du den vollen Betrag erhalten hast, musst du die Sats freigeben
 waiting_seller_to_pay: 'Ich habe eine Zahlungsaufforderung an den Verkäufer geschickt, damit er deine Sats für die ${orderId} schickt, sobald die Zahlung erfolgt ist, werde ich euch beide in Kontakt setzen'
 sell_success: Dein Verkauf von Sats wurde abgeschlossen, nachdem die Zahlung von @${buyerUsername} bestätigt wurde. ⚡️🍊⚡️
-funds_released: 🕐 @${sellerUsername} hat die Sats bereits freigegeben. Du kannst jederzeit mit der Bezahlung deiner LN-Rechnung rechnen, aber denke daran, dass deine Wallet online sein muss, um über das Lightning-Netzwerk zu empfangen.
 rate_counterpart: 'Bitte bewerte deine Gegenpartei:'
 cant_process_order: Dieser Auftrag kann nicht bearbeitet werden. Bitte überprüfe, ob die ID korrekt ist.
 cant_release_order: Dieser Auftrag kann nicht freigegeben werden, der Käufer hat keine LN-Rechnung geschickt.

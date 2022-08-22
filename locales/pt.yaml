@@ -52,7 +52,7 @@ pending_buy: |
   Você pode cancelar este pedido antes que outro usuário o retire executando o comando 👇
 must_be_int: ${fieldName} deve ser um número
 must_be_numeric: ${fieldName} deve ser numérico
-sats_amount: quantidade de sats
+tokens_amount: quantidade de sats
 fiat_amount: quantidade fiduciária
 sell_correct_format: |
   /sell \<_token amount_\> \<_token code_\> \<_fiat amount_\> \<_fiat code_\> \<_payment method_\> \[_premium/discount_\]
@@ -129,7 +129,6 @@ buyer_took_your_order: |
   Depois de verificar se você recebeu o valor total, você precisa liberar os sats
 waiting_seller_to_pay: 'Enviei uma solicitação de pagamento ao vendedor para que ele envie seus sats para o ${orderId}, Assim que o pagamento for feito, vou colocar vocês em contato'
 sell_success: Sua venda de SATs foi concluída após a confirmação do pagamento de @${buyerUsername} ⚡️🍊⚡️
-funds_released: 🕐 @${sellerUsername} Já lançou os Satoshis, espere que sua fatura seja paga a qualquer momento, lembre-se de que sua carteira precisa estar online para receber através da Lightning Network.
 rate_counterpart: 'Por favor, qualifique sua contraparte:'
 cant_process_order: Este pedido não pode ser processado, verifique se o ID está correto.
 cant_release_order: Este pedido não pode ser divulgado, o comprador não enviou uma fatura para onde pagar
