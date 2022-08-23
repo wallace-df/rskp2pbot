@@ -1,4 +1,4 @@
-const { User, Order } = require('../models');
+const { User, Order, Dispute } = require('../models');
 const messages = require('../bot/messages');
 const ordersActions = require('../bot/ordersActions');
 const { handleReputationItems, getUserI18nContext } = require('../util');

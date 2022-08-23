@@ -1,4 +1,4 @@
-const { getOrderChannel, sanitizeMD } = require('../../../util');
+const { getOrderChannel, sanitizeMD, getToken, formatUnit } = require('../../../util');
 
 exports.listOrdersResponse = async orders => {
   const tasks = orders.map(async order => {
@@ -39,16 +39,23 @@ exports.listOrdersResponse = async orders => {
 exports.createOrderWizardStatus = (i18n, state) => {
   const { type, priceMargin } = state;
   const action = type === 'sell' ? i18n.t('selling') : i18n.t('buying');
-  const tokenAmount = state.tokenAmount ? state.tokenAmount + ' ' : '';
   const paymentAction =
     type === 'sell' ? i18n.t('receive_payment') : i18n.t('pay');
   const fiatAmount =
     undefined === state.fiatAmount ? '__' : state.fiatAmount.join('-');
-  const token = state.tokenCode || '__';
   const currency = state.currency || '__';
 
+  let formattedAmount = '';
+  if (state.tokenAmount && state.tokenCode) {
+    let token  = getToken(state.tokenCode);
+    formattedAmount = `${formatUnit(state.tokenAmount, token.decimals)} ${token.code}`
+  } else if (state.tokenCode) {
+    formattedAmount = state.tokenCode;
+  }
+
+  
   const text = [
-    `${action} ${tokenAmount}${token}`,
+    `${action} ${formattedAmount}`,
     `${i18n.t('for')} ${fiatAmount} ${currency}.`,
     `${paymentAction} ${i18n.t('by')} ${state.method || '__'}`,
     priceMargin

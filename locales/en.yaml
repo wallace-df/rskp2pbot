@@ -31,11 +31,11 @@ start: |
 init_bot_error: to use this Bot you need to first initialize the boot with the command /start
 non_handle_error: 👤 To use this bot you need to activate your Telegram Username, to activate it open the hamburger menu on the top left and select settings -> edit profile -> username
 lock_tokens_request: |
-  Somebody wants to buy you ${order.amount} ${order.token_code} for ${currency} ${order.fiat_amount}.
+  Somebody wants to buy you ${formattedAmount} for ${currency} ${order.fiat_amount}.
 
   Buyer Reputation: ${rate}
 
-  To start the selling process, please use this link to lock ${order.amount} ${order.token_code} : wallace-df.github.com/rskp2pbot/ 
+  To start the selling process, please use this link to lock ${formattedAmount} : wallace-df.github.com/rskp2pbot/ 
 
   You have ${expirationTime} minutes to lock the tokens. After that, the trade will be cancelled and any locked tokens will be refunded to you.
 pending_sell: |
@@ -54,7 +54,7 @@ pending_buy: |
   You can cancel this order before another user picks it up by executting the command 👇
 must_be_int: ${fieldName} must be a number
 must_be_numeric: ${fieldName} must be numeric
-tokens_amount: tokens amount
+token_amount: tokens amount
 fiat_amount: fiat amount
 sell_correct_format: |
   /sell \<_token amount_\> \<_token code_\> \<_fiat amount_\> \<_fiat code_\> \<_payment method_\> \[_premium/discount_\]
@@ -217,7 +217,7 @@ help: |
   /help - help messages
 must_be_gt_or_eq: ${fieldName} Must be more or equal to ${qty}
 you_have_been_banned: You have been banned!
-I_told_seller_you_sent_fiat: 🤖 I told  @${sellerUsername} that you have sent fiat money. Once the seller confirms it, ${amount} ${tokenCode} should be sent to you.
+I_told_seller_you_sent_fiat: 🤖 I told  @${sellerUsername} that you have sent fiat money. Once the seller confirms it, ${formattedAmount} should be sent to you.
 buyer_told_me_that_sent_fiat: 🤖 @${buyerUsername} has informed that already sent you the fiat money, once you confirm it, please release the funds. You will not be able to create another order until you release funds.
 release_order_cmd: |
   /release ${orderId}
@@ -232,7 +232,7 @@ user_banned: Banned user!
 user_not_found: User was not found in the database!
 invalid_id: Invalid Id
 cant_take_own_order: You cannot take your own order.
-send_me_wallet_address: Please send me the wallet address to receive ${amount} ${tokenCode}.
+send_me_wallet_address: Please send me the wallet address to receive ${formattedAmount}.
 you_have_no_orders: You don't have active orders
 no_rate_for_currency: |
   ${fiatRateProvider} Theres is no exchange rate for this currency,
@@ -279,7 +279,7 @@ created: Created
 yes: Yes
 no: No
 wizard_add_wallet_address_init: |
-  🤖 I need you to send me your wallet address where you'll receive ${amount} ${tokenCode} that are worth ${currency} ${fiatAmount}.
+  🤖 I need you to send me your wallet address where you'll receive ${formattedAmount} that are worth ${currency} ${fiatAmount}.
 
   If you do not send the address within ${expirationTime} minutes, the order will be cancelled
 wizard_add_wallet_exit: |
@@ -402,7 +402,7 @@ new_dispute: ⚠️⚠️⚠️ A user has started a dispute, touch the button t
 take_dispute: Take dispute
 not_authorized: 🤨 You are not authorized to perform this operation
 need_default_community: To perform this operation you need to have a default community
-enter_coins_amount: Enter ${tokenCode} amount, enter only numbers.
+enter_token_amount: Enter ${tokenCode} amount (e.g, 0.0001)
 market_price: Market price
 enter_currency: 'Enter a currency by your code, eg: USD'
 choose_currency: Choose a currency
@@ -412,6 +412,7 @@ no_premium_or_discount: No premium or discount
 enter_payment_method: Enter the payment method
 invalid_currency: Invalid currency
 invalid_token: Invalid currency
+invalid_amount: Invalid amount
 not_number: It must be a number
 not_zero: Cannot be 0 (zero)
 not_negative: Cannot be a negative number

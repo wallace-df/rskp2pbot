@@ -1,11 +1,13 @@
 const { TelegramError } = require('telegraf');
 const QR = require('qrcode');
 const {
+  getToken,
   getCurrency,
   numberFormat,
+  formatUnit,
   getDetailedOrder,
   secondsToTime,
-  getOrderChannel,
+  getOrderChannel  
 } = require('../util');
 const logger = require('../logger');
 
@@ -52,6 +54,7 @@ const lockTokensRequestMessage = async (
 ) => {
   try {
     let currency = getCurrency(order.fiat_code);
+    let token = getToken(order.token_code);
     currency =
       !!currency && !!currency.symbol_native
         ? currency.symbol_native
@@ -63,6 +66,7 @@ const lockTokensRequestMessage = async (
       order,
       expirationTime,
       rate,
+      formattedAmount: formatUnit(order.amount, token.decimals) + ' ' + token.code
     });
     await ctx.telegram.sendMessage(user.tg_id, message);
   } catch (error) {
@@ -608,12 +612,13 @@ const fiatSentMessages = async (
   i18nSeller
 ) => {
   try {
+    let token = getToken(order.token_code);
     await ctx.telegram.sendMessage(
       buyer.tg_id,
       i18nBuyer.t('I_told_seller_you_sent_fiat', {
         sellerUsername: seller.username,
         amount: order.amount,
-        tokenCode: order.token_code
+        formattedAmount: formatUnit(order.amount, token.decimals) + ' ' + token.code
       })
     );
     await ctx.telegram.sendMessage(
@@ -680,7 +685,9 @@ const cantTakeOwnOrderMessage = async (ctx, bot, user) => {
 
 const noWalletAddressMessage = async (ctx, order) => {
   try {
-    await ctx.reply(ctx.i18n.t('send_me_wallet_address', { amount: order.amount, tokenCode: order.token_code }));
+    let token = getToken(order.token_code);
+    let formattedAmount = formatUnit(order.amount, token.decimals) + ' ' + token.code;
+    await ctx.reply(ctx.i18n.t('send_me_wallet_address', { formattedAmount }));
     await ctx.reply(
       ctx.i18n.t('setaddress_cmd_order', { orderId: order._id }),
       { parse_mode: 'MarkdownV2' }
@@ -954,13 +961,13 @@ const wizardAddWalletAddressInitMessage = async (
   expirationTime
 ) => {
   try {
+    let token = getToken(order.token_code);
     await ctx.reply(
       ctx.i18n.t('wizard_add_wallet_address_init', {
         expirationTime,
-        amount: numberFormat(order.fiat_code, order.amount),
-        tokenCode: order.token_code,
         currency,
         fiatAmount: numberFormat(order.fiat_code, order.fiat_amount),
+        formattedAmount: formatUnit(order.amount, token.decimals) + ' ' + token.code 
       })
     );
   } catch (error) {

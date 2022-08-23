@@ -52,7 +52,7 @@ pending_buy: |
   Você pode cancelar este pedido antes que outro usuário o retire executando o comando 👇
 must_be_int: ${fieldName} deve ser um número
 must_be_numeric: ${fieldName} deve ser numérico
-tokens_amount: quantidade de sats
+token_amount: quantidade de sats
 fiat_amount: quantidade fiduciária
 sell_correct_format: |
   /sell \<_token amount_\> \<_token code_\> \<_fiat amount_\> \<_fiat code_\> \<_payment method_\> \[_premium/discount_\]
@@ -384,7 +384,7 @@ new_dispute: ⚠️⚠️⚠️ Um usuário iniciou uma disputa, toque no botão
 take_dispute: Tomar disputa
 not_authorized: 🤨 Você não está autorizado a executar esta operação
 need_default_community: Para executar esta operação, você precisa ter uma comunidade padrão
-enter_coins_amount: Digite o valor do SATS, digite apenas números.
+enter_token_amount: Digite o valor do SATS, digite apenas números.
 market_price: Preço de mercado
 enter_currency: 'Digite uma moeda pelo seu código, por exemplo: USD'
 choose_currency: Escolha uma moeda

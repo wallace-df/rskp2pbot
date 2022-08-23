@@ -1,6 +1,6 @@
 const { Scenes, Markup } = require('telegraf');
 const logger = require('../../../logger');
-const { getCurrency } = require('../../../util');
+const { getCurrency, getToken, toBaseUnit } = require('../../../util');
 const ordersActions = require('../../ordersActions');
 const {
   publishBuyOrderMessage,
@@ -120,11 +120,18 @@ const createOrderSteps = {
           return await ctx.wizard.state.updateUI();
         }
         ctx.wizard.state.tokenCode = token.code;
+        ctx.wizard.state.tokenDecimals = token.decimals;
         await ctx.wizard.state.updateUI();
       } else {
         if (!ctx.callbackQuery) return;
         const tokenCode = ctx.callbackQuery.data;
+        const tokenObj = getToken(tokenCode);
+        if (!tokenObj) {
+          ctx.wizard.state.error = ctx.i18n.t('invalid_token');
+          return await ctx.wizard.state.updateUI();
+        }
         ctx.wizard.state.tokenCode = tokenCode;
+        ctx.wizard.state.tokenDecimals = tokenObj.decimals;
         await ctx.wizard.state.updateUI();
       }
       return deletePrompt();
@@ -266,7 +273,6 @@ const createOrderPrompts = {
       Markup.inlineKeyboard(rows)
     );
   },
-
   async currency(ctx) {
     const { currencies } = ctx.wizard.state;
     if (!currencies) return ctx.reply(ctx.i18n.t('enter_currency'));
@@ -295,7 +301,7 @@ const createOrderPrompts = {
       'marketPrice'
     );
     return ctx.reply(
-      ctx.i18n.t('enter_coins_amount', {tokenCode}),
+      ctx.i18n.t('enter_token_amount', {tokenCode}),
       Markup.inlineKeyboard([button])
     );
   },
@@ -325,13 +331,24 @@ const createOrderHandlers = {
     return true;
   },
   async tokenAmount(ctx) {
+    const { tokenDecimals } = ctx.wizard.state;
+
     if (ctx.callbackQuery) {
       ctx.wizard.state.tokenAmount = 0;
       await ctx.wizard.state.updateUI();
       return true;
     }
-    const input = ctx.message.text;
+    let input = ctx.message.text;
     await ctx.deleteMessage();
+
+    try {
+      input = Number(toBaseUnit(input, tokenDecimals).toString());
+    } catch(err) {
+      console.log(err);
+      ctx.wizard.state.error = ctx.i18n.t('invalid_amount');
+      await ctx.wizard.state.updateUI();
+      return;
+    }
     if (isNaN(input)) {
       ctx.wizard.state.error = ctx.i18n.t('not_number');
       await ctx.wizard.state.updateUI();

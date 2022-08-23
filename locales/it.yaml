@@ -52,7 +52,7 @@ pending_buy: |
   È possibile annullare l'ordine prima che un altro utente lo accetti eseguendo il comando 👇
 must_be_int: ${fieldName} indicare un numero
 must_be_numeric: ${fieldName} deve essere numerico
-tokens_amount: importo in sats
+token_amount: importo in sats
 fiat_amount: importo in fiat
 sell_correct_format: |
   /sell \<_token amount_\> \<_token code_\> \<_fiat amount_\> \<_fiat code_\> \<_payment method_\> \[_premium/discount_\]
@@ -383,7 +383,7 @@ new_dispute: ⚠️⚠️⚠️ Un utente ha avviato una disputa, premi il pulsa
 take_dispute: Tprendi la disputa
 not_authorized: 🤨 Non sei autorizzati ad eseguire questa operazione
 need_default_community: Per eseguire questa operazione è necessario disporre di una community di default
-enter_coins_amount: Immettere l'importo dei sats inserendo solo numeri.
+enter_token_amount: Immettere l'importo dei sats inserendo solo numeri.
 market_price: Prezzo di mercato
 enter_currency: 'Inserisci una valuta con il relativo codice, ad es: EUR'
 choose_currency: Scegli una valuta

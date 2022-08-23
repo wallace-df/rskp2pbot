@@ -4,6 +4,7 @@ const currencies = require('./fiat.json');
 const tokens = require('./tokens_testnet.json');
 const languages = require('./languages.json');
 const { Order, Community } = require('../models');
+const BN = require('bn.js');
 const logger = require('../logger');
 
 // ISO 4217, all ISO currency codes are 3 letters but users can trade shitcoins
@@ -21,16 +22,10 @@ const isIso4217 = code => {
   });
 };
 
-const isSupportedToken = code => {
-  const token = tokens[code];
-  if (!token) return false;
-
-  return true;
-};
 
 const getToken = code => {
   const token = tokens[code];
-  if (!token) return false;
+  if (!token || (token.decimals === undefined || token.decimals === null)) return false;
 
   return token;
 };
@@ -63,6 +58,81 @@ const numberFormat = (code, number) => {
   if (!locale || isNaN(number)) return number;
 
   return numberToLocaleString.format(number);
+};
+
+const toBaseUnit = (value, decimals) => {
+  value = String(value);
+  const regexStr = "^(0|[1-9]\\d*)(\\.\\d{0," + decimals + "})?$";
+
+  if (decimals === undefined || decimals === null) {
+    throw Error("No decimals");
+  }
+  if (new RegExp(regexStr).test(value) === false) {
+      throw new Error("INVALID_NUMBER")
+  }
+
+  const ten = new BN(10);
+  const base = ten.pow(new BN(decimals));
+
+  // Is it negative?
+  let negative = (value.substring(0, 1) === "-");
+  if (negative) {
+      value = value.substring(1);
+  }
+
+  if (value === ".") {
+      throw new Error(
+          `Invalid value ${value} cannot be converted to`
+          + ` base unit with ${decimals} decimals.`);
+  }
+
+  // Split it into a whole and fractional part
+  let comps = value.split(".");
+  if (comps.length > 2) { throw new Error("Too many decimal points"); }
+
+  let whole = comps[0], fraction = comps[1];
+
+  if (!whole) { whole = "0"; }
+  if (!fraction) { fraction = "0"; }
+  if (fraction.length > decimals) {
+      throw new Error("Too many decimal places");
+  }
+
+  while (fraction.length < decimals) {
+      fraction += "0";
+  }
+
+  whole = new BN(whole, 10);
+  fraction = new BN(fraction, 10);
+  let baseUnit = (whole.mul(base)).add(fraction);
+
+  if (negative) {
+    baseUnit = baseUnit.neg();
+  }
+
+  return new BN(baseUnit.toString(10), 10);
+};
+
+const formatUnit = (value, decimals) => {
+  value = new BN(String(value), 10);
+  let base = new BN('10',10).pow(new BN(String(decimals),10));
+  let fraction = value.mod(base).toString(10);
+
+  while (fraction.length < decimals) {
+      fraction = `0${fraction}`;
+  }
+
+  fraction = fraction.match(/^([0-9]*[1-9]|0)(0*)/)[1];
+
+  let whole = value.div(base).toString(10);
+  value = `${whole}.${fraction}`;
+
+  let paddingZeroes = decimals - fraction.length;
+  while (paddingZeroes > 0) {
+      paddingZeroes--;
+      value = `${value}0`;
+  }
+  return value;
 };
 
 // This function checks if the current buyer and seller were doing circular operations
@@ -416,10 +486,11 @@ const getLanguageFlag = code => {
 
 module.exports = {
   isIso4217,
-  isSupportedToken,
   plural,
   getToken,
   getCurrency,
+  toBaseUnit,
+  formatUnit,
   handleReputationItems,
   getTokenAmountFromMarketPrice,
   getBtcExchangePrice,

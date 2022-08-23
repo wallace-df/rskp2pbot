@@ -110,7 +110,6 @@ const waitPayment = async (ctx, bot, buyer, seller, order, buyerAddress) => {
     //   fiatCode: order.fiat_code,
     //   fiatAmount: order.fiat_amount,
     // });
-    const amount = Math.floor(order.amount + order.fee);
     
     // FIXME: generate secret, hash
     // const { request, hash, secret } = await generateSecretAndHash({
@@ -177,7 +176,7 @@ const addWalletAddress = async (ctx, bot, order) => {
     let amount = order.amount;
     if (amount === 0) {
       amount = await getTokenAmountFromMarketPrice(order.fiat_code, order.fiat_amount, order.token_code);
-      if (amount) {
+      if (amount > 0) {
         const marginPercent = order.price_margin / 100;
         amount = amount - amount * marginPercent;
         amount = Math.floor(amount);

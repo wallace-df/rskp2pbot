@@ -52,7 +52,7 @@ pending_buy: |
   Bevor ein anderer Benutzer dein Angebot annimmt, kannst du diesen mit dem folgenden Befehl stornieren 👇
 must_be_int: ${fieldName} muss eine gültige Nummer sein
 must_be_numeric: ${fieldName} muss numerisch sein
-tokens_amount: sats Wert
+token_amount: sats Wert
 fiat_amount: fiat Wert
 sell_correct_format: |
   /sell \<_token amount_\> \<_token code_\> \<_fiat amount_\> \<_fiat code_\> \<_payment method_\> \[_premium/discount_\]
@@ -386,7 +386,7 @@ new_dispute: ⚠️⚠️⚠️ Ein Benutzer hat einen Streitfall eröffnet. Dr�
 take_dispute: Streitfall übernehmen
 not_authorized: 🤨 Du bist nicht berechtigt diese Aktion durchzuführen
 need_default_community: Um diese Aktion durchzufüren, musst du eine Standart-Community gesetzt haben
-enter_coins_amount: Sats-Betrag eingeben, Geben Sie nur Zahlen ein.
+enter_token_amount: Sats-Betrag eingeben, Geben Sie nur Zahlen ein.
 market_price: Marktpreis
 enter_currency: 'Gib eine Währung anhand des Codes ein, z.B.: USD'
 choose_currency: Wähle eine Währung

@@ -9,6 +9,7 @@ const {
   getEmojiRate,
   decimalRound,
   getFee,
+  formatUnit
 } = require('../util');
 const logger = require('../logger');
 
@@ -161,8 +162,7 @@ const buildDescription = (
 
     if (currency)
       currencyString = `${fiatAmountString} ${currency.name_plural} ${currency.emoji}`;
-
-    let amountText = `${numberFormat(fiatCode, amount)} `;
+    let amountText = `${formatUnit(amount, token.decimals)} ${token.code}`;
     let tasaText = '';
     if (priceFromAPI) {
       amountText = '';
@@ -181,7 +181,7 @@ const buildDescription = (
     }
 
     let description =
-      `${username}${action} ${amountText}` + token.code + `\n`;
+      `${username}${action} ${amountText}\n`;
     description += i18n.t('for') + ` ${currencyString}\n`;
     description += `${paymentAction} ` + i18n.t('by') + ` ${paymentMethod}\n`;
     description += i18n.t('has_successful_trades', { trades }) + `\n`;

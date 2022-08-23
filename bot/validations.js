@@ -1,7 +1,7 @@
 const { ObjectId } = require('mongoose').Types;
 const messages = require('./messages');
 const { Order, User, Community } = require('../models');
-const { isIso4217, isDisputeSolver, isSupportedToken } = require('../util');
+const { isIso4217, isDisputeSolver, getToken, toBaseUnit } = require('../util');
 const logger = require('../logger');
 
 // We look in database if the telegram user exists,
@@ -79,17 +79,22 @@ const validateSellOrder = async ctx => {
       return false;
     }
 
-    amount = parseInt(amount);
-    if (isNaN(amount)) {
-      await ctx.reply(
-        ctx.i18n.t('must_be_int', { fieldName: ctx.i18n.t('tokens_amount') })
-      );
-
+    let token = getToken(tokenCode.toUpperCase());
+    if (!token) {
+      await messages.mustBeValidToken(ctx);
       return false;
     }
 
-    if (!isSupportedToken(tokenCode.toUpperCase())) {
-      await messages.mustBeValidToken(ctx);
+    try {
+      amount = Number(toBaseUnit(amount, token.decimals).toString());
+    } catch(err) {
+      console.log(err);
+      await ctx.reply(ctx.i18n.t('invalid_amount'));
+      return false;
+    }
+
+    if (isNaN(amount)) {
+      await ctx.reply(ctx.i18n.t('must_be_int'), { fieldName: ctx.i18n.t('token_amount') });
       return false;
     }
 
@@ -97,7 +102,7 @@ const validateSellOrder = async ctx => {
     fiatAmount = fiatAmount.split('-');
     fiatAmount = fiatAmount.map(Number);
 
-    if (fiatAmount.length === 2 && amount) {
+    if (fiatAmount.length === 2 && amount !== 0) {
       await messages.invalidRangeWithAmount(ctx);
       return false;
     }
@@ -175,7 +180,7 @@ const validateBuyOrder = async ctx => {
     amount = parseInt(amount);
     if (isNaN(amount)) {
       await ctx.reply(
-        ctx.i18n.t('must_be_int', { fieldName: ctx.i18n.t('tokens_amount') })
+        ctx.i18n.t('must_be_int', { fieldName: ctx.i18n.t('token_amount') })
       );
       return false;
     }

@@ -51,7 +51,7 @@ pending_buy: |
   Вы можете отменить эту заявку до того, как ее примет кто-то другой, командой 👇
 must_be_int: ${fieldName} - допускаются только целые числа
 must_be_numeric: ${fieldName} must be numeric
-tokens_amount: сумма в сатоши
+token_amount: сумма в сатоши
 fiat_amount: сумма в валюте
 sell_correct_format: |
   /sell \<_token amount_\> \<_token code_\> \<_fiat amount_\> \<_fiat code_\> \<_payment method_\> \[_premium/discount_\]
@@ -384,7 +384,7 @@ new_dispute: ⚠️⚠️⚠️ A user has started a dispute, touch the button t
 take_dispute: Take dispute
 not_authorized: 🤨 You are not authorized to perform this operation
 need_default_community: To perform this operation you need to have a default community
-enter_coins_amount: Enter sats amount, enter only numbers.
+enter_token_amount: Enter sats amount, enter only numbers.
 market_price: Market price
 enter_currency: 'Enter a currency by your code, eg: USD'
 choose_currency: Choose a currency

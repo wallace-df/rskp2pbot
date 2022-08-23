@@ -52,7 +52,7 @@ pending_buy: |
   Puedes cancelar esta orden antes de que alguien la tome ejecutando 👇
 must_be_int: ${fieldName} debe ser un número entero
 must_be_numeric: ${fieldName} debe ser numérico
-tokens_amount: monto en sats
+token_amount: monto en sats
 fiat_amount: monto en fiat
 sell_correct_format: |
   /sell \<_token amount_\> \<_token code_\> \<_fiat amount_\> \<_fiat code_\> \<_payment method_\> \[_premium/discount_\]
@@ -384,7 +384,7 @@ new_dispute: ⚠️⚠️⚠️ Un usuario ha iniciado una disputa, para tomarla
 take_dispute: Tomar disputa
 not_authorized: 🤨 No estás autorizado para realizar esta operación
 need_default_community: Para realizar esta operación necesitar tener una comunidad por defecto
-enter_coins_amount: Especifique el monto de satoshis (solo números) o presiona *Precio del mercado*
+enter_token_amount: Especifique el monto de satoshis (solo números) o presiona *Precio del mercado*
 market_price: Precio del mercado
 enter_currency: 'Especifique una moneda por su código, ej: USD'
 choose_currency: Elija una moneda
