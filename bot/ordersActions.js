@@ -44,7 +44,7 @@ const createOrder = async (
     const currency = getCurrency(fiatCode);
     const priceFromAPI = !amount;
 
-    if (priceFromAPI && !token.price) {
+    if (priceFromAPI && !token.api3FeedId) {
       await messages.noRateForToken(bot, user, i18n);
       return;
     }

@@ -6,6 +6,14 @@ const languages = require('./languages.json');
 const { Order, Community } = require('../models');
 const BN = require('bn.js');
 const BigDecimal = require("js-big-decimal");
+const dapiServerDeployment = require('@api3/operations/chain/deployments/polygon-testnet/DapiServer.json');
+const { ethers } = require("ethers");
+
+const dapiServer = new ethers.Contract(
+  process.env.API3_FEED_CONTRACT,  
+  dapiServerDeployment.abi,
+  new ethers.providers.JsonRpcProvider(process.env.RSK_PROVIDER)
+);
 
 const logger = require('../logger');
 
@@ -213,7 +221,7 @@ const fetchFairMarketPrice = async (fiatCode, tokenCode) => {
     throw "Invalid currency: " + fiatCode;
   }
 
-  if (!token || (!token.stablecoin && !token.price) || !token.decimals) {
+  if (!token || (!token.stablecoin && !token.api3FeedId) || !token.decimals) {
     throw "Invalid token: " + token;
   }
 
@@ -222,14 +230,14 @@ const fetchFairMarketPrice = async (fiatCode, tokenCode) => {
   if (token.stablecoin) {
     usdRate = 1;
   } else {
-    // FIXME: use API3 to get exchange rate.
-    usdRate = 21500;
+    let response = await dapiServer.readDataFeedWithId(token.api3FeedId);
+    usdRate = response.value;
   }
 
   let fiatRate;
 
   if (currency.code === 'USD') {
-    fiatRate = usdRate;
+    fiatRate = new BigDecimal(usdRate);
   } else {
     // Before hit the endpoint we make sure the code have only 3 chars
     const code = currency.code.substring(0, 3);
@@ -237,14 +245,22 @@ const fetchFairMarketPrice = async (fiatCode, tokenCode) => {
     if (response.data.error) {
       throw response.data.error;
     }
-    fiatRate = usdRate * response.data.rate;
+    fiatRate = new BigDecimal(usdRate).multiply(new BigDecimal(String(response.data.rate)));
   }
 
-  return fiatRate;
+  let base = new BigDecimal(new BN('10', 10).pow(new BN(String(token.decimals), 10)));
+  fiatRate = fiatRate.divide(base, 8).getValue();
+
+  return Number(fiatRate);
 };
 
 const getTokenAmountFromMarketPrice = async (fiatCode, fiatAmount, tokenCode) => {
   try {
+
+    const token = getToken(tokenCode);
+    if (!token || !token.decimals) {
+      throw "Invalid token: " + token;
+    }
 
     let fiatRate = new BigDecimal(await fetchFairMarketPrice(fiatCode, tokenCode));
     let base = new BigDecimal(new BN('10', 10).pow(new BN(String(token.decimals), 10)).toString());
