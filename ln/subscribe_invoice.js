@@ -1,6 +1,5 @@
 const { subscribeToInvoice } = require('lightning');
 const { Order, User } = require('../models');
-const { payToBuyer } = require('./pay_request');
 const lnd = require('./connect');
 const messages = require('../bot/messages');
 const ordersActions = require('../bot/ordersActions');

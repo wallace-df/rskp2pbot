@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const OrderSchema = new mongoose.Schema({
   description: { type: String },
   amount: {
-    // amount in satoshis
+    // amount in tokens
     type: Number,
     min: 0,
   },

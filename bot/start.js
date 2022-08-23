@@ -5,7 +5,6 @@ const schedule = require('node-schedule');
 const {
   Order,
   User,
-  PendingPayment,
   Community,
   Dispute,
 } = require('../models');
@@ -46,12 +45,10 @@ const {
 } = require('./validations');
 const messages = require('./messages');
 const {
-  attemptPendingPayments,
   escrowOrders,
   cancelOrders,
   deleteOrders,
   calculateEarnings,
-  attemptCommunitiesPendingPayments,
 } = require('../jobs');
 const logger = require('../logger');
 
@@ -118,14 +115,6 @@ const initialize = (botToken, options) => {
   bot.use(stageMiddleware());
   bot.use(commandArgsMiddleware());
 
-  // We schedule pending payments job
-  schedule.scheduleJob(
-    `*/${process.env.PENDING_PAYMENT_WINDOW} * * * *`,
-    async () => {
-      await attemptPendingPayments(bot);
-    }
-  );
-
   schedule.scheduleJob(`*/1 * * * *`, async () => {
     //console.log("will escrow orders");
     await escrowOrders(bot);
@@ -143,10 +132,6 @@ const initialize = (botToken, options) => {
 
   schedule.scheduleJob(`*/10 * * * *`, async () => {
     await calculateEarnings();
-  });
-
-  schedule.scheduleJob(`*/5 * * * *`, async () => {
-    await attemptCommunitiesPendingPayments(bot);
   });
 
   bot.start(async ctx => {

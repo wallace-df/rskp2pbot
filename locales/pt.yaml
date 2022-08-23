@@ -329,21 +329,7 @@ buyer_havent_added_wallet_address: '😔 O comprador não me enviou a fatura par
 buyer_havent_added_wallet_address_to_admin_channel: 'Compradora @${username} tomou o orderId: ${orderId} mas não enviou a fatura para onde receber sats, o tempo expirou, a ordem foi republicada.'
 havent_locked_tokens: '🤨 Você não pagou a fatura para vender sats para o pedido Id: ${orderId}'
 seller_havent_locked_tokens: '😔 O vendedor não pagou a fatura pela sua compra Id: ${orderId}, A operação foi cancelada.'
-seller_havent_add_invoice_to_admin_channel: 'Vendedora @${username} não pagou a fatura do pedido Id: ${orderId} O lapso do tempo terminou e o pedido foi publicado novamente.'
-pending_payment_success_to_admin: |
-  Usuário @${username} Tinha uma fatura pendente, eles pagam pelo pedido de compra Id: ${orderId} por ${amount} satoshis, foi finalmente executado depois ${attempts} tentativas.
-
-  Prova de pagamento: ${paymentSecret}
-pending_payment_success: |
-  Eu paguei a fatura de lightning para ${amount} satoshis, ordem Id: ${id}!
-
-  Prova de pagamento: ${paymentSecret}
-pending_payment_failed: |
-  🤖 Eu tentei pagar sua fatura ${attempts} Tempos e falhas, às vezes os usuários da rede de lightning não podem receber pagamentos porque sua carteira não possui capacidade de entrada suficiente ou o nó não está bem conectado na rede. Você pode tentar gerar uma fatura de outra carteira.
-pending_payment_failed_to_admin: |
-  Pagamento da fatura para o pedido de compra ${orderId} de usuário @${username} falhou.
-
-  Tentativas de pagamento: ${attempts}
+seller_havent_added_wallet_address_to_admin_channel: 'Vendedora @${username} não pagou a fatura do pedido Id: ${orderId} O lapso do tempo terminou e o pedido foi publicado novamente.'
 selling: Vendendo
 buying: Comprando
 receive_payment: Receber pagamento

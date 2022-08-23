@@ -328,21 +328,7 @@ buyer_havent_added_wallet_address: "😔 L'acquirente non mi ha inviato la fattu
 buyer_havent_added_wallet_address_to_admin_channel: "L'acquirente @${username} ha accettato l'ordine ID: ${orderId} ma non ha inviato la fattura dove ricevere sats, il tempo è scaduto e l'ordine è stato ripubblicato."
 havent_locked_tokens: "🤨 Non hai pagato la invoice per vendere i sats relativi all' ordineID:${orderId}"
 seller_havent_locked_tokens: "😔 Il venditore non ha pagato la invoice per il tuo ordine di acquisto ID: ${orderId}, l'operazione è stata annullata."
-seller_havent_add_invoice_to_admin_channel: "Il venditore @${username} non ha pagato la invoice per l'ordine ID: ${orderId} il termine è scaduto e l'ordine è stato ripubblicato"
-pending_payment_success_to_admin: |
-  L'utente @${username} aveva una fattura in sospeso, hanno pagato per l'ordine di acquisto ID: ${orderId} per ${amount} satoshi, è stato finalmente esguito dopo ${attempts} attempts.
-
-  Prova del pagamento: ${paymentSecret}
-pending_payment_success: |
-  Ho pagato la invoice LN per ${amount} satoshi, ordine Id: ${id}!
-
-  Prova di pagamento: ${paymentSecret}
-pending_payment_failed: |
-  🤖 Ho tentato di pagare la tua invoice ${attempts} volte ma senza successo, a volte gli utenti della rete Lightning non possono ricevere pagamenti perché il loro wallet non ha sufficiente capacità in entrata o perché il nodo non è ben collegato alla rete. Puoi provare a generare una fattura da un altro wallet.
-pending_payment_failed_to_admin: |
-  Il pagamento della invoice per l'ordine di acquisto ${orderId} dell'utente @${username} è fallito.
-
-  Payment attempts: ${attempts}
+seller_havent_added_wallet_address_to_admin_channel: "Il venditore @${username} non ha pagato la invoice per l'ordine ID: ${orderId} il termine è scaduto e l'ordine è stato ripubblicato"
 selling: Vendita
 buying: Acquisto
 receive_payment: Ricezione del pagamento

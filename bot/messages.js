@@ -617,7 +617,6 @@ const fiatSentMessages = async (
       buyer.tg_id,
       i18nBuyer.t('I_told_seller_you_sent_fiat', {
         sellerUsername: seller.username,
-        amount: order.amount,
         formattedAmount: formatUnit(order.amount, token.decimals) + ' ' + token.code
       })
     );
@@ -979,7 +978,6 @@ const wizardAddWalletExitMessage = async (ctx, order) => {
   try {
     await ctx.reply(
       ctx.i18n.t('wizard_add_wallet_exit', {
-        amount: numberFormat(order.fiat_code, order.amount),
         orderId: order._id,
       }),
       { parse_mode: 'MarkdownV2' }
@@ -1117,7 +1115,7 @@ const toSellerBuyerDidntAddWalletAddressMessage = async (bot, user, order, i18n)
   }
 };
 
-const toAdminChannelBuyerDidntAddInvoiceMessage = async (
+const toAdminChannelBuyerDidntAddWalletAddressMessage = async (
   bot,
   user,
   order,
@@ -1167,99 +1165,7 @@ const toAdminChannelSellerDidntLockTokensMessage = async (
   try {
     await bot.telegram.sendMessage(
       process.env.ADMIN_CHANNEL,
-      i18n.t('seller_havent_add_invoice_to_admin_channel', {
-        orderId: order._id,
-        username: user.username,
-      })
-    );
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const toAdminChannelPendingPaymentSuccessMessage = async (
-  bot,
-  user,
-  order,
-  pending,
-  payment,
-  i18n
-) => {
-  try {
-    await bot.telegram.sendMessage(
-      process.env.ADMIN_CHANNEL,
-      i18n.t('pending_payment_success_to_admin', {
-        orderId: order._id,
-        username: user.username,
-        attempts: pending.attempts,
-        amount: numberFormat(order.fiat_code, order.amount),
-        paymentSecret: payment.secret,
-      })
-    );
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const toBuyerPendingPaymentSuccessMessage = async (
-  bot,
-  user,
-  order,
-  payment,
-  i18n
-) => {
-  try {
-    await bot.telegram.sendMessage(
-      user.tg_id,
-      i18n.t('pending_payment_success', {
-        id: order._id,
-        amount: numberFormat(order.fiat_code, order.amount),
-        paymentSecret: payment.secret,
-      })
-    );
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const toBuyerPendingPaymentFailedMessage = async (bot, user, order, i18n) => {
-  try {
-    const attempts = process.env.PAYMENT_ATTEMPTS;
-    await bot.telegram.sendMessage(
-      user.tg_id,
-      i18n.t('pending_payment_failed', {
-        attempts,
-      })
-    );
-    await bot.telegram.sendMessage(user.tg_id, i18n.t('press_to_continue'), {
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: i18n.t('continue'),
-              callback_data: `addInvoicePHIBtn_${order._id}`,
-            },
-          ],
-        ],
-      },
-    });
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const toAdminChannelPendingPaymentFailedMessage = async (
-  bot,
-  user,
-  order,
-  pending,
-  i18n
-) => {
-  try {
-    await bot.telegram.sendMessage(
-      process.env.ADMIN_CHANNEL,
-      i18n.t('pending_payment_failed_to_admin', {
-        attempts: pending.attempts,
+      i18n.t('seller_havent_added_wallet_address_to_admin_channel', {
         orderId: order._id,
         username: user.username,
       })
@@ -1407,14 +1313,10 @@ module.exports = {
   expiredOrderMessage,
   toBuyerDidntAddWalletAddressMessage,
   toSellerBuyerDidntAddWalletAddressMessage,
-  toAdminChannelBuyerDidntAddInvoiceMessage,
+  toAdminChannelBuyerDidntAddWalletAddressMessage,
   toSellerDidntLockTokensMessage,
   toBuyerSellerDidntLockTokensMessage,
   toAdminChannelSellerDidntLockTokensMessage,
-  toAdminChannelPendingPaymentSuccessMessage,
-  toBuyerPendingPaymentSuccessMessage,
-  toBuyerPendingPaymentFailedMessage,
-  toAdminChannelPendingPaymentFailedMessage,
   genericErrorMessage,
   refundCooperativeCancelMessage,
   toBuyerExpiredOrderMessage,

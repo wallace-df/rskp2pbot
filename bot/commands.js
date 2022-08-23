@@ -335,7 +335,7 @@ const cancelAddWalletAddress = async (ctx, bot, order) => {
       await order.save();
       if (!userAction) {
         await messages.toBuyerDidntAddWalletAddressMessage(bot, user, order, i18nCtx);
-        await messages.toAdminChannelBuyerDidntAddInvoiceMessage(bot, user, order, i18nCtx);
+        await messages.toAdminChannelBuyerDidntAddWalletAddressMessage(bot, user, order, i18nCtx);
       } else {
         await messages.successCancelOrderMessage(ctx, user, order, i18nCtx);
       }

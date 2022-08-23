@@ -329,23 +329,7 @@ buyer_havent_added_wallet_address: '😔 Der Käufer hat mir die LN-Rechnung fü
 buyer_havent_added_wallet_address_to_admin_channel: 'Käufer @${username} hat den Auftrag ${orderId} angenommen, aber keine LN-Rechnung gesendet. Die Zeit ist abgelaufen, der Auftrag wird neu veröffentlicht.'
 havent_locked_tokens: '🤨 Du hast die LN-Rechnung nicht bezahlt, um Sats für den Auftrag (${orderId}) zu verkaufen.'
 seller_havent_locked_tokens: '😔 Der Verkäufer hat die LN-Rechnung für deinen Auftrag (${orderId}) nicht bezahlt. Der Vorgang wurde storniert.'
-seller_havent_add_invoice_to_admin_channel: 'Verkäufer @${username} hat die LN-Rechnung des Auftrages (${orderId}) nicht bezahlt. Der Auftrag ist abgelaufen und wurde wieder veröffentlicht.'
-pending_payment_success_to_admin: |
-  Benutzer @${username} hatte eine ausstehende LN-Rechnung, die Zahlung für die Auftrag: ${orderId} für ${amount} Sats, wurde nach ${attempts} Versuchen endlich ausgeführt.
-
-  Zahlungsnachweis: ${paymentSecret}
-pending_payment_success: |
-  Ich habe die LN-Rechnung über ${amount} Sats für den Auftrag ${id} bezahlt!
-
-  Zahlungsnachweis: ${paymentSecret}
-pending_payment_failed: |
-  🤖 Ich habe ${attempts} Mal versucht, deine LN-Rechnung zu bezahlen und bin gescheitert. Manchmal können Nutzer des Lightning-Netzwerks keine Zahlungen erhalten, weil ihre Wallet nicht genügend Guthaben auf ihrem Node hat. Du solltest versuchen, eine LN-Rechnung von einer anderen Wallet mit genügend Guthaben zu erstellen.
-
-  Wenn du mir eine neue LN-Rechnung schicken möchtest, um die Sats zu erhalten, benutze bitte den folgenden Befehl. 👇
-pending_payment_failed_to_admin: |
-  Die Bezahlung der LN-Rechnung für den Auftrag ${orderId} des Benutzers @${username} ist fehlgeschlagen.
-
-  Zahlungsversuche: ${attempts}
+seller_havent_added_wallet_address_to_admin_channel: 'Verkäufer @${username} hat die LN-Rechnung des Auftrages (${orderId}) nicht bezahlt. Der Auftrag ist abgelaufen und wurde wieder veröffentlicht.'
 selling: Verkaufe
 buying: Kaufe
 receive_payment: Zahlung erhalten
