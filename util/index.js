@@ -5,6 +5,8 @@ const tokens = require('./tokens_testnet.json');
 const languages = require('./languages.json');
 const { Order, Community } = require('../models');
 const BN = require('bn.js');
+const BigDecimal = require("js-big-decimal");
+
 const logger = require('../logger');
 
 // ISO 4217, all ISO currency codes are 3 letters but users can trade shitcoins
@@ -125,13 +127,12 @@ const formatUnit = (value, decimals) => {
   fraction = fraction.match(/^([0-9]*[1-9]|0)(0*)/)[1];
 
   let whole = value.div(base).toString(10);
-  value = `${whole}.${fraction}`;
+  value = `${whole}.${fraction}`.replace(/0+$/, '');
 
-  let paddingZeroes = decimals - fraction.length;
-  while (paddingZeroes > 0) {
-      paddingZeroes--;
-      value = `${value}0`;
+  if (value.endsWith(".")) {
+    value = whole;
   }
+
   return value;
 };
 
@@ -203,52 +204,72 @@ const handleReputationItems = async (buyer, seller, amount) => {
   }
 };
 
+
+const fetchFairMarketPrice = async (fiatCode, tokenCode) => {
+  const currency = getCurrency(fiatCode);
+  const token = getToken(tokenCode);
+
+  if (!currency || !currency.price) {
+    throw "Invalid currency: " + fiatCode;
+  }
+
+  if (!token || (!token.stablecoin && !token.price) || !token.decimals) {
+    throw "Invalid token: " + token;
+  }
+
+  let usdRate = 0;
+
+  if (token.stablecoin) {
+    usdRate = 1;
+  } else {
+    // FIXME: use API3 to get exchange rate.
+    usdRate = 21500;
+  }
+
+  let fiatRate;
+
+  if (currency.code === 'USD') {
+    fiatRate = usdRate;
+  } else {
+    // Before hit the endpoint we make sure the code have only 3 chars
+    const code = currency.code.substring(0, 3);
+    const response = await axios.get(`${process.env.FIAT_RATE_EP}/${code}/USD`);
+    if (response.data.error) {
+      throw response.data.error;
+    }
+    fiatRate = usdRate * response.data.rate;
+  }
+
+  return fiatRate;
+};
+
 const getTokenAmountFromMarketPrice = async (fiatCode, fiatAmount, tokenCode) => {
   try {
-    const currency = getCurrency(fiatCode);
-    const token = getToken(tokenCode);
 
-    if (!currency || !currency.price || !token || (!token.stablecoin && !token.price) || !token.decimals) {
-      return 0;
-    }
+    let fiatRate = new BigDecimal(await fetchFairMarketPrice(fiatCode, tokenCode));
+    let base = new BigDecimal(new BN('10', 10).pow(new BN(String(token.decimals), 10)).toString());
 
-    let usdRate = 0;
+    let tokenAmount = new BigDecimal(fiatAmount).multiply(base).divide(fiatRate, 0).getValue();
 
-    if (token.stablecoin) {
-      usdRate = 1;
-    } else {
-      // FIXME: use API3 to get exchange rate.
-      usdRate = 21500;
-    }
-
-    let fiatRate;
-
-    if (currency.code === 'USD') {
-      fiatRate = usdRate;
-    } else {
-      // Before hit the endpoint we make sure the code have only 3 chars
-      const code = currency.code.substring(0, 3);
-      const response = await axios.get(`${process.env.FIAT_RATE_EP}/${code}/USD`);
-      if (response.data.error) {
-        return 0;
-      }
-      fiatRate = usdRate * response.data.rate;
-    }
-    const amount = (fiatAmount / fiatRate) * (10 ** token.decimals);
-    return parseInt(amount);
+    return parseInt(tokenAmount);
   } catch (error) {
     logger.error(error);
+    return 0;
   }
 };
 
-const getBtcExchangePrice = (fiatAmount, satsAmount) => {
+const calculateExchangePrice = (fiatAmount, tokenAmount, tokenDecimals) => {
   try {
-    const satsPerBtc = 1e8;
-    const feeRate = (satsPerBtc * fiatAmount) / satsAmount;
 
-    return feeRate;
+    let base = new BN('10', 10).pow(new BN(String(tokenDecimals), 10));
+    let fiat = new BigDecimal(fiatAmount);
+    let amount = new BigDecimal(tokenAmount);
+    let feeRate = new BigDecimal(base.toString()).multiply(fiat).divide(amount, 2);
+
+    return Number(feeRate.getValue());
   } catch (error) {
     logger.error(error);
+    return "Unknown";
   }
 };
 
@@ -493,7 +514,8 @@ module.exports = {
   formatUnit,
   handleReputationItems,
   getTokenAmountFromMarketPrice,
-  getBtcExchangePrice,
+  calculateExchangePrice,
+  fetchFairMarketPrice,
   getCurrenciesWithPrice,
   getEmojiRate,
   decimalRound,

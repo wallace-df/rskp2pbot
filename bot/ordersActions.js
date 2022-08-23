@@ -5,7 +5,8 @@ const {
   getToken,
   getCurrency,
   numberFormat,
-  getBtcExchangePrice,
+  calculateExchangePrice,
+  fetchFairMarketPrice,
   getEmojiRate,
   decimalRound,
   getFee,
@@ -71,7 +72,7 @@ const createOrder = async (
       tg_order_message: tgOrderMessage,
       price_from_api: priceFromAPI,
       price_margin: priceMargin || 0,
-      description: buildDescription(i18n, {
+      description: await buildDescription(i18n, {
         user,
         type,
         amount,
@@ -120,7 +121,7 @@ const getFiatAmountData = fiatAmount => {
   return response;
 };
 
-const buildDescription = (
+const buildDescription = async (
   i18n,
   {
     user,
@@ -168,9 +169,12 @@ const buildDescription = (
       amountText = '';
       tasaText = i18n.t('rate') + `: ${process.env.FIAT_RATE_NAME} ${priceMarginText}\n`;
     } else {
-      const exchangePrice = getBtcExchangePrice(fiatAmount[0], amount);
-      tasaText = i18n.t('price') + `: ${numberFormat(fiatCode, exchangePrice.toFixed(2))}\n`;
-      tasaText += `Fair market price: ${numberFormat(fiatCode, exchangePrice.toFixed(2))}\n`;
+      const fairPrice = await fetchFairMarketPrice(fiatCode, token.code);
+      const exchangePrice = calculateExchangePrice(fiatAmount[0], amount, token.decimals);
+      const symbol = !!currency && !!currency.symbol_native ? currency.symbol_native : fiatCode;
+
+      tasaText = i18n.t('seller_price') + `: ${symbol} ${numberFormat(fiatCode, exchangePrice)}\n`;
+      tasaText += i18n.t('fair_price') + `: ${symbol} ${numberFormat(fiatCode, fairPrice)}\n`;
     }
 
     let rateText = '';

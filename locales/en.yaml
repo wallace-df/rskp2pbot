@@ -190,15 +190,15 @@ must_be_valid_currency: 'Fiat_code must be a valid code for example: USD, EUR, y
 must_be_number_or_range: 'Fiat_amount must be a number or numeric range in the  <minimum>-<maximum> format'
 invalid_wallet_address: Invalid wallet adress. Please copy-paste your RSK address.
 help: |
-  /sell <_sats amount_> <_fiat amount_> <_fiat code_> <_payment method_> [premium/discount] - Creates a Sell order
-  /buy <_sats amount_> <_fiat amount_> <_Fiat code_> <_payment method_> [premium/discount] - Creates a Purchase Order
+  /sell <_token amount_> <_token code_> <_fiat amount_> <_fiat code_> <_payment method_> [premium/discount] - Creates a Sell order
+  /buy <_token amount_> <_token code_> <_fiat amount_> <_Fiat code_> <_payment method_> [premium/discount] - Creates a Purchase Order
   /info - Shows additional info about the BOT
   /showusername - Toggles off the display of the username in each new order created. Default value is se to no (false)
   /showvolume - shows trade volume when each order is created, default value is *no* (false)
   /setaddress <_order id_> <_wallet address_> - This command allows the buyer to set the wallet address where to receive tokens. 
   /setlang - Allows the user to change the language
   /listorders - Use this command to list all your pending transactions. 
-  /listcurrencies - Lists all the currencies we can use to without indicatin the amount in sats. 
+  /listcurrencies - Lists all the currencies we can use to without indicatin the amount in tokens. 
   /fiatsent <_order id_> - Buyer informs that has already sent FIAT money to seller
   /release <_order id_> - Seller releases the tokens 
   /dispute <_order id_> - Opens a dispute between participant parties
@@ -209,8 +209,6 @@ help: |
   /community - Create a new community
   /findcomms <_fiat code_> - Finds communities that operate with the indicated currency
   /setcomm <_@groupOfACommunity / off_> - Set a default community or remove it with 'off'
-  /settleorder <_order id_> - Accept the seller's payment and automatically send the sats to the buyer, there must be a community by default
-  /cancelorder <_id orden_> - Cancels the order which returns the sats to the seller, there must be a community by default
   /deldispute <_username_> <_id order_> - Deletes a dispute from the user in the community, there must be a community by default
   /ban <_username_> - Ban a user from a community, there should be a default community
 
@@ -268,7 +266,7 @@ update_user_setting: I have modify the field  ${field} to ${newState}
 invalid_range_with_amount: |
   Ranges are only avialble for floating rates
 
-  Use ranges or specify the amount of sats, but do not write both of them
+  Use ranges or specify the amount of tokens, but do not write both of them
 too_many_pending_orders: You have reached the maximum amount of orders that can be published simultaneously
 name: Name
 group: Group
@@ -358,7 +356,8 @@ satoshis: satoshis
 by: by
 rate: Rate
 has_successful_trades: Has ${trades} successful trades
-price: Price
+seller_price: Seller price
+fair_price: Fair market price
 for: For
 generic_error: An error occurred
 sats: sats
@@ -389,7 +388,7 @@ take_dispute: Take dispute
 not_authorized: 🤨 You are not authorized to perform this operation
 need_default_community: To perform this operation you need to have a default community
 enter_token_amount: Enter ${tokenCode} amount (e.g, 0.0001)
-market_price: Market price
+market_price: Market price (API3 + Yadio)
 enter_currency: 'Enter a currency by your code, eg: USD'
 choose_currency: Choose a currency
 enter_currency_amount: Enter the amount of ${currency}, enter only numbers.
