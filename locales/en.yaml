@@ -35,7 +35,8 @@ lock_tokens_request: |
 
   Buyer Reputation: ${rate}
 
-  To start the selling process, please use this link to lock ${formattedAmount} : wallace-df.github.com/rskp2pbot/ 
+  To start the selling process, please use this link to lock ${formattedAmount}:
+  [Lock ${formattedAmount}](${dappPage}/lock?orderId=${order._id}&token=${order.token_code}&buyerAddress=${order.buyer_address}&buyerHash=${order.buyer_hash}&sellerHash=${order.seller_hash}&amount=${order.amount}&fee=${order.fee})
 
   You have ${expirationTime} minutes to lock the tokens. After that, the trade will be cancelled and any locked tokens will be refunded to you.
 pending_sell: |
@@ -220,7 +221,7 @@ buyer_told_me_that_sent_fiat: 🤖 @${buyerUsername} has informed that already s
 release_order_cmd: |
   /release ${orderId}
 release_instructions: |
-  Use this link to release the funds to the buyer: wallace-df.github.com/rskp2pbot/release/${order._id}
+  Use this link to release the funds to the buyer: ${dappPage}/rskp2pbot/release/${order._id}
 
   Only release the funds after you confirm that the buyer has sent the fiat since this operation cannot be reversed.
 
@@ -254,7 +255,7 @@ order_completed_by_admin: 'Admin has completed the order Id: ${orderId}!'
 have_to_wait_for_counterpart: 🕒 You have already made this operation, you must wait for the other party to take action
 ok_cooperativecancel: '👍 Counterparty agreed and the order Id: ${orderId} has been cancelled'
 refund_cooperativecancel: |
-  💰 Use this link to get a refund on your loked tokens: wallace-df.github.com/rsbp2pbot/refund
+  💰 Use this link to get a refund on your loked tokens: ${dappPage}/rsbp2pbot/refund
 
   You can also get the refund link at any type by using the /refundlink command
 init_cooperativecancel: '🕒 You have started the cancelation of the order Id: ${orderId}, your counterparty must agree on cancellation too.'
@@ -341,7 +342,7 @@ buyer_havent_added_wallet_address_to_admin_channel: 'Buyer @${username} took the
 havent_locked_tokens: |
   '🤨 I could not detect that you have locked the tokens for the Order Id: ${orderId}.'
 
-  If you have locked it already, use this link to get a withdraw your tokens: wallace-df.github.com/rskp2pbot
+  If you have locked it already, use this link to get a withdraw your tokens: ${dappPage}/rskp2pbot
 
   You can also get the refund link at any type by using the /refundlink command
 seller_havent_locked_tokens: '😔 Seller has not locked the tokens for your Order Id: ${orderId}, the operation was canceled.'

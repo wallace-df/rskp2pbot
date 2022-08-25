@@ -51,6 +51,10 @@ export default {
             return Config.tokens[process.env.NODE_ENV][tokenSymbol];
         },
 
+        getTokenByAddress(tokenAddress){
+            return tokenByAddress[tokenAddress];
+        },
+
         formatAmount(amount, token) {
             if (!amount) {
                 return null;

@@ -5,6 +5,10 @@ const { handleReputationItems, getUserI18nContext } = require('../util');
 const logger = require('../logger');
 
 const escrowOrders = async bot => {
+
+  if(1==1){
+    return;
+  }
   try {
     // We get the orders where the seller must lock tokens before continuing.
     const waitingOrders = await Order.find({

@@ -59,16 +59,18 @@ const lockTokensRequestMessage = async (
       !!currency && !!currency.symbol_native
         ? currency.symbol_native
         : order.fiat_code;
-    const expirationTime =
-      parseInt(process.env.PAYMENT_EXPIRATION_WINDOW) / 60;
+    const expirationTime = parseInt(process.env.PAYMENT_EXPIRATION_WINDOW) / 60;
+    const formattedAmount = formatUnit(order.amount, token.decimals) + ' ' + token.code;
     const message = i18n.t('lock_tokens_request', {
       currency,
       order,
       expirationTime,
       rate,
-      formattedAmount: formatUnit(order.amount, token.decimals) + ' ' + token.code
+      dappPage: process.env.DAPP_PAGE,
+      formattedAmount: formattedAmount,
     });
-    await ctx.telegram.sendMessage(user.tg_id, message);
+    await ctx.telegram.sendMessage(user.tg_id, message, { parse_mode: 'markdown' });
+  
   } catch (error) {
     logger.error(error);
   }

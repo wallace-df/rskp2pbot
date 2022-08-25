@@ -13,6 +13,8 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@api3/airnode-protocol-v1": "^0.5.1",
+    "@api3/operations": "^0.0.1-08167ffd23a6b65b11c1a916e20d5dcf36d0fc0f-1",
     "@grammyjs/i18n": "^0.5.1",
     "@grammyjs/ratelimiter": "^1.1.5",
     "axios": "^0.25.0",
@@ -28,9 +30,7 @@
     "qrcode": "^1.5.0",
     "socks-proxy-agent": "^6.2.0-beta.0",
     "telegraf": "^4.6.0",
-    "winston": "^3.7.2",
-    "@api3/airnode-protocol-v1": "^0.5.1",
-    "@api3/operations": "^0.0.1-08167ffd23a6b65b11c1a916e20d5dcf36d0fc0f-1"
+    "winston": "^3.7.2"
   },
   "keywords": [
     "lightning",

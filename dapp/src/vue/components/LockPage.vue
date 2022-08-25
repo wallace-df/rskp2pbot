@@ -116,7 +116,8 @@ export default {
           throw "OrderID already exists. Please, verify your link.";
         }
 
-        this.sellerAddress = walletInstance.walletAddress;
+        this.buyerAddress = this.buyerAddress.toLowerCase();
+        this.sellerAddress = walletInstance.walletAddress.toLowerCase();
         this.totalAmount = this.toBN(this.amount).add(this.toBN(this.fee));
         this.$store.commit("setLoading", false);
 
@@ -130,8 +131,8 @@ export default {
       this.locking = true;
       try {
         let walletInstance = await Wallet.getInstance();        
-        let buyerHashBytes32 = this.toBytes32(this.buyerHash);
-        let sellerHashBytes32 = this.toBytes32(this.sellerHash);
+        let buyerHashBytes32 = "0x" + this.buyerHash.toLowerCase();
+        let sellerHashBytes32 = "0x" + this.sellerHash.toLowerCase();
 
         if (this.token.id === "RBTC") {
           let params = [this.orderId, this.buyerAddress, buyerHashBytes32, sellerHashBytes32, this.amount, this.fee];

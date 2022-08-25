@@ -84,7 +84,7 @@ export default {
         let order = await walletInstance.contract.methods.orderById(this.orderId).call();
 
         this.buyerAddress = order.buyerAddress;
-        this.amount = this.formatAmount(order.amount, this.getToken(order.tokenContractAddress));
+        this.amount = this.formatAmount(order.amount, this.getTokenByAddress(order.tokenContractAddress));
         
         if (this.amount === null) {
           throw "There was an error fetching details: order amount invalid.";
