@@ -19,15 +19,9 @@ const {
   getEmojiRate,
   decimalRound,
 } = require('../util');
-const crypto = require('crypto');
-
 const ordersActions = require('./ordersActions');
-
+const crypto = require('crypto');
 const logger = require('../logger');
-
-
-let x = crypto.createHash('sha256').update("x").digest();
-console.log(x, x.toString());
 
 const takebuy = async (ctx, bot) => {
   try {
@@ -107,11 +101,14 @@ const waitPayment = async (ctx, bot, buyer, seller, order, buyerAddress) => {
 
     const i18nCtxSeller = await getUserI18nContext(seller);
 
+    let buyerSecret = crypto.randomBytes(32);
+    let sellerSecret = crypto.randomBytes(32);
+    
     order.buyer_address = buyerAddress;
-    order.buyer_secret = crypto.randomBytes(256).toString('hex');
-    order.buyer_hash = crypto.createHash('sha256').update(order.buyer_secret).digest('hex');
-    order.seller_secret = crypto.randomBytes(256).toString('hex');
-    order.seller_hash = crypto.createHash('sha256').update(order.seller_secret).digest('hex');
+    order.buyer_secret = buyerSecret.toString('hex');
+    order.buyer_hash = crypto.createHash('sha256').update(buyerSecret).digest('hex');
+    order.seller_secret = sellerSecret.toString('hex');
+    order.seller_hash = crypto.createHash('sha256').update(sellerSecret).digest('hex');
     order.taken_at = Date.now();
     order.status = 'WAITING_PAYMENT';
 
@@ -615,7 +612,7 @@ const cancelOrder = async (ctx, orderId, user) => {
         order,
         i18nCtxCP
       );
-      await messages.refundCooperativeCancelMessage(ctx, seller, i18nCtxSeller);
+      await messages.refundCooperativeCancelMessage(ctx, order, seller, i18nCtxSeller);
       logger.info(`Order ${order._id} was cancelled!`);
     } else {
       await messages.initCooperativeCancelMessage(ctx, order);
