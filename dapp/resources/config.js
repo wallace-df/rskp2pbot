@@ -39,11 +39,13 @@ export default {
         }
     },
 
-    contractABI: require("./abis/RSKEscrow.json"),
+    // contractABI: require("./abis/RSKEscrow.json"),
+
+    contractABI: require("../../contracts/abis/RSKEscrow.json"),
 
     contractAddresses: {
-        development: "0x3ab06F2fAE5EC46774d894791c4dDb98c9c4C846",
-        test: "0x3ab06F2fAE5EC46774d894791c4dDb98c9c4C846"
+        development: "0x73EC72bA3A8Ea6EA828C6F927B6fd15C810703A1",
+        test: "0x73EC72bA3A8Ea6EA828C6F927B6fd15C810703A1"
     },
 
     tokens: {

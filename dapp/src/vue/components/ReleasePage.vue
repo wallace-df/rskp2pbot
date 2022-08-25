@@ -83,13 +83,6 @@ export default {
         let walletInstance = await Wallet.getInstance();
         let order = await walletInstance.contract.methods.orderById(this.orderId).call();
 
-        this.buyerAddress = order.buyerAddress;
-        this.amount = this.formatAmount(order.amount, this.getTokenByAddress(order.tokenContractAddress));
-        
-        if (this.amount === null) {
-          throw "There was an error fetching details: order amount invalid.";
-        }
-
         if (order.status === "0") {
           throw "Order not found. Please, verify your link.";
         } else if (order.status === "2") {
@@ -98,6 +91,13 @@ export default {
           this.refunded = true;
         } else if (order.status !== "1") {
           throw "There was an error fetching details: order status not supported.";
+        }
+
+        this.buyerAddress = order.buyerAddress;
+        this.amount = this.formatAmount(order.amount, this.getTokenByAddress(order.tokenContractAddress));
+        
+        if (this.amount === null) {
+          throw "There was an error fetching details: order amount invalid.";
         }
 
         this.$store.commit("setLoading", false);
@@ -112,7 +112,7 @@ export default {
       this.releasing = true;
       try {
         let walletInstance = await Wallet.getInstance();        
-        let codeBytes32 = this.toBytes32(this.buyerCode);
+        let codeBytes32 = "0x" + this.buyerCode;
         
         await walletInstance.contract.methods.releaseToBuyer(this.orderId, codeBytes32).send({from: walletInstance.walletAddress});
         

@@ -115,7 +115,7 @@ const initialize = (botToken, options) => {
   bot.use(stageMiddleware());
   bot.use(commandArgsMiddleware());
 
-  schedule.scheduleJob(`*/1 * * * *`, async () => {
+  schedule.scheduleJob(`*/10 * * * * *`, async () => {
     //console.log("will escrow orders");
     await escrowOrders(bot);
   });

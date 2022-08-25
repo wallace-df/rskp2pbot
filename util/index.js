@@ -1,7 +1,7 @@
 const axios = require('axios');
 const { I18n } = require('@grammyjs/i18n');
 const currencies = require('./fiat.json');
-const tokens = require('./tokens_testnet.json');
+const tokens = require('./tokens.json');
 const languages = require('./languages.json');
 const { Order, Community } = require('../models');
 const BN = require('bn.js');
@@ -34,7 +34,7 @@ const isIso4217 = code => {
 
 
 const getToken = code => {
-  const token = tokens[code];
+  const token = tokens[process.env.NODE_ENV][code];
   if (!token || (token.decimals === undefined || token.decimals === null)) return false;
 
   return token;
