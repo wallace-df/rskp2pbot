@@ -32,7 +32,6 @@ const isIso4217 = code => {
   });
 };
 
-
 const getToken = code => {
   const token = tokens[process.env.NODE_ENV][code];
   if (!token || (token.decimals === undefined || token.decimals === null)) return false;
@@ -53,6 +52,10 @@ const plural = n => {
     return '';
   }
   return 's';
+};
+
+const isAddress = (address) => {
+  return ethers.utils.isAddress(address);
 };
 
 // This function formats a number to locale strings.
@@ -528,6 +531,7 @@ module.exports = {
   getCurrency,
   toBaseUnit,
   formatUnit,
+  isAddress,
   handleReputationItems,
   getTokenAmountFromMarketPrice,
   calculateExchangePrice,

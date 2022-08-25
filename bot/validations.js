@@ -1,7 +1,7 @@
 const { ObjectId } = require('mongoose').Types;
 const messages = require('./messages');
 const { Order, User, Community } = require('../models');
-const { isIso4217, isDisputeSolver, getToken, toBaseUnit } = require('../util');
+const { isIso4217, isDisputeSolver, getToken, toBaseUnit, isAddress } = require('../util');
 const logger = require('../logger');
 
 // We look in database if the telegram user exists,
@@ -248,7 +248,7 @@ const validateBuyOrder = async ctx => {
 const validateWalletAddress = async (ctx, walletAddress) => {
   try {
 
-    if (walletAddress.length < 5) {
+    if (!isAddress(walletAddress)) {
       return false;   
     }
 
@@ -263,8 +263,8 @@ const validateWalletAddress = async (ctx, walletAddress) => {
 const isValidWalletAddress = async (ctx, walletAddress) => {
   try {
 
-    if (walletAddress.length < 5) {
-      throw "test";   
+    if (!isAddress(walletAddress)) {
+      throw "Invalid wallet address.";
     }
 
     return {

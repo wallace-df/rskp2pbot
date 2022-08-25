@@ -52,7 +52,7 @@ export default {
         },
 
         getTokenByAddress(tokenAddress){
-            return tokenByAddress[tokenAddress];
+            return tokenByAddress[tokenAddress.toLowerCase()];
         },
 
         formatAmount(amount, token) {

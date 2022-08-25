@@ -54,6 +54,8 @@ const createOrder = async (
       return;
     }
 
+    const fairPrice = await fetchFairMarketPrice(fiatCode, token.code);
+
     const fiatAmountData = getFiatAmountData(fiatAmount);
 
     const baseOrderData = {
@@ -81,6 +83,7 @@ const createOrder = async (
         fiatCode,
         paymentMethod,
         priceMargin,
+        fairPrice,
         priceFromAPI,
         currency,
       }),
@@ -133,6 +136,7 @@ const buildDescription = async (
     paymentMethod,
     priceMargin,
     priceFromAPI,
+    fairPrice,
     currency,
   }
 ) => {
@@ -169,7 +173,6 @@ const buildDescription = async (
       amountText = '';
       tasaText = i18n.t('rate') + `: ${process.env.FIAT_RATE_NAME} ${priceMarginText}\n`;
     } else {
-      const fairPrice = await fetchFairMarketPrice(fiatCode, token.code);
       const exchangePrice = calculateExchangePrice(fiatAmount[0], amount, token.decimals);
       const symbol = !!currency && !!currency.symbol_native ? currency.symbol_native : fiatCode;
 

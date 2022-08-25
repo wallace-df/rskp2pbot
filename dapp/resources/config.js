@@ -39,9 +39,8 @@ export default {
         }
     },
 
-    // contractABI: require("./abis/RSKEscrow.json"),
-
-    contractABI: require("../../contracts/abis/RSKEscrow.json"),
+    rskEscrowABI: require("../../contracts/abis/RSKEscrow.json"),
+    erc20ABI: require("../../contracts/abis/ERC20.json"),
 
     contractAddresses: {
         development: "0x73EC72bA3A8Ea6EA828C6F927B6fd15C810703A1",

@@ -37,11 +37,11 @@ const isMatchingOrder = (order, escrow) => {
     return false;
   }
 
-  if (new BN(order.amount).toString() !== escrow.amount.toString()) {
+  if (new BN(String(order.amount)).toString() !== escrow.amount.toString()) {
     return false;
   }
 
-  if (new BN(order.fee).toString() !== escrow.fee.toString()) {
+  if (new BN(String(order.fee)).toString() !== escrow.fee.toString()) {
     return false;
   }
 

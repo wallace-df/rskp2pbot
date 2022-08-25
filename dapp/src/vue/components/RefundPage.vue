@@ -93,6 +93,8 @@ export default {
           throw "There was an error fetching details: order status not supported.";
         }
 
+        console.log(order);
+
         this.sellerAddress = order.sellerAddress;
         this.amount = this.formatAmount(this.toBN(order.amount).add(this.toBN(order.fees)), this.getTokenByAddress(order.tokenContractAddress));
         
@@ -113,7 +115,7 @@ export default {
       try {
         let walletInstance = await Wallet.getInstance();        
         let codeBytes32 = "0x" + this.sellerCode;
-                
+
         await walletInstance.contract.methods.refundSeller(this.orderId, codeBytes32).send({from: walletInstance.walletAddress});
         
         this.refunded = true;

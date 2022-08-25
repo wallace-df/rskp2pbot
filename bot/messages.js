@@ -634,11 +634,6 @@ const fiatSentMessages = async (
         buyerUsername: buyer.username,
       })
     );
-    await ctx.telegram.sendMessage(
-      seller.tg_id,
-      i18nSeller.t('release_order_cmd', { orderId: order._id }),
-      { parse_mode: 'Markdown' }
-    );
   } catch (error) {
     logger.error(error);
   }

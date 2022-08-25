@@ -58,7 +58,7 @@ export default {
     instance = {
       walletAddress: walletAddress,
       web3Instance: web3,
-      contract: new web3.eth.Contract(Config.contractABI, CONTRACT_ADDRESS),
+      contract: new web3.eth.Contract(Config.rskEscrowABI, CONTRACT_ADDRESS),
     }
 
     return instance;

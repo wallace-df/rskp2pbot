@@ -46,7 +46,9 @@
 </template>
 
 <script>
+import Config from "../../../resources/config.js";
 import Wallet from "../../js/services/wallet.js";
+import Web3 from "web3";
 
 export default {
   name: "HomePage",
@@ -138,8 +140,22 @@ export default {
           let params = [this.orderId, this.buyerAddress, buyerHashBytes32, sellerHashBytes32, this.amount, this.fee];
           await walletInstance.contract.methods.escrowRBTC(...params).send({from: walletInstance.walletAddress, value: this.totalAmount});
         } else if (this.token.id === "RIF") {
+
+          let erc20Contract = new walletInstance.web3Instance.eth.Contract(Config.erc20ABI, this.token.address);
+          let allowance = await erc20Contract.methods.allowance(walletInstance.walletAddress, walletInstance.contract._address).call({from: walletInstance.walletAddress});
+          let balance = await erc20Contract.methods.balanceOf(walletInstance.walletAddress).call({from: walletInstance.walletAddress});
+
+          if (this.toBN(balance.toString()).lt(this.totalAmount)) {
+            throw "Not enough " + this.token.symbol;
+          }
+
+          if (this.toBN(allowance.toString()).lt(this.totalAmount)) {
+            await erc20Contract.methods.approve(walletInstance.contract._address, this.toBN(2).pow(this.toBN(255)).toString()).send({from: walletInstance.walletAddress});
+          }
+          
+
           let params = [this.orderId, this.token.address, this.buyerAddress, buyerHashBytes32, sellerHashBytes32, this.amount, this.fee];
-          await walletInstance.contract.methods.escrowERC20(...params).send({from: walletInstance.walletAddress, value: this.totalAmount});
+          await walletInstance.contract.methods.escrowERC20(...params).send({from: walletInstance.walletAddress});
         } else {
           throw "Unsupported token: " + this.token.id;
         }

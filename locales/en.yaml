@@ -217,7 +217,11 @@ help: |
 must_be_gt_or_eq: ${fieldName} Must be more or equal to ${qty}
 you_have_been_banned: You have been banned!
 I_told_seller_you_sent_fiat: 🤖 I told  @${sellerUsername} that you have sent fiat money. Once the seller confirms it, ${formattedAmount} should be sent to you.
-buyer_told_me_that_sent_fiat: 🤖 @${buyerUsername} has informed that already sent you the fiat money, once you confirm it, please release the funds. You will not be able to create another order until you release funds.
+buyer_told_me_that_sent_fiat: |
+ 🤖 @${buyerUsername} has informed that already sent you the fiat money.
+  Once you confirm the payment, please release the funds. You will not be able to create another order until you release funds.
+
+  [Release ${formattedAmount}](${dappPage}/release?orderId=${order._id}&buyerCode=${order.buyer_secret})
 release_order_cmd: |
   /release ${orderId}
 release_instructions: |
