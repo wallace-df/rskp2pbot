@@ -19,9 +19,15 @@ const {
   getEmojiRate,
   decimalRound,
 } = require('../util');
+const crypto = require('crypto');
+
 const ordersActions = require('./ordersActions');
 
 const logger = require('../logger');
+
+
+let x = crypto.createHash('sha256').update("x").digest();
+console.log(x, x.toString());
 
 const takebuy = async (ctx, bot) => {
   try {
@@ -102,25 +108,10 @@ const waitPayment = async (ctx, bot, buyer, seller, order, buyerAddress) => {
     const i18nCtxSeller = await getUserI18nContext(seller);
 
     order.buyer_address = buyerAddress;
-
-    // FIXME: this should appear on the lock tokens page.
-    // const description = i18nCtx.t('hold_invoice_memo', {
-    //   botName: ctx.botInfo.username,
-    //   orderId: order._id,
-    //   fiatCode: order.fiat_code,
-    //   fiatAmount: order.fiat_amount,
-    // });
-    
-    // FIXME: generate secret, hash
-    // const { request, hash, secret } = await generateSecretAndHash({
-    //   amount,
-    //   description,
-    // });
-
-    order.buyer_hash = "buyer_hash" + Math.random();
-    order.buyer_secret = "buyer_secret" + Math.random();
-    order.seller_hash = "seller_hash" + Math.random();
-    order.seller_secret = "seler_secret" + Math.random();
+    order.buyer_secret = crypto.randomBytes(256).toString('hex');
+    order.buyer_hash = crypto.createHash('sha256').update(order.buyer_secret).digest('hex');
+    order.seller_secret = crypto.randomBytes(256).toString('hex');
+    order.seller_hash = crypto.createHash('sha256').update(order.seller_secret).digest('hex');
     order.taken_at = Date.now();
     order.status = 'WAITING_PAYMENT';
 
