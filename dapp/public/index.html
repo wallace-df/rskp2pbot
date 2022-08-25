@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSKP2P Bot</title>
+    <link rel="stylesheet" href="assets/css/bootstrap.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
+    <script src="assets/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css" />
+</head>
+
+<body>
+    <!-- Main -->
+    <div id="app">
+        <div class="loading_container" style="height:100vh">
+            <div class="spinner-border text-primary" role="status"><span class="sr-only"></span></div>
+        </div>
+    </div>
+
+    <!-- Success modal-->
+    <div class="modal" role="dialog" id="successModal">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-success">Done</h5>
+                </div>
+                <div class="modal-body">
+                    <p id="successMsg"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" onclick="$('#successModal').modal('hide')">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error modal-->
+    <div class="modal" role="dialog" id="errorModal">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger">Error</h5>
+                </div>
+                <div class="modal-body">
+                    <p id="errorMsg"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" onclick="$('#errorModal').modal('hide')">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

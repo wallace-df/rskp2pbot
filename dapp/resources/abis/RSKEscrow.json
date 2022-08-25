@@ -1,0 +1,285 @@
+[
+    {
+        "inputs": [],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "_orderId",
+                "type": "string"
+            }
+        ],
+        "name": "adminRefundSeller",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "_orderId",
+                "type": "string"
+            }
+        ],
+        "name": "adminReleaseToBuyer",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "_orderId",
+                "type": "string"
+            },
+            {
+                "internalType": "address",
+                "name": "_tokenContractAddress",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "_buyerAddress",
+                "type": "address"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "_buyerHash",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "_sellerHash",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_amount",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_fee",
+                "type": "uint256"
+            }
+        ],
+        "name": "escrowERC20",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "_orderId",
+                "type": "string"
+            },
+            {
+                "internalType": "address",
+                "name": "_buyerAddress",
+                "type": "address"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "_buyerHash",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "_sellerHash",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_amount",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_fee",
+                "type": "uint256"
+            }
+        ],
+        "name": "escrowRBTC",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_tokenContractAddress",
+                "type": "address"
+            }
+        ],
+        "name": "fees",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_tokenContractAddress",
+                "type": "address"
+            }
+        ],
+        "name": "isERC20Whitelisted",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "_orderId",
+                "type": "string"
+            }
+        ],
+        "name": "orderById",
+        "outputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "address",
+                        "name": "tokenContractAddress",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "buyerAddress",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "bytes32",
+                        "name": "buyerHash",
+                        "type": "bytes32"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "sellerAddress",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "bytes32",
+                        "name": "sellerHash",
+                        "type": "bytes32"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "fee",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "enum RSKEscrow.EscrowStatus",
+                        "name": "status",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "adminAction",
+                        "type": "bool"
+                    }
+                ],
+                "internalType": "struct RSKEscrow.EscrowOrder",
+                "name": "",
+                "type": "tuple"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "_orderId",
+                "type": "string"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "_sellerCode",
+                "type": "bytes32"
+            }
+        ],
+        "name": "refundSeller",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "_orderId",
+                "type": "string"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "_buyerCode",
+                "type": "bytes32"
+            }
+        ],
+        "name": "releaseToBuyer",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_tokenContractAddress",
+                "type": "address"
+            },
+            {
+                "internalType": "bool",
+                "name": "flag",
+                "type": "bool"
+            }
+        ],
+        "name": "setWhitelistedERC20Token",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_tokenContractAddress",
+                "type": "address"
+            }
+        ],
+        "name": "withdrawFees",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
+]
