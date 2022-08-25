@@ -3,12 +3,12 @@ import StringUtils from "./string.js";
 
 export default {
 
-    isValidAmount(amount, minValue, maxValue) {
+    isValidAmount(amount, decimals, minValue, maxValue) {
         if (!StringUtils.isString(amount) || StringUtils.isEmpty(amount)) {
             return false;
         }
 
-        const regexStr = "^(0|[1-9]\\d*)(\\.\\d{0," + 18 + "})?$";
+        const regexStr = "^(0|[1-9]\\d*)(\\.\\d{0," + decimals + "})?$";
 
         if (new RegExp(regexStr).test(amount) === false) {
             console.log("invalid number");

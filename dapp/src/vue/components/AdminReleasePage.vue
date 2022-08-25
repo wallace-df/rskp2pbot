@@ -36,9 +36,7 @@
 </template>
 
 <script>
-import StringUtils from "../../js/utils/string.js";
 import Wallet from "../../js/services/wallet.js";
-import Web3Utils from "web3-utils";
 
 export default {
   name: "HomePage",
@@ -75,7 +73,7 @@ export default {
         this.orderId = this.$route.query.orderId;
         this.buyerCode = this.$route.query.buyerCode;
 
-        if (StringUtils.isEmpty(this.orderId)) {
+        if (this.isStringEmpty(this.orderId)) {
           throw "OrderID not specified. Please, verify your link.";
         }
 
@@ -83,7 +81,7 @@ export default {
         let order = await walletInstance.contract.methods.orderById(this.orderId).call();
 
         this.buyerAddress = order.buyerAddress;
-        this.amount = this.formatAmount(order.amount, order.tokenContractAddress);
+        this.amount = this.formatAmount(order.amount, this.getToken(order.tokenContractAddress));
         
         if (this.amount === null) {
           throw "There was an error fetching details: order amount invalid.";

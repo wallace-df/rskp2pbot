@@ -49,25 +49,29 @@ export default {
     tokens: {
         development: {
             RBTC: {
+                id: "RBTC",
                 symbol: "tRBTC",
                 address: "0x0000000000000000000000000000000000000000",
                 decimals: 18
             },
             RIF: {
+                id: "RIF",
                 symbol: "tRIF",
-                address: "0x19f64674D8a5b4e652319F5e239EFd3bc969a1FE",
+                address: "0x19f64674d8a5b4e652319f5e239efd3bc969a1fe",
                 decimals: 18
             }
         },
         test: {
             RBTC: {
+                id: "RBTC",
                 symbol: "tRBTC",
                 address: "0x0000000000000000000000000000000000000000",
                 decimals: 18
             },
             RIF: {
+                id: "RIF",
                 symbol: "tRIF",
-                address: "0x19f64674D8a5b4e652319F5e239EFd3bc969a1FE",
+                address: "0x19f64674d8a5b4e652319f5e239efd3bc969a1fe",
                 decimals: 18
             }
         }

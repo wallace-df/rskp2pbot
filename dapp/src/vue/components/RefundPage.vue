@@ -36,9 +36,7 @@
 </template>
 
 <script>
-import StringUtils from "../../js/utils/string.js";
 import Wallet from "../../js/services/wallet.js";
-import Web3Utils from "web3-utils";
 
 export default {
   name: "HomePage",
@@ -76,9 +74,9 @@ export default {
         this.orderId = this.$route.query.orderId;
         this.sellerCode = this.$route.query.sellerCode;
 
-        if (StringUtils.isEmpty(this.orderId)) {
+        if (this.isStringEmpty(this.orderId)) {
           throw "OrderID not specified. Please, verify your link.";
-        } else if (StringUtils.isEmpty(this.sellerCode)) {
+        } else if (this.isStringEmpty(this.sellerCode)) {
           throw "SellerCode not specified. Please, verify your link.";
         }
 
@@ -86,7 +84,7 @@ export default {
         let order = await walletInstance.contract.methods.orderById(this.orderId).call();
 
         this.sellerAddress = order.sellerAddress;
-        this.amount = this.formatAmount(new Web3Utils.BN(order.amount).add(new Web3Utils.BN(order.fees)), order.tokenContractAddress);
+        this.amount = this.formatAmount(this.toBN(order.amount).add(this.toBN(order.fees)), this.getToken(order.tokenContractAddress));
         
         if (this.amount === null) {
           throw "There was an error fetching details: order amount invalid.";
@@ -114,7 +112,7 @@ export default {
       this.refunding = true;
       try {
         let walletInstance = await Wallet.getInstance();        
-        let codeBytes32 = Web3Utils.fromAscii(this.sellerCode);
+        let codeBytes32 = this.toBytes32(this.sellerCode);
         
         await walletInstance.contract.methods.refundSeller(this.orderId, codeBytes32).send({from: walletInstance.walletAddress});
         

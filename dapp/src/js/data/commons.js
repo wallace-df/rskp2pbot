@@ -1,5 +1,10 @@
 import Config from "../../../resources/config.js";
+
+import StringUtils from "../../js/utils/string.js";
 import NumberUtils from "../utils/number.js";
+import AddressUtils from "../utils/address.js";
+
+import Web3Utils from "web3-utils";
 
 const $ = window["$"];
 
@@ -18,8 +23,35 @@ let tokenByAddress = getTokenFromMap(Config.tokens[process.env.NODE_ENV]);
 
 export default {
     methods: {
-        formatAmount(amount, tokenContractAddress) {
-            let token = tokenByAddress[tokenContractAddress];
+
+        isStringEmpty(string) {
+            return StringUtils.isEmpty(string);
+        },
+        
+        isValidAddress(address) {
+            return AddressUtils.isValidAddress(address);
+        },
+
+        isValidAmount(amount, decimals, minValue) {
+           return NumberUtils.isValidAmount(amount, decimals, minValue);
+        },
+
+        toBN(value) {
+            return new Web3Utils.BN(value);
+        },
+
+        toBytes32(value) {
+            return Web3Utils.fromAscii(value);
+        },
+
+        getToken(tokenSymbol) {
+            if (tokenSymbol) {
+                tokenSymbol = String(tokenSymbol).toUpperCase();
+            }
+            return Config.tokens[process.env.NODE_ENV][tokenSymbol];
+        },
+
+        formatAmount(amount, token) {
             if (!amount) {
                 return null;
             }
@@ -31,7 +63,7 @@ export default {
             let formattedAmount = NumberUtils.formatUnit(amount.toString(), token.decimals) + " " + token.symbol;
             return formattedAmount;
         },
-
+        
         showError(err) {
             console.log(err);
             let error;
