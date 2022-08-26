@@ -66,23 +66,29 @@ const takesell = async (ctx, bot) => {
     if (!text) return;
 
     const { user } = ctx;
-
     if (!(await validateUserWaitingOrder(ctx, bot, user))) return;
+
     const orderId = extractId(text);
     if (!orderId) return;
+
     const order = await Order.findOne({ _id: orderId });
     if (!order) return;
+
     // We verify if the user is not banned on this community
     if (await isBannedFromCommunity(user, order.community_id))
       return await messages.bannedUserErrorMessage(ctx, user);
+
     if (!(await validateTakeSellOrder(ctx, bot, user, order))) return;
+
+    // We delete the messages related to that order from the channel
+    await deleteOrderFromChannel(order, bot.telegram);
+
+    // Save the updated state first, then publish messages.
     order.status = 'WAITING_BUYER_ADDRESS';
     order.buyer_id = user._id;
     order.taken_at = Date.now();
-
     await order.save();
-    // We delete the messages related to that order from the channel
-    await deleteOrderFromChannel(order, bot.telegram);
+
     await messages.beginTakeSellMessage(ctx, bot, user, order);
   } catch (error) {
     logger.error(error);
@@ -112,23 +118,18 @@ const waitPayment = async (ctx, bot, buyer, seller, order, buyerAddress) => {
     order.taken_at = Date.now();
     order.status = 'WAITING_PAYMENT';
 
+    // Save the updated state first, then publish messages.
+    await order.save();
+
     // We need the buyer rate
     const buyer = await User.findById(order.buyer_id);
     const stars = getEmojiRate(buyer.total_rating);
     const roundedRating = decimalRound(buyer.total_rating, -1);
     const rate = `${roundedRating} ${stars} (${buyer.total_reviews})`;
 
-    // We send the lock tokens request to the seller
-    await messages.lockTokensRequestMessage(
-      ctx,
-      seller,
-      order,
-      i18nCtxSeller,
-      rate
-    );
+    await messages.lockTokensRequestMessage(ctx, seller, order, i18nCtxSeller, rate);
     await messages.takeSellWaitingSellerToPayMessage(ctx, bot, buyer, order);
     
-    await order.save();
   } catch (error) {
     logger.error(`Error in waitPayment: ${error}`);
   }
@@ -174,9 +175,10 @@ const addWalletAddress = async (ctx, bot, order) => {
     // FIXME: get fees...
     order.fee = 0; //await getFee(amount, order.community_id);
 
+    // Save the updated state first, then publish messages.
     await order.save();
-    const seller = await User.findOne({ _id: order.seller_id });
 
+    const seller = await User.findOne({ _id: order.seller_id });
     ctx.scene.enter('ADD_WALLET_ADDRESS_WIZARD_SCENE_ID', {
       order,
       seller,
@@ -274,8 +276,12 @@ const cancelAddWalletAddress = async (ctx, bot, order) => {
 
     const sellerUser = await User.findOne({ _id: order.seller_id });
     if (order.creator_id === order.buyer_id) {
+      
+      // Save the updated state first, then publish messages.
       order.status = 'CLOSED';
       await order.save();
+
+      // Then publish the messages.
       await messages.toBuyerDidntAddWalletAddressMessage(bot, user, order, i18nCtx);
       const i18nCtxSeller = await getUserI18nContext(sellerUser);
       await messages.toSellerBuyerDidntAddWalletAddressMessage(
@@ -297,11 +303,11 @@ const cancelAddWalletAddress = async (ctx, bot, order) => {
       }
       order.taken_at = null;
       order.status = 'PENDING';
-      if (!!order.min_amount && !!order.max_amount) {
+      if (!!order.min_fiat_amount && !!order.max_fiat_amount) {
         order.fiat_amount = undefined;
       }
       if (order.price_from_api) {
-        order.amount = 0;
+        order.amount = '0';
         order.fee = 0;
         order.buyer_hash = null;
         order.buyer_secret = null;
@@ -311,12 +317,22 @@ const cancelAddWalletAddress = async (ctx, bot, order) => {
 
       if (order.type === 'buy') {
         order.seller_id = null;
-        await messages.publishBuyOrderMessage(bot, user, order, i18nCtx);
       } else {
         order.buyer_id = null;
+      }
+
+      order.tg_channel_message1 = null;
+      
+      // Save the updated state first, then publish messages.
+      await order.save();
+
+      // Then publish the messages.
+      if (order.type === 'buy') {
+        await messages.publishBuyOrderMessage(bot, user, order, i18nCtx);
+      } else {
         await messages.publishSellOrderMessage(bot, sellerUser, order, i18nCtx);
       }
-      await order.save();
+
       if (!userAction) {
         await messages.toBuyerDidntAddWalletAddressMessage(bot, user, order, i18nCtx);
         await messages.toAdminChannelBuyerDidntAddWalletAddressMessage(bot, user, order, i18nCtx);
@@ -412,6 +428,7 @@ const cancelLockTokensRequest = async (ctx, bot, order) => {
     const i18nCtxSeller = await getUserI18nContext(sellerUser);
     const i18nCtxBuyer = await getUserI18nContext(buyerUser);
 
+    // Save the updated state first, then publish messages.
     order.status = 'CLOSED';
     await order.save();
 
@@ -467,15 +484,17 @@ const cancelShowHoldInvoice = async (ctx, bot, order) => {
       order.taken_at = null;
       order.status = 'PENDING';
 
-      if (!!order.min_amount && !!order.max_amount) {
+      if (!!order.min_fiat_amount && !!order.max_fiat_amount) {
         order.fiat_amount = undefined;
       }
 
       if (order.price_from_api) {
-        order.amount = 0;
+        order.amount = '0';
         order.fee = 0;
-        order.hash = null;
-        order.secret = null;
+        order.buyer_secret = null;
+        order.buyer_hash = null;
+        order.seller_secret = null;
+        order.seller_hash = null;
       }
 
       if (order.type === 'buy') {
@@ -530,9 +549,12 @@ const cancelOrder = async (ctx, orderId, user) => {
         //await cancelHoldInvoice({ hash: order.hash });
       }
 
+      // Save the updated state first, then publish messages.
+      // No need for locks here, since no funds have been put under escrow for PENDING orders.
       order.status = 'CANCELED';
       order.canceled_by = user._id;
       await order.save();
+
       // we sent a private message to the user
       await messages.successCancelOrderMessage(ctx, user, order, ctx.i18n);
       // We delete the messages related to that order from the channel
@@ -580,7 +602,9 @@ const cancelOrder = async (ctx, orderId, user) => {
         initiatorUser
       );
 
+    // Save updated state first, then publish messages.
     order[`${initiator}_cooperativecancel`] = true;
+    await order.save();
 
     const i18nCtxCP = await getUserI18nContext(counterPartyUser);
     // If the counter party already requested a cooperative cancel order
@@ -588,7 +612,12 @@ const cancelOrder = async (ctx, orderId, user) => {
       // If we already have a holdInvoice we cancel it and return the money
       // if (order.hash) await cancelHoldInvoice({ hash: order.hash });
 
+      // Save updated state first, then publish messages.
+      // No need for locks here, since the only other possible states here will come from escrow actions which will
+      // unlock hunds held on escrow.
       order.status = 'CANCELED';
+      await order.save();
+
       let seller = initiatorUser;
       let i18nCtxSeller = ctx.i18n;
       if (order.seller_id == counterPartyUser._id) {
@@ -619,7 +648,6 @@ const cancelOrder = async (ctx, orderId, user) => {
         i18nCtxCP
       );
     }
-    await order.save();
   } catch (error) {
     logger.error(error);
   }
@@ -640,9 +668,11 @@ const fiatSent = async (ctx, orderId, user) => {
     const order = await validateFiatSentOrder(ctx, user, orderId);
     if (!order) return;
 
+    // Save updated state first, then publish messages.
     order.status = 'FIAT_SENT';
     const seller = await User.findOne({ _id: order.seller_id });
     await order.save();
+
     // We sent messages to both parties
     // We need to create i18n context for each user
     const i18nCtxBuyer = await getUserI18nContext(user);
