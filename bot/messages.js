@@ -1087,7 +1087,7 @@ const toBuyerExpiredOrderMessage = async (bot, user, i18n) => {
   try {
     await bot.telegram.sendMessage(
       user.tg_id,
-      i18n.t('expired_order_to_buyer', { helpGroup: process.env.HELP_GROUP })
+      i18n.t('expired_order_to_buyer', { order: order, helpGroup: process.env.HELP_GROUP })
     );
   } catch (error) {
     logger.error(error);

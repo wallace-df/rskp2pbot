@@ -66,10 +66,10 @@ const syncEscrowedOrders = async bot => {
     }
 
     // Activate orders where the seller has locked the required tokens.
-    await activateFundedOrders();
+    await activateFundedOrders(bot);
 
     // Resolve (release or cancel) orders where the seller has locked the required tokens.
-    await resolveFundedOrders();
+    await resolveFundedOrders(bot);
 
   } catch (error) {
     logger.error(error);
@@ -257,7 +257,7 @@ const processRefundedOrder = async (bot, order, refundedByAdmin) => {
 
   // Save updated state first, then publish messages.
   order.status = 'CANCELED_BY_ADMIN';
-  //await order.save();
+  await order.save();
 
   await messages.successCancelOrderByAdminMessage(i18nCtxSeller, bot, sellerUser, order);
   await messages.successCancelOrderByAdminMessage(i18nCtxBuyer, bot, buyerUser, order);

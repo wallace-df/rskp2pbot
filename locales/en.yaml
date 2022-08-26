@@ -334,13 +334,13 @@ expired_order: |
   @${sellerUser.username} has ${sellerUser.disputes} disputes
   @${buyerUser.username} has ${buyerUser.disputes} disputes
 expired_order_to_buyer: |
-  🚨🚨🚨 This order is about to expire and must be completed or canceled immediately, if you haven't sent the fiat money yet you can still cancel with the /cancel command.
+  🚨🚨🚨 The order ${order._id} is about to expire and must be completed or canceled immediately, if you haven't sent the fiat money yet you can still cancel with the /cancel command.
 
   If you sent the fiat money but the seller refuses to release the funds, you can open a dispute with the /dispute command.
 
   If you need help you can write to the group ${helpGroup}
 expired_order_to_seller: |
-  🚨🚨🚨 This order is about to expire and must be completed or canceled immediately, if you have not received the fiat money yet you can still cancel with the /cancel command.
+  🚨🚨🚨 The order ${order._id} is about to expire and must be completed or canceled immediately, if you have not received the fiat money yet you can still cancel with the /cancel command.
 
   If you received the fiat money please release the funds, otherwise you are under the risk of the buyer opening a dispute which will affect your reputation.
   
