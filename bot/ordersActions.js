@@ -46,12 +46,12 @@ const createOrder = async (
 
     if (priceFromAPI && !token.api3FeedId) {
       await messages.noRateForToken(bot, user, i18n);
-      return;
+      return null;
     }
 
     if (priceFromAPI && !currency.price) {
       await messages.noRateForCurrency(bot, user, i18n);
-      return;
+      return null;
     }
 
     const fairPrice = await fetchFairMarketPrice(fiatCode, token.code);
@@ -108,14 +108,15 @@ const createOrder = async (
     return order;
   } catch (error) {
     logger.error(error);
+    return null;
   }
 };
 
 const getFiatAmountData = fiatAmount => {
   const response = {};
   if (fiatAmount.length === 2) {
-    response.min_amount = fiatAmount[0];
-    response.max_amount = fiatAmount[1];
+    response.min_fiat_amount = fiatAmount[0];
+    response.max_fiat_amount = fiatAmount[1];
   } else {
     response.fiat_amount = fiatAmount[0];
   }
@@ -268,20 +269,20 @@ const getNewRangeOrderPayload = async order => {
   try {
     let newMaxAmount = 0;
 
-    if (order.max_amount !== undefined) {
-      newMaxAmount = order.max_amount - order.fiat_amount;
+    if (order.max_fiat_amount !== undefined) {
+      newMaxAmount = order.max_fiat_amount - order.fiat_amount;
     }
 
-    if (newMaxAmount >= order.min_amount) {
+    if (newMaxAmount >= order.min_fiat_amount) {
       const orderData = {
         type: order.type,
-        amount: 0,
+        amount: '0',
         tokenCode: order.token_code,
-        // drop newMaxAmount if it is equal to min_amount and create a
+        // drop newMaxAmount if it is equal to min_fiat_amount and create a
         // not range order.
-        // Set preserves insertion order, so min_amount will be always
+        // Set preserves insertion order, so min_fiat_amount will be always
         // before newMaxAmount
-        fiatAmount: [...new Set([order.min_amount, newMaxAmount])],
+        fiatAmount: [...new Set([order.min_fiat_amount, newMaxAmount])],
         fiatCode: order.fiat_code,
         paymentMethod: order.payment_method,
         status: 'PENDING',

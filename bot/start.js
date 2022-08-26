@@ -116,17 +116,17 @@ const initialize = (botToken, options) => {
   bot.use(commandArgsMiddleware());
 
   schedule.scheduleJob(`*/10 * * * * *`, async () => {
-    //console.log("will escrow orders");
+    console.log("will escrow orders");
     await escrowOrders(bot);
   });
 
-  schedule.scheduleJob(`*/30 * * * * *`, async () => {
-    //console.log("will cancel orders");
+  schedule.scheduleJob(`*/10 * * * * *`, async () => {
+    console.log("will cancel orders");
     await cancelOrders(bot);
   });
 
-  schedule.scheduleJob(`*/30 * * * * *`, async () => {
-    //console.log("will delete orders");
+  schedule.scheduleJob(`*/10 * * * *`, async () => {
+    console.log("will delete orders");
     await deleteOrders(bot);
   });
 
@@ -219,9 +219,12 @@ const initialize = (botToken, options) => {
       if (!orders) return;
 
       for (const order of orders) {
+        // Save updated state first, then publish messages.
+        // No need for locks here, since no funds have been put under escrow for PENDING orders.
         order.status = 'CANCELED';
         order.canceled_by = ctx.user.id;
         await order.save();
+
         // We delete the messages related to that order from the channel
         await deleteOrderFromChannel(order, bot.telegram);
       }
@@ -342,14 +345,11 @@ const initialize = (botToken, options) => {
       if (order.status === 'RELEASE')
         return await messages.successCompleteOrderMessage(ctx, order);
 
-
       if (order.status === 'WAITING_BUYER_ADDRESS') {
-        order.buyer_address = address;
         const seller = await User.findOne({ _id: order.seller_id });
         await waitPayment(ctx, bot, ctx.user, seller, order, address);
       }
 
-      await order.save();
     } catch (error) {
       logger.error(error);
     }

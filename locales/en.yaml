@@ -405,6 +405,8 @@ enter_token_amount: Enter ${tokenCode} amount (e.g, 0.0001)
 market_price: Market price (API3 + Yadio)
 enter_currency: 'Enter a currency by your code, eg: USD'
 choose_currency: Choose a currency
+enter_token: 'Enter a currency by your code, eg: RBTC'
+choose_token: Choose a token
 enter_currency_amount: Enter the amount of ${currency}, enter only numbers.
 enter_premium_discount: Enter the premium(+) or discount(-) to apply to the market price.
 no_premium_or_discount: No premium or discount

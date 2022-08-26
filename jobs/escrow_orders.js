@@ -1,19 +1,16 @@
 const { User, Order, Dispute } = require('../models');
 const messages = require('../bot/messages');
 const ordersActions = require('../bot/ordersActions');
-const { handleReputationItems, getUserI18nContext, getToken } = require('../util');
-const { ethers } = require("ethers");
+const { handleReputationItems, getUserI18nContext, getToken, acquireOrdersLock, releaseOrdersLock } = require('../util');
+const { ethers } = require('ethers');
 const BN = require('bn.js');
 const logger = require('../logger');
 
 const rskEscrowContract = new ethers.Contract(
   process.env.RSK_ESCROW_CONTRACT,  
-  require("../contracts/abis/RSKEscrow.json"),
+  require('../contracts/abis/RSKEscrow.json'),
   new ethers.providers.JsonRpcProvider(process.env.RSK_PROVIDER)
 );
-
-let running = false;
-
 
 const isMatchingOrder = (order, escrow) => {
   let token = getToken(order.token_code);
@@ -29,11 +26,11 @@ const isMatchingOrder = (order, escrow) => {
     return false;
   }
 
-  if (("0x" + order.buyer_hash.toLowerCase()) !== escrow.buyerHash.toLowerCase()) {
+  if (('0x' + order.buyer_hash.toLowerCase()) !== escrow.buyerHash.toLowerCase()) {
     return false;
   }
 
-  if (("0x" + order.seller_hash.toLowerCase()) !== escrow.sellerHash.toLowerCase()) {
+  if (('0x' + order.seller_hash.toLowerCase()) !== escrow.sellerHash.toLowerCase()) {
     return false;
   }
 
@@ -54,11 +51,19 @@ const escrowOrders = async bot => {
 
   try {
 
-    if(running) {
+    // We don't want to run together with other tasks that update the order status.
+    //
+    // In special, we want  avoid cases like:
+    // (1) Seller locks tokens in escrow.
+    // (2) The cancel job runs before the escrow job, giving the seller the option to get a refund.
+    // (3) The escrow jobs runsin parallel, sees that the order hasn't been cancelled yet and informs the buyer to go on with the trade.
+    // 
+    // In the scenario above, the seller could trick the buyer for sending fiat, while also holding the power to refund tokens.
+    // We want either the refund option available for the seller, or the option to go on with the trade.
+    //
+    if (!acquireOrdersLock()) {
       return;
     }
-
-    running = true;
 
     // We get the orders where the seller must lock tokens before continuing.
     const waitingOrders = await Order.find({
@@ -66,10 +71,9 @@ const escrowOrders = async bot => {
     });
 
     for (const order of waitingOrders) {
-
       try {
-
         let locked = false;
+
         let escrow = await rskEscrowContract.orderById(order._id.toString());
         if (escrow.status === 1 && isMatchingOrder(order, escrow)) {
           locked = true;
@@ -79,16 +83,17 @@ const escrowOrders = async bot => {
           continue;
         }
         
+        // Save updated state first, then publish messages.
+        order.status = 'ACTIVE';
+        order.tokens_held_at = Date.now();
+        order.save();
+        
         const buyerUser = await User.findOne({ _id: order.buyer_id });
         const sellerUser = await User.findOne({ _id: order.seller_id });
         
         // This is the i18n context we need to pass to the message
         const i18nCtxBuyer = await getUserI18nContext(buyerUser);
         const i18nCtxSeller = await getUserI18nContext(sellerUser);
-
-        order.status = 'ACTIVE';
-        order.tokens_held_at = Date.now();
-        order.save();
 
         if (order.type === 'sell') {
           await messages.onGoingTakeSellMessage(
@@ -115,10 +120,8 @@ const escrowOrders = async bot => {
     });
 
     for (const order of lockedOrders) {
-
       try {
         let released = false;
-
         let escrow = await rskEscrowContract.orderById(order._id.toString());
         if (escrow.status === 2 && isMatchingOrder(order, escrow)) {
           released = true;
@@ -130,15 +133,14 @@ const escrowOrders = async bot => {
   
         // We look for a dispute for this order
         const dispute = await Dispute.findOne({ order_id: order._id });
-  
         if (dispute) {
           dispute.status = 'RELEASED';
           await dispute.save();
         } 
   
+        // Save updated state first, then publish messages.
         order.status = 'RELEASED';
         await order.save();
-  
   
         const buyerUser = await User.findOne({ _id: order.buyer_id });
         const sellerUser = await User.findOne({ _id: order.seller_id });
@@ -148,7 +150,7 @@ const escrowOrders = async bot => {
         const i18nCtxSeller = await getUserI18nContext(sellerUser);
         await messages.fundsReleasedMessages(bot, sellerUser, buyerUser, i18nCtxBuyer, i18nCtxSeller);
   
-        await handleReputationItems(buyerUser, sellerUser, order.amount);
+        //await handleReputationItems(buyerUser, sellerUser, order.amount);
         await messages.rateUserMessage(bot, buyerUser, order, i18nCtxBuyer);
         await messages.rateUserMessage(bot, sellerUser, order, i18nCtxSeller);
   
@@ -201,7 +203,7 @@ const escrowOrders = async bot => {
   } catch (error) {
     logger.error(error);
   } finally {
-    running = false;
+    releaseOrdersLock();
   }
 };
 

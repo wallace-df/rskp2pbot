@@ -17,6 +17,22 @@ const dapiServer = new ethers.Contract(
 
 const logger = require('../logger');
 
+
+let locked = false;
+
+const acquireOrdersLock = () => {
+  if (locked) {
+    return false;
+  }
+
+  locked = true;
+  return true;
+};
+
+const releaseOrdersLock = () => {
+  locked = false;
+};
+
 // ISO 4217, all ISO currency codes are 3 letters but users can trade shitcoins
 const isIso4217 = code => {
   if (code.length < 3 || code.length > 5) {
@@ -522,6 +538,8 @@ const getLanguageFlag = code => {
 };
 
 module.exports = {
+  acquireOrdersLock,
+  releaseOrdersLock,
   isIso4217,
   plural,
   getToken,

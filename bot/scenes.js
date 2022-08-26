@@ -25,8 +25,6 @@ const addWalletAddressWizard = new Scenes.WizardScene(
         expirationTime
       );
 
-      order.status = 'WAITING_BUYER_ADDRESS';
-      await order.save();
       return ctx.wizard.next();
     } catch (error) {
       logger.error(error);
@@ -106,7 +104,7 @@ const addFiatAmountWizard = new Scenes.WizardScene(
       if (!Number.isInteger(fiatAmount))
         return await messages.wizardAddFiatAmountWrongAmountMessage(ctx, order);
 
-      if (fiatAmount < order.min_amount || fiatAmount > order.max_amount)
+      if (fiatAmount < order.min_fiat_amount || fiatAmount > order.max_fiat_amount)
         return await messages.wizardAddFiatAmountWrongAmountMessage(ctx, order);
 
       order.fiat_amount = fiatAmount;

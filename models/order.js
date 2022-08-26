@@ -10,9 +10,18 @@ const OrderSchema = new mongoose.Schema({
     // fee in tokens (we use string to handle big numbers)
     type: String 
   },
+  max_fiat_amount: {
+    // max amount in fiat
+    type: Number,
+    min: 0,
+  },
+  min_fiat_amount: {
+    // min amount in fiat
+    type: Number,
+    min: 0,
+  },
   bot_fee: { type: Number, min: 0 }, // bot MAX_FEE at the moment of order creation
   community_fee: { type: Number, min: 0 }, // community FEE_PERCENT at the moment of order creation
-  routing_fee: { type: Number, min: 0, default: 0 },
   buyer_hash: {
     type: String,
     index: {

@@ -1023,14 +1023,15 @@ const cantAddWalletAddressMessage = async ctx => {
 };
 
 const wizardAddFiatAmountMessage = async (ctx, currency, action, order) => {
+  console.log(order);
   try {
     await ctx.reply(
       ctx.i18n.t('wizard_add_fiat_amount', {
         action,
         currency,
         fiatAmount: numberFormat(order.fiat_code, order.fiat_amount),
-        minAmount: numberFormat(order.fiat_code, order.min_amount),
-        maxAmount: numberFormat(order.fiat_code, order.max_amount),
+        minAmount: numberFormat(order.fiat_code, order.min_fiat_amount),
+        maxAmount: numberFormat(order.fiat_code, order.max_fiat_amount),
       })
     );
   } catch (error) {
@@ -1043,8 +1044,8 @@ const wizardAddFiatAmountWrongAmountMessage = async (ctx, order) => {
     ctx.deleteMessage();
     await ctx.reply(
       ctx.i18n.t('wizard_add_fiat_wrong_amount', {
-        minAmount: numberFormat(order.fiat_code, order.min_amount),
-        maxAmount: numberFormat(order.fiat_code, order.max_amount),
+        minAmount: numberFormat(order.fiat_code, order.min_fiat_amount),
+        maxAmount: numberFormat(order.fiat_code, order.max_fiat_amount),
       })
     );
   } catch (error) {

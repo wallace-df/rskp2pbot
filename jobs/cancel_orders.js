@@ -1,11 +1,26 @@
 const { User, Order } = require('../models');
 const { cancelAddWalletAddress, cancelLockTokensRequest } = require('../bot/commands');
 const messages = require('../bot/messages');
-const { getUserI18nContext } = require('../util');
+const { getUserI18nContext,  acquireOrdersLock, releaseOrdersLock } = require('../util');
 const logger = require('../logger');
 
 const cancelOrders = async bot => {
   try {
+
+    // We don't want to run together with other tasks that update the order status.
+    //
+    // In special, we want  avoid cases like:
+    // (1) Seller locks tokens in escrow.
+    // (2) The cancel job runs before the escrow job, giving the seller the option to get a refund.
+    // (3) The escrow jobs runsin parallel, sees that the order hasn't been cancelled yet and informs the buyer to go on with the trade.
+    // 
+    // In the scenario above, the seller could trick the buyer for sending fiat, while also holding the power to refund tokens.
+    // We want either the refund option available for the seller, or the option to go on with the trade.
+    //
+    if (!acquireOrdersLock()) {
+      return;
+    }
+
     const takenTimeThreshold = new Date();
     takenTimeThreshold.setSeconds(takenTimeThreshold.getSeconds() - parseInt(process.env.PAYMENT_EXPIRATION_WINDOW));
     // We get the orders where the seller didn't lock the tokens 
@@ -18,7 +33,7 @@ const cancelOrders = async bot => {
       //  await cancelHoldInvoice({ hash: order.hash });
       if (order.status === 'WAITING_PAYMENT') {
         await cancelLockTokensRequest(null, bot, order);
-      } else {
+      } else if(order.status === 'WAITING_BUYER_ADDRESS') {
         await cancelAddWalletAddress(null, bot, order);
       }
     }
@@ -59,11 +74,16 @@ const cancelOrders = async bot => {
         sellerUser,
         i18nCtxBuyer
       );
+
+      // It is okay to save the state after publishing the messages above.
+      // In the worst case, users will simply get an extra reminder.
       order.admin_warned = true;
       await order.save();
     }
   } catch (error) {
     logger.error(error);
+  } finally {
+    releaseOrdersLock();
   }
 };
 

@@ -25,6 +25,7 @@ const dispute = async ctx => {
     let initiator = 'seller';
     if (user._id == order.buyer_id) initiator = 'buyer';
 
+    // Save updated state first, then publish messages.
     order[`${initiator}_dispute`] = true;
     order.status = 'DISPUTE';
     await order.save();

@@ -9,9 +9,9 @@ exports.listOrdersResponse = async orders => {
       typeof order.fiat_amount !== 'undefined'
         ? sanitizeMD(order.fiat_amount)
         : [
-            sanitizeMD(order.min_amount),
+            sanitizeMD(order.min_fiat_amount),
             ' \\- ',
-            sanitizeMD(order.max_amount),
+            sanitizeMD(order.max_fiat_amount),
           ].join('');
 
     if (typeof order.amount !== 'undefined') amount = order.amount;
@@ -46,7 +46,7 @@ exports.createOrderWizardStatus = (i18n, state) => {
   const currency = state.currency || '__';
 
   let formattedAmount = '';
-  if (state.tokenAmount && state.tokenCode) {
+  if (state.tokenAmount && state.tokenAmount !== '0' && state.tokenCode) {
     let token  = getToken(state.tokenCode);
     formattedAmount = `${formatUnit(state.tokenAmount, token.decimals)} ${token.code}`
   } else if (state.tokenCode) {

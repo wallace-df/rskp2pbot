@@ -258,7 +258,7 @@ const createOrderPrompts = {
   },
   async token(ctx) {
     const { tokens } = ctx.wizard.state;
-    if (!tokens) return ctx.reply(ctx.i18n.t('enter_currency'));
+    if (!tokens) return ctx.reply(ctx.i18n.t('enter_token'));
     const buttons = tokens.map(token =>
       Markup.button.callback(token, token)
     );
@@ -269,7 +269,7 @@ const createOrderPrompts = {
       rows.push(chunk);
     }
     return ctx.reply(
-      ctx.i18n.t('choose_currency'),
+      ctx.i18n.t('choose_token'),
       Markup.inlineKeyboard(rows)
     );
   },
