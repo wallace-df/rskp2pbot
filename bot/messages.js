@@ -621,18 +621,23 @@ const fiatSentMessages = async (
 ) => {
   try {
     let token = getToken(order.token_code);
+    let formattedAmount = formatUnit(order.amount, token.decimals) + ' ' + token.code;
     await ctx.telegram.sendMessage(
       buyer.tg_id,
       i18nBuyer.t('I_told_seller_you_sent_fiat', {
         sellerUsername: seller.username,
-        formattedAmount: formatUnit(order.amount, token.decimals) + ' ' + token.code
+        formattedAmount: formattedAmount
       })
     );
     await ctx.telegram.sendMessage(
       seller.tg_id,
       i18nSeller.t('buyer_told_me_that_sent_fiat', {
         buyerUsername: buyer.username,
-      })
+        order: order,
+        formattedAmount: formattedAmount,
+        dappPage: process.env.DAPP_PAGE
+      }),
+      { parse_mode: 'markdown' }
     );
   } catch (error) {
     logger.error(error);

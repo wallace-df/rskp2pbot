@@ -62,7 +62,7 @@ const createOrder = (exports.createOrder = new Scenes.WizardScene(
       if (undefined === currency) return createOrderSteps.currency(ctx);
       if (undefined === fiatAmount) return createOrderSteps.fiatAmount(ctx);
       if (undefined === tokenAmount) return createOrderSteps.tokenAmount(ctx);
-      if (undefined === priceMargin && tokenAmount === 0)
+      if (undefined === priceMargin && tokenAmount === '0')
         return createOrderSteps.priceMargin(ctx);
       if (undefined === method) return createOrderSteps.method(ctx);
 
@@ -334,7 +334,7 @@ const createOrderHandlers = {
     const { tokenDecimals } = ctx.wizard.state;
 
     if (ctx.callbackQuery) {
-      ctx.wizard.state.tokenAmount = 0;
+      ctx.wizard.state.tokenAmount = '0';
       await ctx.wizard.state.updateUI();
       return true;
     }
@@ -342,24 +342,19 @@ const createOrderHandlers = {
     await ctx.deleteMessage();
 
     try {
-      input = Number(toBaseUnit(input, tokenDecimals).toString());
+      input = toBaseUnit(input, tokenDecimals).toString();
     } catch(err) {
       console.log(err);
       ctx.wizard.state.error = ctx.i18n.t('invalid_amount');
       await ctx.wizard.state.updateUI();
       return;
     }
-    if (isNaN(input)) {
-      ctx.wizard.state.error = ctx.i18n.t('not_number');
-      await ctx.wizard.state.updateUI();
-      return;
-    }
-    if (input < 0) {
+    if (input[0] === "-") {
       ctx.wizard.state.error = ctx.i18n.t('not_negative');
       await ctx.wizard.state.updateUI();
       return;
     }
-    ctx.wizard.state.tokenAmount = parseInt(input);
+    ctx.wizard.state.tokenAmount = input;
     await ctx.wizard.state.updateUI();
     return true;
   },

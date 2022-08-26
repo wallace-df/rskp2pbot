@@ -127,7 +127,7 @@ const toBaseUnit = (value, decimals) => {
 };
 
 const formatUnit = (value, decimals) => {
-  value = new BN(String(value), 10);
+  value = new BN(value, 10);
   let base = new BN('10',10).pow(new BN(String(decimals),10));
   let fraction = value.mod(base).toString(10);
 
@@ -252,12 +252,10 @@ const fetchFairMarketPrice = async (fiatCode, tokenCode) => {
   }
 
   let base = new BigDecimal(new BN('10', 10).pow(new BN(String(token.decimals), 10)));
-  fiatRate = fiatRate.divide(base, 8).getValue();
-
-  return Number(fiatRate);
+  return fiatRate.divide(base, 8).getValue();  
 };
 
-const getTokenAmountFromMarketPrice = async (fiatCode, fiatAmount, tokenCode) => {
+const getTokenAmountFromMarketPrice = async (fiatCode, fiatAmount, tokenCode, priceMargin) => {
   try {
 
     const token = getToken(tokenCode);
@@ -266,11 +264,13 @@ const getTokenAmountFromMarketPrice = async (fiatCode, fiatAmount, tokenCode) =>
     }
 
     let fiatRate = new BigDecimal(await fetchFairMarketPrice(fiatCode, tokenCode));
+
+    let marginPercent = new BigDecimal(priceMargin).divide(new BigDecimal(100));
+    let finalRate = fiatRate.add(fiatRate.multiply(marginPercent));
     let base = new BigDecimal(new BN('10', 10).pow(new BN(String(token.decimals), 10)).toString());
 
-    let tokenAmount = new BigDecimal(fiatAmount).multiply(base).divide(fiatRate, 0).getValue();
+    return new BigDecimal(fiatAmount).multiply(base).divide(finalRate, 0).getValue();
 
-    return parseInt(tokenAmount);
   } catch (error) {
     logger.error(error);
     return 0;
@@ -278,14 +278,11 @@ const getTokenAmountFromMarketPrice = async (fiatCode, fiatAmount, tokenCode) =>
 };
 
 const calculateExchangePrice = (fiatAmount, tokenAmount, tokenDecimals) => {
+
   try {
-
     let base = new BN('10', 10).pow(new BN(String(tokenDecimals), 10));
-    let fiat = new BigDecimal(fiatAmount);
-    let amount = new BigDecimal(tokenAmount);
-    let feeRate = new BigDecimal(base.toString()).multiply(fiat).divide(amount, 2);
-
-    return Number(feeRate.getValue());
+    let rate = new BigDecimal(base.toString()).multiply(new BigDecimal(fiatAmount)).divide(new BigDecimal(tokenAmount), 2);
+    return rate.getValue();
   } catch (error) {
     logger.error(error);
     return "Unknown";

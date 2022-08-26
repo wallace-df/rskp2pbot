@@ -34,15 +34,15 @@ const createOrder = async (
   }
 ) => {
   try {
-    amount = parseInt(amount);
-    const fee = await getFee(amount, community_id);
+    // fixme: get fees...
+    const fee = 0;//await getFee(amount, community_id);
     // Global fee values at the moment of the order creation
     // We will need this to calculate the final amount
     const botFee = parseFloat(process.env.MAX_FEE);
     const communityFee = parseFloat(process.env.FEE_PERCENT);
     const token = getToken(tokenCode);
     const currency = getCurrency(fiatCode);
-    const priceFromAPI = !amount;
+    const priceFromAPI = (amount === '0');
 
     if (priceFromAPI && !token.api3FeedId) {
       await messages.noRateForToken(bot, user, i18n);
@@ -55,7 +55,6 @@ const createOrder = async (
     }
 
     const fairPrice = await fetchFairMarketPrice(fiatCode, token.code);
-
     const fiatAmountData = getFiatAmountData(fiatAmount);
 
     const baseOrderData = {
@@ -170,14 +169,14 @@ const buildDescription = async (
     let amountText = `${formatUnit(amount, token.decimals)} ${token.code}`;
     let tasaText = '';
     if (priceFromAPI) {
-      amountText = '';
+      amountText = `${token.code}`;
       tasaText = i18n.t('rate') + `: ${process.env.FIAT_RATE_NAME} ${priceMarginText}\n`;
     } else {
       const exchangePrice = calculateExchangePrice(fiatAmount[0], amount, token.decimals);
       const symbol = !!currency && !!currency.symbol_native ? currency.symbol_native : fiatCode;
 
-      tasaText = i18n.t('seller_price') + `: ${symbol} ${numberFormat(fiatCode, exchangePrice)}\n`;
-      tasaText += i18n.t('fair_price') + `: ${symbol} ${numberFormat(fiatCode, fairPrice)}\n`;
+      tasaText = i18n.t('seller_price') + `: ${symbol} ${numberFormat(fiatCode, Number(exchangePrice))}\n`;
+      tasaText += i18n.t('fair_price') + `: ${symbol} ${numberFormat(fiatCode, Number(fairPrice))}\n`;
     }
 
     let rateText = '';

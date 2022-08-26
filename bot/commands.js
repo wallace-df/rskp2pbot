@@ -161,23 +161,19 @@ const addWalletAddress = async (ctx, bot, order) => {
       return;
     }
 
-    let amount = order.amount;
-    if (amount === 0) {
-      amount = await getTokenAmountFromMarketPrice(order.fiat_code, order.fiat_amount, order.token_code);
-      if (amount > 0) {
-        const marginPercent = order.price_margin / 100;
-        amount = amount - amount * marginPercent;
-        amount = Math.floor(amount);
-        order.fee = await getFee(amount, order.community_id);
-        order.amount = amount;  
-      }
+    if (order.amount === '0') {
+      order.amount = await getTokenAmountFromMarketPrice(order.fiat_code, order.fiat_amount, order.token_code, order.price_margin);
     }
 
     // If the price API fails we can't continue with the process
-    if (order.amount === 0) {
+    if (order.amount === '0') {
       await messages.priceApiFailedMessage(ctx, bot, buyer);
       return;
     }
+
+    // FIXME: get fees...
+    order.fee = 0; //await getFee(amount, order.community_id);
+
     await order.save();
     const seller = await User.findOne({ _id: order.seller_id });
 
@@ -369,7 +365,7 @@ const showHoldInvoice = async (ctx, bot, order) => {
       fiatAmount: order.fiat_amount,
     });
     let amount;
-    if (order.amount === 0) {
+    if (order.amount === '0') {
       amount = await getTokenAmountFromMarketPrice(order.fiat_code, order.fiat_amount);
       const marginPercent = order.price_margin / 100;
       amount = amount - amount * marginPercent;

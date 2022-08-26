@@ -13,7 +13,15 @@ const routes = [
     { path: "/refund", component: RefundPage },
     { path: "/adminRelease", component: AdminReleasePage },
     { path: "/adminRefund", component: AdminRefundPage },
-    { path: "/:catchAll(.*)", component: NotFoundPage },
+
+    { path: "/rskp2pbot-dapp", component: HomePage },
+    { path: "/rskp2pbot-dapp/lock", component: LockPage },
+    { path: "/rskp2pbot-dapp/release", component: ReleasePage },
+    { path: "/rskp2pbot-dapp/refund", component: RefundPage },
+    { path: "/rskp2pbot-dapp/adminRelease", component: AdminReleasePage },
+    { path: "/rskp2pbot-dapp/adminRefund", component: AdminRefundPage },
+
+    { path: "/:catchAll(.*)", component: NotFoundPage }
 ];
 
 export default routes;

@@ -36,6 +36,7 @@ lock_tokens_request: |
   Buyer Reputation: ${rate}
 
   To start the selling process, please use this link to lock your tokens:
+
   [Lock ${formattedAmount}](${dappPage}/lock?orderId=${order._id}&token=${order.token_code}&buyerAddress=${order.buyer_address}&buyerHash=${order.buyer_hash}&sellerHash=${order.seller_hash}&amount=${order.amount}&fee=${order.fee})
 
   You have ${expirationTime} minutes to lock the tokens. After that, the trade will be cancelled and any locked tokens will be refunded to you.
@@ -44,7 +45,7 @@ pending_sell: |
 
   You have to wait until another user picks your order, it will be available for ${orderExpirationWindow} hours in the channel
 
-  You can cancel this order before another user picks it up by executting the command 👇
+  You can cancel this order before another user picks it up by executing the command 👇
 cancel_order_cmd: |
   /cancel ${orderId}
 pending_buy: |
@@ -52,7 +53,7 @@ pending_buy: |
 
   You need to wait until another user picks up the order, this order will expire in ${orderExpirationWindow} hours.
 
-  You can cancel this order before another user picks it up by executting the command 👇
+  You can cancel this order before another user picks it up by executing the command 👇
 must_be_int: ${fieldName} must be a number
 must_be_numeric: ${fieldName} must be numeric
 token_amount: tokens amount
@@ -115,7 +116,7 @@ you_took_someone_order: |
 
   If you agree with the above, press the button to continue 👇
 get_in_touch_with_seller: |
-  Get in touch with the seller, user @${sellerUsername} so as to get the details on how to send the money you must send ${currency} ${fiatAmount} using ${paymentMethod}.
+  Get in touch with the seller, user @${sellerUsername} so as to get the details on how to send ${currency} ${fiatAmount} using ${paymentMethod}.
 
   Once you send the money, please let me know with the command 👇
 fiatsent_order_cmd: |
@@ -123,7 +124,7 @@ fiatsent_order_cmd: |
 get_in_touch_with_buyer: |
   🤖 Get in touch with  @${buyerUsername} so as to give information on how to send you ${currency} ${fiatAmount} through ${paymentMethod}. Do not release your tokens until you verify that the buyer paid you the fiat.
 
-  Once you confirm reception of the money you must release the funds.
+  Once you confirm the payment, you must release the funds.
 buyer_took_your_order: |
   @${buyerUsername} has taken your order and wants to buy your ${tokenCode}. Get in touch to receive your ${currency} ${fiatAmount} through ${paymentMethod}.
 
@@ -261,9 +262,10 @@ have_to_wait_for_counterpart: 🕒 You have already made this operation, you mus
 ok_cooperativecancel: '👍 Counterparty agreed and the order Id: ${orderId} has been cancelled'
 refund_cooperativecancel: |
   💰 Use this link to get a refund on your loked tokens:
+
   [Refund ${formattedAmount}](${dappPage}/refund?orderId=${order._id}&sellerCode=${order.seller_secret})
 
-  You can also get the refund link at any type by using the /refundlink command
+  You can also get the refund link at any time by using the /refund command
 init_cooperativecancel: '🕒 You have started the cancelation of the order Id: ${orderId}, your counterparty must agree on cancellation too.'
 counterparty_wants_cooperativecancel: '😳 Your counterparty wants to cancel order Id: ${orderId}, If you agree on such cancellation please execute the follwing command 👇'
 cant_take_more_orders: ⛔ Sorry! You can't take another order while you have others waiting for you
@@ -352,9 +354,10 @@ havent_locked_tokens: |
   '🤨 I could not detect that you have locked the tokens for the Order Id: ${order._id}.'
 
   If you have locked it already, use this link to get a withdraw your tokens:
+  
   [Refund ${formattedAmount}](${dappPage}/refund?orderId=${order._id}&sellerCode=${order.seller_secret})
 
-  You can also get the refund link at any type by using the /refundlink command
+  You can also get the refund link at any type by using the /refund command
 seller_havent_locked_tokens: '😔 Seller has not locked the tokens for your Order Id: ${orderId}, the operation was canceled.'
 seller_havent_added_wallet_address_to_admin_channel: 'Seller @${username} has not locked the tokens of order Id: ${orderId} time lapse ended and the order has been published again.'
 selling: Selling

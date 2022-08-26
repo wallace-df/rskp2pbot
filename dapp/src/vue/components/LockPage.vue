@@ -7,7 +7,7 @@
   </div>
   <div class="loading_container" v-else-if="locked">
     <h2 class="text-success mb-4">Funds successfully locked for order <i class="text-secondary">{{this.orderId}}</i></h2>
-    <p class="text-primary">Please while the bot automatically updates your order...</p>
+    <p class="text-primary">Your order will automatically updated shortly and you can close this window.</p>
   </div>
   <div class="loading_container" v-else>
     <h2 class="text-success mb-4">Lock funds for order <i class="text-secondary">{{this.orderId}}</i></h2>

@@ -3,21 +3,13 @@ const mongoose = require('mongoose');
 const OrderSchema = new mongoose.Schema({
   description: { type: String },
   amount: {
-    // amount in tokens
-    type: Number,
-    min: 0,
+    // amount in tokens (we use string to handle big numbers)
+    type: String
   },
-  max_amount: {
-    // max amount in fiat
-    type: Number,
-    min: 0,
+  fee: { 
+    // fee in tokens (we use string to handle big numbers)
+    type: String 
   },
-  min_amount: {
-    // min amount in fiat
-    type: Number,
-    min: 0,
-  },
-  fee: { type: Number, min: 0 },
   bot_fee: { type: Number, min: 0 }, // bot MAX_FEE at the moment of order creation
   community_fee: { type: Number, min: 0 }, // community FEE_PERCENT at the moment of order creation
   routing_fee: { type: Number, min: 0, default: 0 },

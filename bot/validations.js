@@ -86,15 +86,10 @@ const validateSellOrder = async ctx => {
     }
 
     try {
-      amount = Number(toBaseUnit(amount, token.decimals).toString());
+      amount = toBaseUnit(amount, token.decimals).toString();
     } catch(err) {
       console.log(err);
       await ctx.reply(ctx.i18n.t('invalid_amount'));
-      return false;
-    }
-
-    if (isNaN(amount)) {
-      await ctx.reply(ctx.i18n.t('must_be_int'), { fieldName: ctx.i18n.t('token_amount') });
       return false;
     }
 
@@ -102,7 +97,7 @@ const validateSellOrder = async ctx => {
     fiatAmount = fiatAmount.split('-');
     fiatAmount = fiatAmount.map(Number);
 
-    if (fiatAmount.length === 2 && amount !== 0) {
+    if (fiatAmount.length === 2 && amount !== '0') {
       await messages.invalidRangeWithAmount(ctx);
       return false;
     }
@@ -111,15 +106,6 @@ const validateSellOrder = async ctx => {
     // will make this conditional fail
     if (fiatAmount.length > 2) {
       await messages.mustBeANumberOrRange(ctx);
-      return false;
-    }
-
-    if (amount !== 0 && amount < process.env.MIN_PAYMENT_AMT) {
-      await messages.mustBeGreatherEqThan(
-        ctx,
-        'monto_en_sats',
-        process.env.MIN_PAYMENT_AMT
-      );
       return false;
     }
 
@@ -201,7 +187,7 @@ const validateBuyOrder = async ctx => {
       return false;
     }
 
-    if (amount !== 0 && amount < process.env.MIN_PAYMENT_AMT) {
+    if (amount !== '0' && amount < process.env.MIN_PAYMENT_AMT) {
       await messages.mustBeGreatherEqThan(
         ctx,
         'monto_en_sats',
