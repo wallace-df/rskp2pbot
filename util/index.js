@@ -313,6 +313,13 @@ const objectToArray = object => {
   return array;
 };
 
+const getTokensWithPrice = () => {
+  const tokensArr = objectToArray(tokens[process.env.NODE_ENV]);
+  const withPrice = tokensArr.filter(token => (token.stablecoin || token.api3FeedId));
+
+  return withPrice;
+};
+
 const getCurrenciesWithPrice = () => {
   const currenciesArr = objectToArray(currencies);
   const withPrice = currenciesArr.filter(currency => currency.price);
@@ -551,6 +558,7 @@ module.exports = {
   getTokenAmountFromMarketPrice,
   calculateExchangePrice,
   fetchFairMarketPrice,
+  getTokensWithPrice,
   getCurrenciesWithPrice,
   getEmojiRate,
   decimalRound,

@@ -8,7 +8,7 @@ const {
   Community,
   Dispute,
 } = require('../models');
-const { getCurrenciesWithPrice, deleteOrderFromChannel } = require('../util');
+const { getCurrenciesWithPrice, getTokensWithPrice, deleteOrderFromChannel } = require('../util');
 const {
   commandArgsMiddleware,
   stageMiddleware,
@@ -387,6 +387,16 @@ const initialize = (botToken, options) => {
   bot.action(/^release_([0-9a-f]{24})$/, userMiddleware, async ctx => {
     ctx.deleteMessage();
     await release(ctx, ctx.match[1]);
+  });
+
+  bot.command('listtokens', userMiddleware, async ctx => {
+    try {
+      const tokens = getTokensWithPrice();
+
+      await messages.listTokensResponse(ctx, tokens);
+    } catch (error) {
+      logger.error(error);
+    }
   });
 
   bot.command('listcurrencies', userMiddleware, async ctx => {

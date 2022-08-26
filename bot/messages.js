@@ -899,12 +899,11 @@ const showInfoMessage = async (bot, user, info) => {
   }
 };
 
-// FIXME: add command for that.
 const listTokensResponse = async (ctx, tokens) => {
   try {
-    let response = `Code |   Name   |\n`;
+    let response = `Code  | Symbol | Name \n`;
     tokens.forEach(token => {
-      response += `${token.code} | ${token.name} | ${token.emoji}\n`;
+      response += `${token.code} |\t ${token.symbol} |\t ${token.name}\n`;
     });
     await ctx.reply(response);
   } catch (error) {
@@ -1311,6 +1310,7 @@ module.exports = {
   releaseInstructionsMessage,
   fundsReleasedMessages,
   rateUserMessage,
+  listTokensResponse,
   listCurrenciesResponse,
   priceApiFailedMessage,
   showHoldInvoiceMessage,

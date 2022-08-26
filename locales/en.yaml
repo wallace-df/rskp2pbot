@@ -200,6 +200,7 @@ help: |
   /setaddress <_order id_> <_wallet address_> - This command allows the buyer to set the wallet address where to receive tokens. 
   /setlang - Allows the user to change the language
   /listorders - Use this command to list all your pending transactions. 
+  /listtokens - Lists all supported tokens. 
   /listcurrencies - Lists all the currencies we can use to without indicatin the amount in tokens. 
   /fiatsent <_order id_> - Buyer informs that has already sent FIAT money to seller
   /release <_order id_> - Seller releases the tokens 
@@ -358,7 +359,7 @@ havent_locked_tokens: |
   
   [Refund ${formattedAmount}](${dappPage}/refund?orderId=${order._id}&sellerCode=${order.seller_secret})
 
-  You can also get the refund link at any type by using the /refund command
+  You can also get the refund link at any time by using the /refund command
 seller_havent_locked_tokens: '😔 Seller has not locked the tokens for your Order Id: ${orderId}, the operation was canceled.'
 seller_havent_added_wallet_address_to_admin_channel: 'Seller @${username} has not locked the tokens of order Id: ${orderId} time lapse ended and the order has been published again.'
 selling: Selling
