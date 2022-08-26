@@ -7,7 +7,8 @@ const {
   formatUnit,
   getDetailedOrder,
   secondsToTime,
-  getOrderChannel  
+  getOrderChannel,
+  sanitizeMD  
 } = require('../util');
 const logger = require('../logger');
 
@@ -738,7 +739,6 @@ const noRateForToken = async (bot, user, i18n) => {
   }
 };
 
-
 const badStatusOnCancelOrderMessage = async ctx => {
   try {
     await ctx.reply(ctx.i18n.t('cancel_error'));
@@ -777,6 +777,17 @@ const successCancelOrderByAdminMessage = async (i18nCtx, bot, user, order) => {
   }
 };
 
+const toAdminSuccessCancelOrderMessage = async (i18nCtx, bot, order) => {
+  try {
+    await bot.telegram.sendMessage(
+      process.env.ADMIN_CHANNEL,
+      i18nCtx.t('order_cancelled_by_admin', { orderId: order._id })
+    );
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
 const successCompleteOrderMessage = async (ctx, order) => {
   try {
     await ctx.reply(ctx.i18n.t('order_completed', { orderId: order._id }));
@@ -789,6 +800,17 @@ const successCompleteOrderByAdminMessage = async (i18nCtx, bot, user, order) => 
   try {
     await bot.telegram.sendMessage(
       user.tg_id,
+      i18nCtx.t('order_completed_by_admin', { orderId: order._id })
+    );
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+const toAdminSuccessCompleteOrderMessage = async (i18nCtx, bot, order) => {
+  try {
+    await bot.telegram.sendMessage(
+      process.env.ADMIN_CHANNEL,
       i18nCtx.t('order_completed_by_admin', { orderId: order._id })
     );
   } catch (error) {
@@ -1068,21 +1090,26 @@ const wizardAddFiatAmountCorrectMessage = async (ctx, currency, fiatAmount) => {
 const expiredOrderMessage = async (bot, order, buyerUser, sellerUser, i18n) => {
   try {
     const detailedOrder = getDetailedOrder(i18n, order, buyerUser, sellerUser);
+    const buyerUsername = buyerUser ? sanitizeMD(buyerUser.username) : '';
+    const sellerUsername = sellerUser ? sanitizeMD(sellerUser.username) : '';
+
     await bot.telegram.sendMessage(
       process.env.ADMIN_CHANNEL,
       i18n.t('expired_order', {
         detailedOrder,
         buyerUser,
+        buyerUsername,
         sellerUser,
+        sellerUsername,
       }),
-      { parse_mode: 'MarkdownV2' }
+      { parse_mode: 'markdownV2' }
     );
   } catch (error) {
     logger.error(error);
   }
 };
 
-const toBuyerExpiredOrderMessage = async (bot, user, i18n) => {
+const toBuyerExpiredOrderMessage = async (bot, order, user, i18n) => {
   try {
     await bot.telegram.sendMessage(
       user.tg_id,
@@ -1129,12 +1156,7 @@ const toSellerBuyerDidntAddWalletAddressMessage = async (bot, user, order, i18n)
   }
 };
 
-const toAdminChannelBuyerDidntAddWalletAddressMessage = async (
-  bot,
-  user,
-  order,
-  i18n
-) => {
+const toAdminChannelBuyerDidntAddWalletAddressMessage = async (bot, user, order, i18n) => {
   try {
     await bot.telegram.sendMessage(
       process.env.ADMIN_CHANNEL,
@@ -1174,12 +1196,7 @@ const toBuyerSellerDidntLockTokensMessage = async (bot, user, order, i18n) => {
   }
 };
 
-const toAdminChannelSellerDidntLockTokensMessage = async (
-  bot,
-  user,
-  order,
-  i18n
-) => {
+const toAdminChannelSellerDidntLockTokensMessage = async (bot, user, order, i18n) => {
   try {
     await bot.telegram.sendMessage(
       process.env.ADMIN_CHANNEL,
@@ -1302,8 +1319,10 @@ module.exports = {
   okCooperativeCancelMessage,
   shouldWaitCooperativeCancelMessage,
   successCompleteOrderByAdminMessage,
+  toAdminSuccessCompleteOrderMessage,
   successCompleteOrderMessage,
   successCancelOrderByAdminMessage,
+  toAdminSuccessCancelOrderMessage,
   successCancelOrderMessage,
   badStatusOnCancelOrderMessage,
   userCantTakeMoreThanOneWaitingOrderMessage,

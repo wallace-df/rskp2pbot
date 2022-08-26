@@ -89,7 +89,20 @@ const askForConfirmation = async (user, command) => {
       const orders = await Order.find(where);
 
       return orders;
+    } else if (command == '/refund') {
+      where.$and = [
+        { seller_id: user._id },
+        {
+          $or: [
+            { status: 'CANCELED' },
+          ],
+        },
+      ];
+      const orders = await Order.find(where);
+
+      return orders;
     }
+
 
     return [];
   } catch (error) {
@@ -163,26 +176,6 @@ const initialize = (botToken, options) => {
     await takebuy(ctx, bot);
   });
 
-  bot.command('release', userMiddleware, async ctx => {
-    try {
-      const params = ctx.update.message.text.split(' ');
-      const [command, orderId] = params.filter(el => el);
-
-      if (!orderId) {
-        const orders = await askForConfirmation(ctx.user, command);
-        if (!orders.length) return await ctx.reply(`${command} <order Id>`);
-
-        return await messages.showConfirmationButtons(ctx, orders, command);
-      } else if (!(await validateObjectId(ctx, orderId))) {
-        return;
-      } else {
-        await release(ctx, orderId, ctx.user);
-      }
-    } catch (error) {
-      logger.error(error);
-    }
-  });
-
   DisputeModule.configure(bot);
 
   // We allow users cancel pending orders,
@@ -200,7 +193,7 @@ const initialize = (botToken, options) => {
       } else if (!(await validateObjectId(ctx, orderId))) {
         return;
       } else {
-        await cancelOrder(ctx, orderId, ctx.user);
+        await cancelOrder(ctx, bot, orderId, ctx.user);
       }
     } catch (error) {
       logger.error(error);
@@ -232,20 +225,35 @@ const initialize = (botToken, options) => {
     }
   });
 
-  bot.command('checkorder', adminMiddleware, async ctx => {
+  // Only buyers can use this command
+  bot.command('setaddress', userMiddleware, async ctx => {
     try {
-      const [orderId] = await validateParams(ctx, 2, '\\<_order id_\\>');
+      const [orderId, walletAddress] = await validateParams(
+        ctx,
+        3,
+        '\\<_order id_\\> \\<_wallet address_\\>'
+      );
 
       if (!orderId) return;
       if (!(await validateObjectId(ctx, orderId))) return;
-      const order = await Order.findOne({ _id: orderId });
+      const address = await validateWalletAddress(ctx, walletAddress);
+      if (!address){
+        return await messages.invalidWalletAddressMessage(ctx);
+      };
+      const order = await Order.findOne({
+        _id: orderId,
+        buyer_id: ctx.user.id,
+      });
+      if (!order) return await messages.notActiveOrderMessage(ctx);
 
-      if (!order) return;
+      if (order.status === 'RELEASED')
+        return await messages.successCompleteOrderMessage(ctx, order);
 
-      const buyer = await User.findOne({ _id: order.buyer_id });
-      const seller = await User.findOne({ _id: order.seller_id });
+      if (order.status === 'WAITING_BUYER_ADDRESS') {
+        const seller = await User.findOne({ _id: order.seller_id });
+        await waitPayment(ctx, bot, ctx.user, seller, order, address);
+      }
 
-      await messages.checkOrderMessage(ctx, order, buyer, seller);
     } catch (error) {
       logger.error(error);
     }
@@ -275,6 +283,66 @@ const initialize = (botToken, options) => {
       } else {
         await fiatSent(ctx, orderId, ctx.user);
       }
+    } catch (error) {
+      logger.error(error);
+    }
+  });
+
+  bot.command('release', userMiddleware, async ctx => {
+    try {
+      const params = ctx.update.message.text.split(' ');
+      const [command, orderId] = params.filter(el => el);
+
+      if (!orderId) {
+        const orders = await askForConfirmation(ctx.user, command);
+        if (!orders.length) return await ctx.reply(`${command} <order Id>`);
+
+        return await messages.showConfirmationButtons(ctx, orders, command);
+      } else if (!(await validateObjectId(ctx, orderId))) {
+        return;
+      } else {
+        await release(ctx, orderId, ctx.user);
+      }
+    } catch (error) {
+      logger.error(error);
+    }
+  });
+
+  // We allow sellers to get a refund link for their cancelled orders.
+  bot.command('refund', userMiddleware, async ctx => {
+    try {
+      const params = ctx.update.message.text.split(' ');
+      const [command, orderId] = params.filter(el => el);
+
+      if (!orderId) {
+        const orders = await askForConfirmation(ctx.user, command);
+        if (!orders.length) return await ctx.reply(`${command}  <order Id>`);
+
+        return await messages.showConfirmationButtons(ctx, orders, command);
+      } else if (!(await validateObjectId(ctx, orderId))) {
+        return;
+      } else {
+        await refund(ctx, orderId, ctx.user);
+      }
+    } catch (error) {
+      logger.error(error);
+    }
+  });
+
+  bot.command('checkorder', adminMiddleware, async ctx => {
+    try {
+      const [orderId] = await validateParams(ctx, 2, '\\<_order id_\\>');
+
+      if (!orderId) return;
+      if (!(await validateObjectId(ctx, orderId))) return;
+      const order = await Order.findOne({ _id: orderId });
+
+      if (!order) return;
+
+      const buyer = await User.findOne({ _id: order.buyer_id });
+      const seller = await User.findOne({ _id: order.seller_id });
+
+      await messages.checkOrderMessage(ctx, order, buyer, seller);
     } catch (error) {
       logger.error(error);
     }
@@ -318,40 +386,6 @@ const initialize = (botToken, options) => {
     }
   });
 
-  // Only buyers can use this command
-  bot.command('setaddress', userMiddleware, async ctx => {
-    try {
-      const [orderId, walletAddress] = await validateParams(
-        ctx,
-        3,
-        '\\<_order id_\\> \\<_wallet address_\\>'
-      );
-
-      if (!orderId) return;
-      if (!(await validateObjectId(ctx, orderId))) return;
-      const address = await validateWalletAddress(ctx, walletAddress);
-      if (!address){
-        return await messages.invalidWalletAddressMessage(ctx);
-      };
-      const order = await Order.findOne({
-        _id: orderId,
-        buyer_id: ctx.user.id,
-      });
-      if (!order) return await messages.notActiveOrderMessage(ctx);
-
-      if (order.status === 'RELEASE')
-        return await messages.successCompleteOrderMessage(ctx, order);
-
-      if (order.status === 'WAITING_BUYER_ADDRESS') {
-        const seller = await User.findOne({ _id: order.seller_id });
-        await waitPayment(ctx, bot, ctx.user, seller, order, address);
-      }
-
-    } catch (error) {
-      logger.error(error);
-    }
-  });
-
   OrdersModule.configure(bot);
 
   bot.action('addWalletAddressBtn', userMiddleware, async ctx => {
@@ -359,7 +393,7 @@ const initialize = (botToken, options) => {
   });
 
   bot.action('cancelAddWalletAddressBtn', userMiddleware, async ctx => {
-    await cancelAddWalletAddress(ctx, bot);
+    await cancelAddWalletAddress(ctx, bot, null, true);
   });
 
   bot.action('showHoldInvoiceBtn', userMiddleware, async ctx => {
@@ -376,7 +410,7 @@ const initialize = (botToken, options) => {
 
   bot.action(/^cancel_([0-9a-f]{24})$/, userMiddleware, async ctx => {
     ctx.deleteMessage();
-    await cancelOrder(ctx, ctx.match[1]);
+    await cancelOrder(ctx, bot, ctx.match[1], null);
   });
 
   bot.action(/^fiatsent_([0-9a-f]{24})$/, userMiddleware, async ctx => {

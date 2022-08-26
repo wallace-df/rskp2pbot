@@ -142,37 +142,18 @@ no_id_related: You do not have any order associated with this Id.
 sell_tokens: Sell ${tokenCode}
 buy_tokens: Buy ${tokenCode}
 order_detail: |
-  Id: `${order._id}`
-
+  Id: ${order._id}
   Status: ${status}
-
   Creator: @${creator || ''}
-
   Buyer: @${buyerUsername || ''}
-
   Seller: @${sellerUsername || ''}
-
-  Order Amount \\(sats\\): ${order.amount}
-
-  Bot Fee \\(sats\\): ${fee}
-
-  Routing Fee \\(sats\\): ${order.routing_fee}
-
-  Fiat Amount \\(fiat\\) ${order.fiat_code}: ${order.fiat_amount}
-
+  Order Amount \\(${order.token_code}\\): ${order.amount}
+  Bot Fee \\(${order.token_code}\\): ${fee}
+  Fiat Amount \\(${order.fiat_code}\\) : ${order.fiat_amount}
   Order payment method: ${paymentMethod}
-
   Premium/discount: ${priceMargin}
-
   Created: ${createdAt}
-
   Taken: ${takenAt || ''}
-
-  seller invoice hash: `${order.hash || ''}`
-
-  seller invoice secret: `${order.secret || ''}`
-
-  buyer payment request: `${order.buyer_invoice || ''}`
 seller: seller
 buyer: buyer
 dispute_started_channel: |
@@ -332,8 +313,8 @@ expired_order: |
 
   ${detailedOrder}
 
-  @${sellerUser.username} has ${sellerUser.disputes} disputes
-  @${buyerUser.username} has ${buyerUser.disputes} disputes
+  @${buyerUsername} has ${sellerUser.disputes} disputes
+  @${sellerUsername} has ${buyerUser.disputes} disputes
 expired_order_to_buyer: |
   🚨🚨🚨 The order ${order._id} is about to expire and must be completed or canceled immediately, if you haven't sent the fiat money yet you can still cancel with the /cancel command.
 

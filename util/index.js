@@ -481,7 +481,7 @@ const getDetailedOrder = (i18n, order, buyer, seller) => {
     createdAt = sanitizeMD(createdAt);
     takenAt = sanitizeMD(takenAt);
     const status = sanitizeMD(order.status);
-    const fee = order.fee ? parseInt(order.fee) : '';
+    const fee = order.fee;
     const creator =
       order.creator_id === buyerId ? buyerUsername : sellerUsername;
     const message = i18n.t('order_detail', {

@@ -178,6 +178,7 @@ const processReleasedOrder = async (bot, order, releasedByAdmin) => {
 
     await messages.successCompleteOrderByAdminMessage(i18nCtxSeller, bot, sellerUser, order);
     await messages.successCompleteOrderByAdminMessage(i18nCtxBuyer, bot, buyerUser, order);
+    await messages.toAdminSuccessCompleteOrderMessage(i18nCtxBuyer, bot, order);
 
   } else {
 
@@ -261,6 +262,7 @@ const processRefundedOrder = async (bot, order, refundedByAdmin) => {
 
   await messages.successCancelOrderByAdminMessage(i18nCtxSeller, bot, sellerUser, order);
   await messages.successCancelOrderByAdminMessage(i18nCtxBuyer, bot, buyerUser, order);
+  await messages.toAdminSuccessCancelOrderMessage(i18nCtxSeller, bot, order);
 
 };
 

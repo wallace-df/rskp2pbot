@@ -371,6 +371,27 @@ const validateReleaseOrder = async (ctx, user, orderId) => {
   }
 };
 
+const validateRefundOrder = async (ctx, user, orderId) => {
+  try {
+    let where = {
+      seller_id: user._id,
+      status: 'CANCELED',
+      _id: orderId,
+    };
+    let order = await Order.findOne(where);
+
+    if (!order) {
+      await messages.notActiveOrderMessage(ctx);
+      return false;
+    }
+
+    return order;
+  } catch (error) {
+    logger.error(error);
+    return false;
+  }
+};
+
 const validateDisputeOrder = async (ctx, user, orderId) => {
   try {
     const where = {
@@ -537,6 +558,7 @@ module.exports = {
   validateTakeSellOrder,
   validateTakeBuyOrder,
   validateReleaseOrder,
+  validateRefundOrder,
   validateDisputeOrder,
   validateFiatSentOrder,
   validateSeller,

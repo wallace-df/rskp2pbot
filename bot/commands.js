@@ -250,15 +250,13 @@ const saveUserReview = async (targetUser, rating) => {
   }
 };
 
-const cancelAddWalletAddress = async (ctx, bot, order) => {
+const cancelAddWalletAddress = async (ctx, bot, order, userAction) => {
   try {
     if (ctx) {
       ctx.deleteMessage();
       ctx.scene.leave();
     }
-    let userAction = false;
     if (!order) {
-      userAction = true;
       const orderId = !!ctx && ctx.update.callback_query.message.text;
       if (!orderId) return;
       order = await Order.findOne({ _id: orderId });
@@ -268,28 +266,29 @@ const cancelAddWalletAddress = async (ctx, bot, order) => {
     const user = await User.findOne({ _id: order.buyer_id });
 
     if (!user) return;
+    if (order.status !== 'WAITING_BUYER_ADDRESS') return;
 
     const i18nCtx = await getUserI18nContext(user);
-    // Buyers only can cancel orders with status WAITING_BUYER_ADDRESS
-    if (order.status !== 'WAITING_BUYER_ADDRESS')
-      return await messages.genericErrorMessage(bot, user, i18nCtx);
-
     const sellerUser = await User.findOne({ _id: order.seller_id });
-    if (order.creator_id === order.buyer_id) {
-      
-      // Save the updated state first, then publish messages.
-      order.status = 'CLOSED';
-      await order.save();
 
-      // Then publish the messages.
-      await messages.toBuyerDidntAddWalletAddressMessage(bot, user, order, i18nCtx);
-      const i18nCtxSeller = await getUserI18nContext(sellerUser);
-      await messages.toSellerBuyerDidntAddWalletAddressMessage(
-        bot,
-        sellerUser,
-        order,
-        i18nCtxSeller
-      );
+    if (order.creator_id === order.buyer_id) {
+
+      throw "Shouldn't reached here?";
+      
+      
+      // // Save the updated state first, then publish messages.
+      // order.status = 'CLOSED';
+      // await order.save();
+
+      // // Then publish the messages.
+      // await messages.toBuyerDidntAddWalletAddressMessage(bot, user, order, i18nCtx);
+      // const i18nCtxSeller = await getUserI18nContext(sellerUser);
+      // await messages.toSellerBuyerDidntAddWalletAddressMessage(
+      //   bot,
+      //   sellerUser,
+      //   order,
+      //   i18nCtxSeller
+      // );
     } else {
       // Re-publish order
       if (userAction) {
@@ -429,12 +428,12 @@ const cancelLockTokensRequest = async (ctx, bot, order) => {
     const i18nCtxBuyer = await getUserI18nContext(buyerUser);
 
     // Save the updated state first, then publish messages.
-    order.status = 'CLOSED';
+    order.status = 'CANCELED';
     await order.save();
 
     await messages.toSellerDidntLockTokensMessage(bot, sellerUser, order, i18nCtxSeller);
     await messages.toBuyerSellerDidntLockTokensMessage(bot, buyerUser, order, i18nCtxBuyer);
-
+    await messages.toAdminChannelSellerDidntLockTokensMessage(bot, sellerUser, order, i18nCtxSeller);
   } catch (error) {
     logger.error(error);
   }
@@ -527,7 +526,7 @@ const cancelShowHoldInvoice = async (ctx, bot, order) => {
   }
 };
 
-const cancelOrder = async (ctx, orderId, user) => {
+const cancelOrder = async (ctx, bot, orderId, user) => {
   try {
     if (!user) {
       const tgUser = ctx.update.callback_query.from;
@@ -555,16 +554,16 @@ const cancelOrder = async (ctx, orderId, user) => {
       order.canceled_by = user._id;
       await order.save();
 
-      // we sent a private message to the user
-      await messages.successCancelOrderMessage(ctx, user, order, ctx.i18n);
       // We delete the messages related to that order from the channel
-      return await deleteOrderFromChannel(order, ctx.telegram);
+      await deleteOrderFromChannel(order, ctx.telegram);
+
+      // we sent a private message to the user
+      return await messages.successCancelOrderMessage(ctx, user, order, ctx.i18n);
     }
 
-    // If a buyer is taking a sell offer and accidentally touch continue button we
-    // let the user to cancel
+    // If a buyer is taking a sell offer and accidentally touches continue button, we let the user to cancel it.
     if (order.buyer_id == user._id && order.type === 'sell' && order.status === 'WAITING_BUYER_ADDRESS') {
-      return await cancelAddWalletAddress(null, ctx, order);
+      return await cancelAddWalletAddress(ctx, bot, order, true);
     }
 
     // If a seller is taking a buy offer and accidentally touch continue button we
@@ -710,6 +709,28 @@ const release = async (ctx, orderId, user) => {
     logger.error(error);
   }
 };
+
+
+const refund = async (ctx, orderId, user) => {
+  try {
+    if (!user) {
+      const tgUser = ctx.update.callback_query.from;
+      if (!tgUser) return;
+
+      user = await User.findOne({ tg_id: tgUser.id });
+
+      // If user didn't initialize the bot we can't do anything
+      if (!user) return;
+    }
+    const order = await validateRefundOrder(ctx, user, orderId);
+    if (!order) return;
+
+    await messages.refundInstructionsMessage(ctx, user, order);
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
 
 module.exports = {
   takebuy,

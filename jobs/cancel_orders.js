@@ -34,7 +34,7 @@ const cancelOrders = async bot => {
       if (order.status === 'WAITING_PAYMENT') {
         await cancelLockTokensRequest(null, bot, order);
       } else if(order.status === 'WAITING_BUYER_ADDRESS') {
-        await cancelAddWalletAddress(null, bot, order);
+        await cancelAddWalletAddress(null, bot, order, false);
       }
     }
     // We get orders where the seller locked the tokens but never released them.
