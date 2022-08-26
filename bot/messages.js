@@ -766,11 +766,11 @@ const successCancelAllOrdersMessage = async ctx => {
   }
 };
 
-const successCancelOrderByAdminMessage = async (ctx, bot, user, order) => {
+const successCancelOrderByAdminMessage = async (i18nCtx, bot, user, order) => {
   try {
     await bot.telegram.sendMessage(
       user.tg_id,
-      ctx.i18n.t('order_cancelled_by_admin', { orderId: order._id })
+      i18nCtx.t('order_cancelled_by_admin', { orderId: order._id })
     );
   } catch (error) {
     logger.error(error);
@@ -785,11 +785,11 @@ const successCompleteOrderMessage = async (ctx, order) => {
   }
 };
 
-const successCompleteOrderByAdminMessage = async (ctx, bot, user, order) => {
+const successCompleteOrderByAdminMessage = async (i18nCtx, bot, user, order) => {
   try {
     await bot.telegram.sendMessage(
       user.tg_id,
-      ctx.i18n.t('order_completed_by_admin', { orderId: order._id })
+      i18nCtx.t('order_completed_by_admin', { orderId: order._id })
     );
   } catch (error) {
     logger.error(error);

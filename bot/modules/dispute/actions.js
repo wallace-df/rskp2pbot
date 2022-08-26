@@ -19,7 +19,7 @@ exports.takeDispute = async ctx => {
   }
   ctx.deleteMessage();
   const solver = await User.findOne({ tg_id: tgId });
-  if (dispute.status === 'RELEASED')
+  if (dispute.status === 'SELLER_RELEASED')
     return await messages.sellerReleased(ctx, solver);
 
   const buyer = await User.findOne({ _id: order.buyer_id });

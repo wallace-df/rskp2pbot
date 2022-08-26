@@ -45,7 +45,7 @@ const {
 } = require('./validations');
 const messages = require('./messages');
 const {
-  escrowOrders,
+  syncEscrowedOrders,
   cancelOrders,
   deleteOrders,
   calculateEarnings,
@@ -116,17 +116,14 @@ const initialize = (botToken, options) => {
   bot.use(commandArgsMiddleware());
 
   schedule.scheduleJob(`*/10 * * * * *`, async () => {
-    console.log("will escrow orders");
-    await escrowOrders(bot);
+    await syncEscrowedOrders(bot);
   });
 
   schedule.scheduleJob(`*/10 * * * * *`, async () => {
-    console.log("will cancel orders");
     await cancelOrders(bot);
   });
 
   schedule.scheduleJob(`*/10 * * * *`, async () => {
-    console.log("will delete orders");
     await deleteOrders(bot);
   });
 
