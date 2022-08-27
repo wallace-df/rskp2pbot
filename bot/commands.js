@@ -7,6 +7,7 @@ const {
   isBannedFromCommunity,
   validateFiatSentOrder,
   validateReleaseOrder,
+  validateRefundOrder
 } = require('./validations');
 const { Order, User, Dispute } = require('../models');
 const messages = require('./messages');
@@ -550,7 +551,7 @@ const cancelOrder = async (ctx, bot, orderId, user) => {
 
       // Save the updated state first, then publish messages.
       // No need for locks here, since no funds have been put under escrow for PENDING orders.
-      order.status = 'CANCELED';
+      order.status = 'CLOSED';
       order.canceled_by = user._id;
       await order.save();
 
@@ -745,4 +746,5 @@ module.exports = {
   cancelOrder,
   fiatSent,
   release,
+  refund
 };

@@ -32,6 +32,7 @@ const {
   cancelOrder,
   fiatSent,
   release,
+  refund
 } = require('./commands');
 const {
   settleHoldInvoice,

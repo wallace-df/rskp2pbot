@@ -215,6 +215,10 @@ release_instructions: |
   Only release the funds after you confirm that the buyer has sent the fiat since this operation cannot be reversed.
 
   Once you release the funds with the link above, the order will be updated automatically.
+refund_instructions: |
+  💰 Use this link to get a refund on your loked tokens:
+
+  [Refund ${formattedAmount}](${dappPage}/refund?orderId=${order._id}&sellerCode=${order.seller_secret})
 you_have_orders_waiting: 🤖 you have one or more orders where the buyer informs that the fiat money was sent to you but you haven´t released the funds yet. You will not be able to create new orders until you release such funds.
 user_banned: Banned user!
 user_not_found: User was not found in the database!

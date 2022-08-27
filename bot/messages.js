@@ -404,6 +404,20 @@ const releaseInstructionsMessage = async(ctx, user, order) => {
   }
 };
 
+const refundInstructionsMessage = async(ctx, user, order) => {
+  try {
+    let token = getToken(order.token_code);
+    const formattedAmount = formatUnit(order.amount, token.decimals) + ' ' + token.code;
+    await ctx.telegram.sendMessage(
+      user.tg_id,
+      ctx.i18n.t('refund_instructions', { orderId: order._id, order: order, formattedAmount: formattedAmount, dappPage: process.env.DAPP_PAGE }),
+      { parse_mode: 'markdown' }
+    );
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
 const fundsReleasedMessages = async (
   bot,
   sellerUser,
@@ -1327,6 +1341,7 @@ module.exports = {
   badStatusOnCancelOrderMessage,
   userCantTakeMoreThanOneWaitingOrderMessage,
   releaseInstructionsMessage,
+  refundInstructionsMessage,
   fundsReleasedMessages,
   rateUserMessage,
   listTokensResponse,
