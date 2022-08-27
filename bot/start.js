@@ -414,6 +414,11 @@ const initialize = (botToken, options) => {
     await cancelOrder(ctx, bot, ctx.match[1], null);
   });
 
+  bot.action(/^refund_([0-9a-f]{24})$/, userMiddleware, async ctx => {
+    ctx.deleteMessage();
+    await refund(ctx, ctx.match[1], null);
+  });
+
   bot.action(/^fiatsent_([0-9a-f]{24})$/, userMiddleware, async ctx => {
     ctx.deleteMessage();
     await fiatSent(ctx, ctx.match[1]);
