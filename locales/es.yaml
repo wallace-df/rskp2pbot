@@ -246,7 +246,7 @@ init_cooperativecancel: '🕒 Has iniciado la cancelación de la orden Id: ${ord
 counterparty_wants_cooperativecancel: '😳 Tu contraparte quiere cancelar la orden Id: ${orderId}, si estás de acuerdo utiliza el comando 👇'
 cant_take_more_orders: ⛔ ¡Lo siento! No puedes tomar otra orden mientras tengas otras esperando por ti
 seller_released: 💸 El vendedor ya liberó los satoshis, debes esperar por el pago de tu factura
-your_purchase_is_completed: |
+purchase_success: |
   🪙 Tu compra de sats ha sido completada exitosamente, @${sellerUsername} ha confirmado tu pago fiat y ya he pagado tu factura, que disfrutes tus sats.
 
   ⚡️🍊⚡️
@@ -328,8 +328,8 @@ you_havent_added_wallet_address: '🤨 No has enviado la factura para recibir sa
 buyer_hasnt_added_wallet_address: '😔 El comprador no me envió la factura para recibir sats por tu venta Id: ${orderId}, tus sats han sido devueltos'
 buyer_hasnt_added_wallet_address_to_admin_channel: 'El comprador @${username} tomó la orden Id: ${orderId} pero no ha ingresado la factura para recibir el pago, el tiempo ha expirado, la orden ha sido publicada nuevamente.'
 havent_locked_tokens: '🤨 No has pagado la factura para vender sats por la orden Id: ${orderId}'
-seller_havent_locked_tokens_for_sell_order: '😔 El vendedor no pagó la factura por tu compra Id: ${orderId}, la operación ha sido cancelada'
-to_admin_seller_havent_locked_tokens_for_sell_order: 'El vendedor @${username} no ha pagado la factura correspondiente a la orden Id: ${orderId} y el tiempo ha expirado, la orden ha sido publicada nuevamente'
+seller_havent_locked_tokens: '😔 El vendedor no pagó la factura por tu compra Id: ${orderId}, la operación ha sido cancelada'
+to_admin_seller_havent_locked_tokens: 'El vendedor @${username} no ha pagado la factura correspondiente a la orden Id: ${orderId} y el tiempo ha expirado, la orden ha sido publicada nuevamente'
 selling: Vendiendo
 buying: Comprando
 receive_payment: Recibo pago

@@ -246,7 +246,7 @@ init_cooperativecancel: "🕒 Hai avviato la cancellazione dell'ordine ID: ${ord
 counterparty_wants_cooperativecancel: "😳 La controparte vuole annullare l'ordine ID: ${orderId}, Se anche ti sei d'accordo con questa cancellazione, premi questo comando 👇"
 cant_take_more_orders: ⛔ Mi dispiace! Non è possibile accettare un altro ordine mentre ce ne sono altri in attesa.
 seller_released: 💸 Il venditore ha già rilasciato i satoshi, è necessario attendere il pagamento della invoice.
-your_purchase_is_completed: |
+purchase_success: |
   🪙 L'acquisto di satoshis è stato completato con successo, @${sellerUsername} ha confermato il tuo pagamento in fiat ho pagato la tua invoice, goditi i sound money!
   ⚡️🍊⚡️
 problem_getting_price: TC'è un problema di accesso a questo prezzo, si prega di provare più tardi, se il problema persiste, si prega di contattare un amministratore.
@@ -327,8 +327,8 @@ you_havent_added_wallet_address: "🤨 Non è stata inviata la fattura per ricev
 buyer_hasnt_added_wallet_address: "😔 L'acquirente non mi ha inviato la fattura per ricevere i sats relativi al tuo ordine ID: ${orderId}, i sats sono stati rispediti a te"
 buyer_hasnt_added_wallet_address_to_admin_channel: "L'acquirente @${username} ha accettato l'ordine ID: ${orderId} ma non ha inviato la fattura dove ricevere sats, il tempo è scaduto e l'ordine è stato ripubblicato."
 havent_locked_tokens: "🤨 Non hai pagato la invoice per vendere i sats relativi all' ordineID:${orderId}"
-seller_havent_locked_tokens_for_sell_order: "😔 Il venditore non ha pagato la invoice per il tuo ordine di acquisto ID: ${orderId}, l'operazione è stata annullata."
-to_admin_seller_havent_locked_tokens_for_sell_order: "Il venditore @${username} non ha pagato la invoice per l'ordine ID: ${orderId} il termine è scaduto e l'ordine è stato ripubblicato"
+seller_havent_locked_tokens: "😔 Il venditore non ha pagato la invoice per il tuo ordine di acquisto ID: ${orderId}, l'operazione è stata annullata."
+to_admin_seller_havent_locked_tokens: "Il venditore @${username} non ha pagato la invoice per l'ordine ID: ${orderId} il termine è scaduto e l'ordine è stato ripubblicato"
 selling: Vendita
 buying: Acquisto
 receive_payment: Ricezione del pagamento

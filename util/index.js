@@ -520,7 +520,7 @@ const isDisputeSolver = (community, user) => {
 // Return the fee the bot will charge to the seller
 // this fee is a combination from the global bot fee and the community fee
 const getFee = async (amount, communityId) => {
-  const maxFee = Math.round(amount * parseFloat(process.env.MAX_FEE));
+  const maxFee = Math.round(Number(amount) * parseFloat(process.env.MAX_FEE));
   if (!communityId) return maxFee;
 
   const botFee = maxFee * parseFloat(process.env.FEE_PERCENT);

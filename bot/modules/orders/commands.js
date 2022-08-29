@@ -92,7 +92,7 @@ const buy = async ctx => {
     const buyOrderParams = await validateBuyOrder(ctx);
     if (!buyOrderParams) return;
 
-    const { amount, tokenCode, fiatAmount, fiatCode, paymentMethod } = sellOrderParams;
+    const { amount, tokenCode, walletAddress, fiatAmount, fiatCode, paymentMethod } = buyOrderParams;
     let priceMargin = buyOrderParams.priceMargin;
     priceMargin = isFloat(priceMargin)
       ? parseFloat(priceMargin.toFixed(2))
@@ -137,6 +137,7 @@ const buy = async ctx => {
       status: 'PENDING',
       priceMargin,
       community_id: communityId,
+      walletAddress
     });
 
     if (order) {

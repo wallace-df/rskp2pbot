@@ -148,11 +148,11 @@ const validateSellOrder = async ctx => {
 const validateBuyOrder = async ctx => {
   try {
     const args = ctx.state.command.args;
-    if (args.length < 5) {
+    if (args.length < 6) {
       await messages.buyOrderCorrectFormatMessage(ctx);
       return false;
     }
-    let [amount, tokenCode, fiatAmount, fiatCode, paymentMethod, priceMargin] = args;
+    let [amount, tokenCode, walletAddress, fiatAmount, fiatCode, paymentMethod, priceMargin] = args;
 
     if (priceMargin && isNaN(priceMargin)) {
       await ctx.reply(
@@ -176,6 +176,12 @@ const validateBuyOrder = async ctx => {
       await ctx.reply(ctx.i18n.t('invalid_amount'));
       return false;
     }
+
+    const address = await validateWalletAddress(walletAddress);
+    if (!address) {
+      await ctx.reply(ctx.i18n.t('invalid_wallet_address'));
+      return false;
+    };
 
     // for ranges like 100--2, the result will be [100, 0, 2]
     fiatAmount = fiatAmount.split('-');
@@ -227,6 +233,7 @@ const validateBuyOrder = async ctx => {
     return {
       amount,
       tokenCode: tokenCode.toUpperCase(),
+      walletAddress,
       fiatAmount,
       fiatCode: fiatCode.toUpperCase(),
       paymentMethod,
@@ -238,7 +245,7 @@ const validateBuyOrder = async ctx => {
   }
 };
 
-const validateWalletAddress = async (ctx, walletAddress) => {
+const validateWalletAddress = async (walletAddress) => {
   try {
 
     if (!isAddress(walletAddress)) {

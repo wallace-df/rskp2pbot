@@ -52,7 +52,7 @@ const takebuy = async (ctx, bot) => {
 
     if (!(await validateTakeBuyOrder(ctx, bot, user, order))) return;
     
-    order.status = 'WAITING_BUYER_ADDRESS';
+    order.status = 'WAITING_PAYMENT';
     order.seller_id = user._id;
     order.taken_at = Date.now();
     await order.save();
@@ -178,8 +178,7 @@ const addWalletAddress = async (ctx, bot, order) => {
       return;
     }
 
-    // FIXME: get fees...
-    order.fee = 0; //await getFee(amount, order.community_id);
+    order.fee = await getFee(order.amount, order.community_id);
 
     // Save the updated state first, then publish messages.
     await order.save();
@@ -192,65 +191,6 @@ const addWalletAddress = async (ctx, bot, order) => {
       bot,
     });
 
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const rateUser = async (ctx, bot, rating, orderId) => {
-  try {
-    ctx.deleteMessage();
-    ctx.scene.leave();
-    const callerId = ctx.from.id;
-
-    if (!orderId) return;
-    const order = await Order.findOne({ _id: orderId });
-
-    if (!order) return;
-    const buyer = await User.findOne({ _id: order.buyer_id });
-    const seller = await User.findOne({ _id: order.seller_id });
-
-    let targetUser = buyer;
-    if (callerId == buyer.tg_id) {
-      targetUser = seller;
-    }
-
-    // User can only rate other after a successful exchange
-    if (order.status !== 'RELEASED') {
-      await messages.invalidDataMessage(ctx, bot, targetUser);
-      return;
-    }
-
-    await saveUserReview(targetUser, rating);
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const saveUserReview = async (targetUser, rating) => {
-  try {
-    let totalReviews = targetUser.total_reviews
-      ? targetUser.total_reviews
-      : targetUser.reviews.length;
-    totalReviews++;
-
-    const oldRating = targetUser.total_rating;
-    let lastRating = targetUser.reviews.length
-      ? targetUser.reviews[targetUser.reviews.length - 1].rating
-      : 0;
-
-    lastRating = targetUser.last_rating ? targetUser.last_rating : lastRating;
-
-    // newRating is an average of all the ratings given to the user.
-    // Its formula is based on the iterative method to compute mean,
-    // as in:
-    // https://math.stackexchange.com/questions/2148877/iterative-calculation-of-mean-and-standard-deviation
-    const newRating = oldRating + (lastRating - oldRating) / totalReviews;
-    targetUser.total_rating = newRating;
-    targetUser.last_rating = rating;
-    targetUser.total_reviews = totalReviews;
-
-    await targetUser.save();
   } catch (error) {
     logger.error(error);
   }
@@ -269,18 +209,23 @@ const cancelAddWalletAddress = async (ctx, bot, order, userAction) => {
       if (!order) return;
     }
 
-    const user = await User.findOne({ _id: order.buyer_id });
+    const buyer = await User.findOne({ _id: order.buyer_id });
+    const seller = await User.findOne({ _id: order.seller_id });
 
-    if (!user) return;
-    if (order.status !== 'WAITING_BUYER_ADDRESS') return;
+    if (!seller || !buyer) {
+      return;
+    }
 
-    const i18nCtx = await getUserI18nContext(user);
-    const sellerUser = await User.findOne({ _id: order.seller_id });
+    if (order.status !== 'WAITING_BUYER_ADDRESS') {
+      return;
+    }
+
+    const i18nCtxBuyer = await getUserI18nContext(buyer);
 
     // Re-publish order
     if (userAction) {
       logger.info(
-        `Buyer Id: ${user.id} cancelled Order Id: ${order._id}, republishing to the channel`
+        `Buyer Id: ${buyer.id} cancelled Order Id: ${order._id}, republishing to the channel`
       );
     } else {
       logger.info(
@@ -288,44 +233,138 @@ const cancelAddWalletAddress = async (ctx, bot, order, userAction) => {
       );
     }
 
-    order.taken_at = null;
-    order.status = 'PENDING';
-    if (!!order.min_fiat_amount && !!order.max_fiat_amount) {
-      order.fiat_amount = undefined;
-    }
-    if (order.price_from_api) {
-      order.amount = '0';
-      order.fee = 0;
-      order.buyer_hash = null;
-      order.buyer_secret = null;
-      order.seller_hash = null;
-      order.seller_secret = null;
-    }
-
-    if (order.type === 'buy') {
-      order.seller_id = null;
-    } else {
-      order.buyer_id = null;
-    }
-
-    order.tg_channel_message1 = null;
-    
-    // Save the updated state first, then publish messages.
-    await order.save();
-
-    // Then publish the messages.
-    if (order.type === 'buy') {
-      await messages.publishBuyOrderMessage(bot, user, order, i18nCtx);
-    } else {
-      await messages.publishSellOrderMessage(bot, sellerUser, order, i18nCtx);
-    }
+    republishOrder(bot, order, buyer, seller);
 
     if (!userAction) {
-      await messages.toBuyerDidntAddWalletAddressMessage(bot, user, order, i18nCtx);
-      await messages.toAdminChannelBuyerDidntAddWalletAddressMessage(bot, user, order, i18nCtx);
+      await messages.toBuyerDidntAddWalletAddressMessage(bot, buyer, order, i18nCtxBuyer);
+      await messages.toAdminChannelBuyerDidntAddWalletAddressMessage(bot, buyer, order, i18nCtxBuyer);
     } else {
-      await messages.successCancelOrderMessage(ctx, user, order, i18nCtx);
+      await messages.successCancelOrderMessage(ctx, buyer, order, i18nCtxBuyer);
     }
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+const lockTokensRequest = async (ctx, bot, order) => {
+  try {
+    ctx.deleteMessage();
+    if (!order) {
+      const orderId = ctx.update.callback_query.message.text;
+      if (!orderId) return;
+      order = await Order.findOne({ _id: orderId });
+      if (!order) return;
+    }
+
+    const user = await User.findOne({ _id: order.seller_id });
+    if (!user) return;
+
+    const i18nCtx = await getUserI18nContext(user);
+
+    // Sellers only can take orders with status WAITING_PAYMENT
+    if (order.status !== 'WAITING_PAYMENT') {
+      await messages.invalidDataMessage(ctx, bot, user);
+      return;
+    }
+
+    if (order.fiat_amount === undefined) {
+      ctx.scene.enter('ADD_FIAT_AMOUNT_WIZARD_SCENE_ID', {
+        bot,
+        order,
+        caller: user,
+      });
+      return;
+    }
+
+    if (order.amount === '0') {
+      order.amount = await getTokenAmountFromMarketPrice(order.fiat_code, order.fiat_amount, order.token_code, order.price_margin);
+    }
+
+    // If the price API fails we can't continue with the process
+    if (order.amount === '0') {
+      await messages.priceApiFailedMessage(ctx, bot, buyer);
+      return;
+    }
+
+    order.fee = await getFee(order.amount, order.community_id);
+
+    let buyerSecret = crypto.randomBytes(32);
+    let sellerSecret = crypto.randomBytes(32);
+    
+    order.buyer_secret = buyerSecret.toString('hex');
+    order.buyer_hash = crypto.createHash('sha256').update(buyerSecret).digest('hex');
+    order.seller_secret = sellerSecret.toString('hex');
+    order.seller_hash = crypto.createHash('sha256').update(sellerSecret).digest('hex');
+    order.taken_at = Date.now();
+    order.status = 'WAITING_PAYMENT';
+
+    // Save the updated state first, then publish messages.
+    await order.save(); 
+
+    await messages.lockTokensForBuyOrderMessage(ctx, user, order, i18nCtx);
+  } catch (error) {
+    logger.error(`Error in lockTokensRequest: ${error}`);
+  }
+};
+
+const cancelLockTokensRequest = async (ctx, bot, order, userAction) => {
+  try {
+    if (ctx) {
+      ctx.deleteMessage();
+      ctx.scene.leave();
+    }
+    if (!order) {
+      const orderId = !!ctx && ctx.update.callback_query.message.text;
+      if (!orderId) return;
+      order = await Order.findOne({ _id: orderId });
+      if (!order) return;
+    }
+
+    const seller = await User.findOne({ _id: order.seller_id });
+    const buyer = await User.findOne({ _id: order.buyer_id });
+
+    if (!seller || !buyer) {
+      return;
+    }
+
+    if (order.status !== 'WAITING_PAYMENT') {
+      return;
+    }
+
+    const i18nCtxBuyer = await getUserI18nContext(buyer);
+    const i18nCtxSeller = await getUserI18nContext(seller);
+
+    // Save the updated state first, then publish messages.
+    order.status = 'CANCELED';
+    await order.save();
+
+    if (order.type === 'buy') {
+      // Re-publish order
+      if (userAction) {
+        logger.info(
+          `Seller Id: ${seller.id} cancelled Order Id: ${order._id}, republishing to the channel`
+        );
+      } else {
+        logger.info(
+          `Order Id: ${order._id} expired, republishing to the channel`
+        );
+      }
+
+      republishOrder(bot, order, buyer, seller);
+
+      if (!userAction) {
+        await messages.toSellerDidntLockTokensMessage(bot, seller, order, i18nCtxSeller);
+        await messages.toAdminChannelSellerDidntLockTokensMessage(bot, seller, order, i18nCtxSeller);
+      } else {
+        await messages.successCancelOrderMessage(ctx, seller, order, i18nCtxSeller);
+      }
+
+    } else {
+      await messages.toSellerDidntLockTokensMessage(bot, seller, order, i18nCtxSeller);
+      await messages.toBuyerSellerDidntLockTokensMessage(bot, buyer, order, i18nCtxBuyer);
+      await messages.toAdminChannelSellerDidntLockTokensMessage(bot, seller, order, i18nCtxSeller);
+    }
+
   } catch (error) {
     logger.error(error);
   }
@@ -395,34 +434,6 @@ const showHoldInvoice = async (ctx, bot, order) => {
     );
   } catch (error) {
     logger.error(`Error in showHoldInvoice: ${error}`);
-  }
-};
-
-const cancelLockTokensRequest = async (ctx, bot, order) => {
-  try {
-    const sellerUser = await User.findOne({ _id: order.seller_id });
-    const buyerUser = await User.findOne({ _id: order.buyer_id });
-
-    if (!sellerUser || !buyerUser) {
-      return;
-    }
-
-    if (order.status !== 'WAITING_PAYMENT') {
-      return;
-    }
-
-    const i18nCtxSeller = await getUserI18nContext(sellerUser);
-    const i18nCtxBuyer = await getUserI18nContext(buyerUser);
-
-    // Save the updated state first, then publish messages.
-    order.status = 'CANCELED';
-    await order.save();
-
-    await messages.toSellerDidntLockTokensMessage(bot, sellerUser, order, i18nCtxSeller);
-    await messages.toBuyerSellerDidntLockTokensMessage(bot, buyerUser, order, i18nCtxBuyer);
-    await messages.toAdminChannelSellerDidntLockTokensMessage(bot, sellerUser, order, i18nCtxSeller);
-  } catch (error) {
-    logger.error(error);
   }
 };
 
@@ -553,10 +564,9 @@ const cancelOrder = async (ctx, bot, orderId, user) => {
       return await cancelAddWalletAddress(ctx, bot, order, true);
     }
 
-    // If a seller is taking a buy offer and accidentally touch continue button we
-    // let the user to cancel
-    if (order.type === 'buy' && order.status === 'WAITING_PAYMENT') {
-      return await cancelShowHoldInvoice(null, ctx, order);
+    // If a seller is taking a buy offer and accidentally touches continue button, we let the user to cancel it.
+    if (order.seller_id == user._id && order.type === 'buy' && order.status === 'WAITING_PAYMENT') {
+      return await cancelLockTokensRequest(ctx, bot, order, true);
     }
 
     if (
@@ -697,7 +707,6 @@ const release = async (ctx, orderId, user) => {
   }
 };
 
-
 const refund = async (ctx, orderId, user) => {
   try {
     if (!user) {
@@ -718,16 +727,123 @@ const refund = async (ctx, orderId, user) => {
   }
 };
 
+const rateUser = async (ctx, bot, rating, orderId) => {
+  try {
+    ctx.deleteMessage();
+    ctx.scene.leave();
+    const callerId = ctx.from.id;
+
+    if (!orderId) return;
+    const order = await Order.findOne({ _id: orderId });
+
+    if (!order) return;
+    const buyer = await User.findOne({ _id: order.buyer_id });
+    const seller = await User.findOne({ _id: order.seller_id });
+
+    let targetUser = buyer;
+    if (callerId == buyer.tg_id) {
+      targetUser = seller;
+    }
+
+    // User can only rate other after a successful exchange
+    if (order.status !== 'RELEASED') {
+      await messages.invalidDataMessage(ctx, bot, targetUser);
+      return;
+    }
+
+    await saveUserReview(targetUser, rating);
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+const saveUserReview = async (targetUser, rating) => {
+  try {
+    let totalReviews = targetUser.total_reviews
+      ? targetUser.total_reviews
+      : targetUser.reviews.length;
+    totalReviews++;
+
+    const oldRating = targetUser.total_rating;
+    let lastRating = targetUser.reviews.length
+      ? targetUser.reviews[targetUser.reviews.length - 1].rating
+      : 0;
+
+    lastRating = targetUser.last_rating ? targetUser.last_rating : lastRating;
+
+    // newRating is an average of all the ratings given to the user.
+    // Its formula is based on the iterative method to compute mean,
+    // as in:
+    // https://math.stackexchange.com/questions/2148877/iterative-calculation-of-mean-and-standard-deviation
+    const newRating = oldRating + (lastRating - oldRating) / totalReviews;
+    targetUser.total_rating = newRating;
+    targetUser.last_rating = rating;
+    targetUser.total_reviews = totalReviews;
+
+    await targetUser.save();
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+async function republishOrder(bot, order, buyer, seller) {
+
+  const i18nCtxBuyer = await getUserI18nContext(buyer);
+  const i18nCtxSeller = await getUserI18nContext(seller);
+
+  order.taken_at = null;
+  order.status = 'PENDING';
+  if (!!order.min_fiat_amount && !!order.max_fiat_amount) {
+    order.fiat_amount = undefined;
+  }
+  if (order.price_from_api) {
+    order.amount = '0';
+    order.fee = 0;
+  }
+
+  order.buyer_hash = null;
+  order.buyer_secret = null;
+  order.seller_hash = null;
+  order.seller_secret = null;
+
+  if (order.type === 'buy') {
+    order.seller_id = null;
+  } else {
+    order.buyer_id = null;
+  }
+
+  order.tg_channel_message1 = null;
+  
+  // Save the updated state first, then publish messages.
+  if (order.type === 'sell') {
+    await order.save();
+  } else {
+    let orderData = {...order._doc};
+    delete orderData['_id'];
+    order = new Order(orderData);
+    await order.save();
+  }
+
+  // Then publish the messages.
+  if (order.type === 'buy') {
+    await messages.publishBuyOrderMessage(bot, buyer, order, i18nCtxBuyer);
+  } else {
+    await messages.publishSellOrderMessage(bot, seller, order, i18nCtxSeller);
+  }
+
+};
+
 
 module.exports = {
   takebuy,
   takesell,
   rateUser,
   saveUserReview,
+  addWalletAddress,
   cancelAddWalletAddress,
+  lockTokensRequest,
   cancelLockTokensRequest,
   waitPayment,
-  addWalletAddress,
   showHoldInvoice,
   cancelOrder,
   fiatSent,

@@ -74,14 +74,15 @@ pending_sell: |
 
   You can cancel this order before another user picks it up by executing the command 👇
 begin_take_sell: |
-  🤖 You took this sell order. 
+  🤖 You took a sell order. 
   
   Please use a fiat payment processor that allows you to send the money immediately and in which there is no risk of freezing funds.
 
   If you agree with the above, press the Continue button.
+
   If you press Cancel, you will be released from the order and it will be republished. 👇
 wizard_add_wallet_address_init: |
-  🤖 I need you to send me your wallet address where you'll receive ${formattedAmount} that are worth ${currency} ${fiatAmount}.
+  🤖 I need you to send me your wallet address where you'll receive ${formattedAmount} that are worth ${currency} ${fiatAmount} for the order with id ${orderId}.
 
   If you do not send the address within ${expirationTime} minutes, the order will be cancelled and republished.
 wizard_add_wallet_exit: |
@@ -92,13 +93,11 @@ error_parsing_wallet_address: |
   Error parsing the wallet address. Please copy-paste your RSK address.
 
   If you want to abort and return to the command entering mode, just run /exit
-setaddress_cmd_order: |
-  /setaddress ${orderId} \\<wallet address\\>
 you_havent_added_wallet_address: |
-  🤨 You have not sent the wallet address to receive ${tokenCode} for the Order Id: ${orderId}.
-buyer_hasnt_added_wallet_address_to_admin_channel: 'Buyer @${username} took the orderId: ${orderId} but has not sent the wallet address where to receive tokens, time has expired and the order has been republished.'
+  🤨 You have not sent the wallet address to receive ${tokenCode} for the order with id ${orderId}. The operation was cancelled.
+buyer_hasnt_added_wallet_address_to_admin_channel: 'Buyer @${username} took the order with id ${orderId} but has not sent the wallet address to receive tokens and time has expired.'
 lock_tokens_for_sell_order: |
-  Somebody wants to buy you ${formattedAmount} for ${currency} ${order.fiat_amount}.
+  Somebody took your sell order with id ${order._id} and wants to buy you ${formattedAmount} for ${currency} ${order.fiat_amount}.
 
   Buyer Reputation: ${rate}
 
@@ -107,33 +106,20 @@ lock_tokens_for_sell_order: |
   [Lock ${formattedAmount}](${dappPage}/lock?orderId=${order._id}&token=${order.token_code}&buyerAddress=${order.buyer_address}&buyerHash=${order.buyer_hash}&sellerHash=${order.seller_hash}&amount=${order.amount}&fee=${order.fee})
 
   You have ${expirationTime} minutes to lock the tokens. After that, the trade will be cancelled and any locked tokens will be refunded to you.
-waiting_seller_to_pay: 'I have sent a request to the seller to lock ${formattedAmount} for the order ${orderId}, as soon the tokens are locked, I will put you both in touch.'
-you_havent_locked_tokens_for_sell_order: |
-  🤨 I could not detect that you have locked the tokens for the Order Id: ${order._id}.
-
-  If you have locked it already, use this link to withdraw your tokens:
-  
-  [Refund ${formattedAmount}](${dappPage}/refund?orderId=${order._id}&sellerCode=${order.seller_secret})
-
-  You can also get the refund link at any time by using the /refund command
-seller_havent_locked_tokens_for_sell_order: |
-  😔 Seller has not locked the tokens for your Order Id: ${orderId}, the operation was canceled.
-to_admin_seller_havent_locked_tokens_for_sell_order: 'Seller @${username} has not locked the tokens of order Id: ${orderId} time lapse ended and the order has been published again.'
+waiting_seller_to_pay: 'I have sent a request to the seller to put ${formattedAmount} under escrow for the order with id ${orderId}. As soon the tokens are locked, I will put you both in touch.'
 take_sell_get_in_touch_with_seller: |
-  Get in touch with the seller, user @${sellerUsername} so as to get the details on how to send ${currency} ${fiatAmount} using ${paymentMethod}.
+  The seller has deposited ${formattedAmount} under escrow for your order with id ${orderId}.
+
+  Get in touch with the seller, @${sellerUsername}, so as to get the details on how to send ${currency} ${fiatAmount} using ${paymentMethod}.
 
   Once you send the money, please let me know with the command 👇
 take_sell_get_in_touch_with_buyer: |
-  🤖 Get in touch with  @${buyerUsername} so as to give information on how to send you ${currency} ${fiatAmount} through ${paymentMethod}. Do not release your tokens until you verify that the buyer paid you the fiat.
+  🤖 You have succesfully locked ${formattedAmount} for the order with id ${orderId}.
+  
+  Get in touch with buyer, @${buyerUsername}, so as to give information on how to send you ${currency} ${fiatAmount} through ${paymentMethod}. Do not release your tokens until you verify that the buyer paid you the fiat.
 
   Once you confirm the payment, you must release the funds with the /release command.
-I_told_seller_you_sent_fiat: 🤖 I told  @${sellerUsername} that you have sent fiat money. Once the seller confirms it, ${formattedAmount} should be sent to you.
-buyer_told_me_that_sent_fiat: |
-  🤖 @${buyerUsername} has informed that already sent you the fiat money.
-  
-  Once you confirm the payment, please release the funds. You will not be able to create another order until you release funds.
-  [Release ${formattedAmount}](${dappPage}/release?orderId=${order._id}&buyerCode=${order.buyer_secret})
-sell_success: Your sale has been completed after confirming the payment from @${buyerUsername} ⚡️🍊⚡️
+sell_success: Your sale for order with id ${orderId} has been completed!
 
 buy_correct_format: |
   /buy \<_sats amount_\> \<_fiat amount_\> \<_fiat code_\> \<_payment method_\> \[_premium/discount_\]
@@ -161,6 +147,7 @@ begin_take_buy: |
   Please use a fiat payment processor that allows you to receive the money immediately and in which there is no risk of freezing funds.
 
   If you agree with the above, press the Continue button.
+
   If you press Cancel, you will be released from the order and it will be republished. 👇
 lock_tokens_for_buy_order: |
   🤖 I need you to lock ${formattedAmount} that are worth ${currency} ${fiatAmount} to start this trade.
@@ -168,12 +155,45 @@ lock_tokens_for_buy_order: |
   [Lock ${formattedAmount}](${dappPage}/lock?orderId=${order._id}&token=${order.token_code}&buyerAddress=${order.buyer_address}&buyerHash=${order.buyer_hash}&sellerHash=${order.seller_hash}&amount=${order.amount}&fee=${order.fee})
 
   You have ${expirationTime} minutes to lock the tokens. After that, the trade will be cancelled and any locked tokens will be refunded to you.
+you_havent_locked_tokens: |
+  🤨 I could not detect that you have locked the tokens for the order with id ${order._id}.
+
+  If you have locked them already, use this link to withdraw your tokens:
+  
+  [Refund ${formattedAmount}](${dappPage}/refund?orderId=${order._id}&sellerCode=${order.seller_secret})
+
+  You can also get the refund link at any time by using the /refund command.
+to_buyer_seller_havent_locked_tokens: |
+  😔 Seller has not locked the tokens for the order with id ${orderId}. The operation was cancelled.
+to_admin_seller_havent_locked_tokens: 'Seller @${username} has not locked the tokens for order with id ${orderId} and time has expired.'
+take_buy_get_in_touch_with_seller: |
+  Somebody took your buy order with id ${orderId} and already deposited ${formattedAmount} under escrow for you. 
+  
+  Get in touch with the seller, @${sellerUsername}, so as to get the details on how to send ${currency} ${fiatAmount} using ${paymentMethod}.
+
+  Seller Reputation: ${rate}
+
+  Once you send the money, please let me know with the command 👇
+take_buy_get_in_touch_with_buyer: |
+  🤖 You have succesfully locked ${formattedAmount} for the order with id ${orderId}.
+  
+  Get in touch with buyer, @${buyerUsername}, so as to give information on how to send you ${currency} ${fiatAmount} through ${paymentMethod}. Do not release your tokens until you verify that the buyer paid you the fiat.
+
+  Once you confirm the payment, you must release the funds with the /release command.
+purchase_success: Your purchase for order with id ${orderId} has been completed!
+
+I_told_seller_you_sent_fiat: 🤖 I told @${sellerUsername} that you have sent fiat money for the order with id ${orderId}. Once the seller confirms it, ${formattedAmount} should be released to you.
+buyer_told_me_that_sent_fiat: |
+  🤖 @${buyerUsername} has informed that already sent you ${currency} ${fiatAmount} for the order with id ${order._id}.
+  
+  Once you confirm the payment, please release the funds. You will not be able to create another order until you release funds.
+
+  [Release ${formattedAmount}](${dappPage}/release?orderId=${order._id}&buyerCode=${order.buyer_secret})
 rate_counterpart: 'Please qualify your counterparty:'
-your_purchase_is_completed: |
-  Your purchase has been completed successful! @${sellerUsername} has confirmed your fiat payment and have released your tokens!
-  ⚡️🍊⚡️
 cancel_order_cmd: |
   /cancel ${orderId}
+setaddress_cmd_order: |
+  /setaddress ${orderId} \\<wallet address\\>
 fiatsent_order_cmd: |
   /fiatsent ${orderId}
 release_order_cmd: |
@@ -189,8 +209,7 @@ refund_instructions: |
   💰 Use this link to get a refund on your loked tokens:
 
   [Refund ${formattedAmount}](${dappPage}/refund?orderId=${order._id}&sellerCode=${order.seller_secret})
-
-must_be_numeric: ${fieldName} must be numeric
+ric: ${fieldName} must be numeric
 order_id_invalid: Invalid order ID
 order_invalid_type: This ${type} order is invalid
 order_already_taken: This order has already been taken by another user.
@@ -198,25 +217,6 @@ invalid_data: You have sent invalid data, try again.
 continue: Continue
 cancel: Cancel
 invalid_wallet_address: Invalid wallet adress. Please copy-paste your RSK address.
-
-payment_received: |
-  🤑 Payment received!
-
-  Now I need that the buyer sends an invoice so I can send satoshis to his/her wallet. as soon as the buyer sends the invoice I will put you both in touch.
-
-  Wait a bit. If the buyer does not cooperate, the collateral will be returned to you.
-someone_took_your_order: |
-  🤖 Someone took your order and already sent me the sats, please use a fiat payment processor that allows you to send the money immediately and in which there is no risk of freezing funds.
-
-  If for any reason your payment processor puts the payment on pause and the funds do not arrive in less than ${expirationTime}, the sats will return to the seller, putting the buyer at risk and I will not be able to force the seller to send the sats again.
-
-  Seller Reputation: ${rate}
-
-  If you agree with the above, press the button to continue 👇
-you_took_buy_order: |
-  🤖 You took this buy order, please use a fiat payment processor that allows you to send the money immediately and in which there is no risk of freezing funds.
-
-  If you agree with the above, press the button to continue 👇
 cant_process_order: This order cannot be processed, please check the Id is correct.
 cant_release_order: This order cannot be released, the buyer has not sent the wallet address where to pay
 no_id_related: You do not have any order associated with this Id.
@@ -245,10 +245,10 @@ dispute_started_channel: |
 
   @${initiatorUser.username} has been involved in ${initiatorUser.disputes} disputes
   @${counterPartyUser.username} has been involved in ${counterPartyUser.disputes} disputes
-you_started_dispute_to_buyer: 🥴 You have started a dispute for your buy order, we will get in touch with you and your counterparty to sort it out.
-buyer_started_dispute_to_seller: '🥴 The buyer has initiated a dispute for your order with Id: ${orderId}, we will contact you and your counterparty to resolve it.'
+you_started_dispute_to_buyer: 🥴 You have started a dispute for your buy order. We will get in touch with you and your counterparty to sort it out.
+buyer_started_dispute_to_seller: '🥴 The buyer has initiated a dispute for your order with id ${orderId}. We will contact you and your counterparty to resolve it.'
 you_started_dispute_to_seller: 🥴 You have started a dispute for your sell order, we will get in touch with you and your counterparty to sort it out.
-seller_started_dispute_to_buyer: '🥴 The Seller has initiated a dispute for your order with Id: ${orderId}, we will contact you and your counterparty to resolve it.'
+seller_started_dispute_to_buyer: '🥴 The Seller has initiated a dispute for your order with id ${orderId}, we will contact you and your counterparty to resolve it.'
 must_be_valid_token: 'Token_code must be a valid code for example: RBTC, RIF, you can see a complete list executing /listtokens'
 must_be_valid_currency: 'Fiat_code must be a valid code for example: USD, EUR, you can see a complete list executing /listcurrencies'
 must_be_number_or_range: 'Fiat_amount must be a number or numeric range in the  <minimum>-<maximum> format'
@@ -275,21 +275,21 @@ no_rate_for_token: |
   🌐 https://api3.org/beacons
 invoice_already_being_paid: You have alreday send an invoice for this order and I am trying to pay it in this very rightmoment.
 cancel_error: This order cannot be cancelled at this moment
-cancel_success: 'You have cancelled the order Id: ${orderId}!'
+cancel_success: 'You have cancelled the order with id ${orderId}.'
 cancelall_success: You have cancelled all your published orders!
-order_cancelled_by_admin: 'Admin has cancelled the order Id: ${orderId}!'
-order_completed: 'You have completed the order Id: ${orderId}!'
-order_completed_by_admin: 'Admin has completed the order Id: ${orderId}!'
+order_cancelled_by_admin: 'Admin has cancelled the order with id ${orderId}!'
+order_completed: 'You have completed the order with id ${orderId}!'
+order_completed_by_admin: 'Admin has completed the order with id ${orderId}!'
 have_to_wait_for_counterpart: 🕒 You have already made this operation, you must wait for the other party to take action
-ok_cooperativecancel: '👍 Counterparty agreed and the order Id: ${orderId} has been cancelled'
+ok_cooperativecancel: '👍 Counterparty agreed and the order with id ${orderId} has been cancelled.'
 refund_cooperativecancel: |
   💰 Use this link to get a refund on your loked tokens:
 
   [Refund ${formattedAmount}](${dappPage}/refund?orderId=${order._id}&sellerCode=${order.seller_secret})
 
-  You can also get the refund link at any time by using the /refund command
-init_cooperativecancel: '🕒 You have started the cancelation of the order Id: ${orderId}, your counterparty must agree on cancellation too.'
-counterparty_wants_cooperativecancel: '😳 Your counterparty wants to cancel order Id: ${orderId}, If you agree on such cancellation please execute the follwing command 👇'
+  You can also get the refund link at any time by using the /refund command.
+init_cooperativecancel: '🕒 You have started the cancelation of the order with id ${orderId}. Your counterparty must agree on cancellation too.'
+counterparty_wants_cooperativecancel: '😳 Your counterparty wants to cancel the order with id ${orderId}. If you agree on such cancellation, please execute the following command 👇'
 cant_take_more_orders: ⛔ Sorry! You can't take another order while you have others waiting for you
 seller_released: 💸 Seller has already released your funds.
 problem_getting_price: There is a problem accessing this coin price, please try later, if the problem persists, please contact an administrator.
@@ -307,8 +307,6 @@ published: Published
 created: Created
 yes: Yes
 no: No
-
-
 wizard_community_enter_name: Pick a name for your community
 wizard_community_too_long_name: The name can have a maximum length of ${length} characters.
 wizard_community_enter_currency: Enter the code of the fiat currency(ies) with which users can operate in this community, if there is more than one you must enter each code separated by a blank space.
@@ -342,31 +340,31 @@ wizard_add_fiat_correct_amount: 'Amount: ${currency} ${fiatAmount}.'
 order_expired: This order has expired!
 cant_add_wallet_address: You can no longer add a wallet address to this order!
 expired_order: |
-  This order has expired without completion
+  This order has expired without completion:
 
   ${detailedOrder}
 
-  @${buyerUsername} has ${sellerUser.disputes} disputes
-  @${sellerUsername} has ${buyerUser.disputes} disputes
+  @${buyerUsername} has ${seller.disputes} disputes
+  @${sellerUsername} has ${buyer.disputes} disputes
 expired_order_to_buyer: |
-  🚨🚨🚨 The order ${order._id} is about to expire and must be completed or canceled immediately. 
+  🚨🚨🚨 The order with id ${order._id} is about to expire and must be completed or cancelled immediately. 
   
-  If you haven't sent the fiat money yet, you can still cancel with the /cancel command.
+  If you haven't sent the fiat money yet, you can still cancel the order with the /cancel command.
 
   If you sent the fiat money but the seller refuses to release the funds, you can open a dispute with the /dispute command.
 
-  If you need help you can write to the group ${helpGroup}.
+  If you need help, you can write to the group ${helpGroup}.
 expired_order_to_seller: |
-  🚨🚨🚨 The order ${order._id} is about to expire and must be completed or canceled immediately.
+  🚨🚨🚨 The order with id ${order._id} is about to expire and must be completed or cancelled immediately.
   
-  If you have not received the fiat money yet you can still cancel with the /cancel command.
+  If you have not received the fiat money yet, you can still cancel the order with the /cancel command.
  
   If you received the fiat money, please release the funds, otherwise you are under the risk of the buyer opening a dispute which will affect your reputation.
   
   Use this link to release the funds:
   [Release ${formattedAmount}](${dappPage}/release?orderId=${order._id}&buyerCode=${order.buyer_secret})
 
-  If you need help you can write to the group ${helpGroup}.
+  If you need help, you can write to the group ${helpGroup}.
 selling: Selling
 buying: Buying
 receive_payment: Receive payment
@@ -377,7 +375,7 @@ satoshis: satoshis
 by: by
 rate: Rate
 has_successful_trades: Has ${trades} successful trades
-seller_price: Seller price
+order_price: Order price
 fair_price: Fair market price
 for: For
 generic_error: An error occurred

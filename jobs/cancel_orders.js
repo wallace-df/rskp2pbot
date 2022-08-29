@@ -30,9 +30,8 @@ const cancelOrders = async bot => {
       taken_at: { $lte: takenTimeThreshold },
     });
     for (const order of waitingOrders) {
-      //  await cancelHoldInvoice({ hash: order.hash });
       if (order.status === 'WAITING_PAYMENT') {
-        await cancelLockTokensRequest(null, bot, order);
+        await cancelLockTokensRequest(null, bot, order, false);
       } else if(order.status === 'WAITING_BUYER_ADDRESS') {
         await cancelAddWalletAddress(null, bot, order, false);
       }

@@ -5,11 +5,15 @@ const {
   getCurrency,
   numberFormat,
   formatUnit,
+  getEmojiRate,
+  decimalRound,
   getDetailedOrder,
   secondsToTime,
   getOrderChannel,
   sanitizeMD  
 } = require('../util');
+
+
 const logger = require('../logger');
 
 const startMessage = async ctx => {
@@ -198,6 +202,38 @@ const lockTokensForSellOrderMessage = async (
   }
 };
 
+const lockTokensForBuyOrderMessage = async (
+  ctx,
+  user,
+  order,
+  i18n,
+  rate
+) => {
+  try {
+    let currency = getCurrency(order.fiat_code);
+    let token = getToken(order.token_code);
+    currency =
+      !!currency && !!currency.symbol_native
+        ? currency.symbol_native
+        : order.fiat_code;
+    const expirationTime = parseInt(process.env.PAYMENT_EXPIRATION_WINDOW) / 60;
+    const formattedAmount = formatUnit(order.amount, token.decimals) + ' ' + token.code;
+    const message = i18n.t('lock_tokens_for_buy_order', {
+      currency,
+      order,
+      expirationTime,
+      fiatAmount:numberFormat(order.fiat_code, order.fiat_amount),
+      dappPage: process.env.DAPP_PAGE,
+      formattedAmount: formattedAmount,
+    });
+    await ctx.telegram.sendMessage(user.tg_id, message, { parse_mode: 'markdown' });
+  
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+
 const errorParsingWalletAddressMessage = async ctx => {
   try {
     await ctx.reply(ctx.i18n.t('error_parsing_wallet_address'));
@@ -298,43 +334,8 @@ const showHoldInvoiceMessage = async (
 
 const onGoingTakeBuyMessage = async (
   bot,
-  seller,
   buyer,
-  order,
-  i18nBuyer,
-  i18nSeller,
-  rate
-) => {
-  try {
-    await bot.telegram.sendMessage(
-      seller.tg_id,
-      i18nSeller.t('payment_received')
-    );
-    const orderExpiration = parseInt(process.env.ORDER_EXPIRATION_WINDOW);
-    const time = secondsToTime(orderExpiration);
-    let expirationTime = time.hours + ' ' + i18nBuyer.t('hours');
-    expirationTime +=
-      time.minutes > 0 ? ' ' + time.minutes + ' ' + i18nBuyer.t('minutes') : '';
-    await bot.telegram.sendMessage(
-      buyer.tg_id,
-      i18nBuyer.t('someone_took_your_order', { expirationTime, rate })
-    );
-    await bot.telegram.sendMessage(buyer.tg_id, order._id, {
-      reply_markup: {
-        inline_keyboard: [
-          [{ text: i18nBuyer.t('continue'), callback_data: 'addWalletAddressBtn' }],
-        ],
-      },
-    });
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const onGoingTakeSellMessage = async (
-  bot,
-  sellerUser,
-  buyerUser,
+  seller,
   order,
   i18nBuyer,
   i18nSeller
@@ -345,28 +346,89 @@ const onGoingTakeSellMessage = async (
       !!currency && !!currency.symbol_native
         ? currency.symbol_native
         : order.fiat_code;
+    const token = getToken(order.token_code);
+    const formattedAmount = formatUnit(order.amount, token.decimals) + ' ' + token.code;
+    const stars = getEmojiRate(buyer.total_rating);
+    const roundedRating = decimalRound(buyer.total_rating, -1);
+    const rate = `${roundedRating} ${stars} (${buyer.total_reviews})`;
+
     await bot.telegram.sendMessage(
-      buyerUser.tg_id,
-      i18nBuyer.t('take_sell_get_in_touch_with_seller', {
+      buyer.tg_id,
+      i18nBuyer.t('take_buy_get_in_touch_with_seller', {
+        orderId: order._id,
         currency,
-        sellerUsername: sellerUser.username,
+        sellerUsername: seller.username,
         fiatAmount: numberFormat(order.fiat_code, order.fiat_amount),
         paymentMethod: order.payment_method,
+        formattedAmount: formattedAmount,
+        rate
       })
     );
     await bot.telegram.sendMessage(
-      buyerUser.tg_id,
+      buyer.tg_id,
       i18nBuyer.t('fiatsent_order_cmd', { orderId: order._id }),
       { parse_mode: 'MarkdownV2' }
     );
     await bot.telegram.sendMessage(
-      sellerUser.tg_id,
-      i18nSeller.t('take_sell_get_in_touch_with_buyer', {
+      seller.tg_id,
+      i18nSeller.t('take_buy_get_in_touch_with_buyer', {
+        orderId: order._id,
         tokenCode: order.token_code,
         fiatAmount: order.fiat_amount,
         paymentMethod: order.payment_method,
         currency,
-        buyerUsername: buyerUser.username,
+        buyerUsername: buyer.username,
+        formattedAmount,
+      })
+    );
+
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+const onGoingTakeSellMessage = async (
+  bot,
+  buyer,
+  seller,
+  order,
+  i18nBuyer,
+  i18nSeller
+) => {
+  try {
+    let token = getToken(order.token_code);
+    let currency = getCurrency(order.fiat_code);
+    currency =
+      !!currency && !!currency.symbol_native
+        ? currency.symbol_native
+        : order.fiat_code;
+    const formattedAmount = formatUnit(order.amount, token.decimals) + ' ' + token.code;
+    await bot.telegram.sendMessage(
+      buyer.tg_id,
+      i18nBuyer.t('take_sell_get_in_touch_with_seller', {
+        orderId: order._id,
+        currency,
+        sellerUsername: seller.username,
+        fiatAmount: numberFormat(order.fiat_code, order.fiat_amount),
+        paymentMethod: order.payment_method,
+        formattedAmount
+      })
+    );
+    await bot.telegram.sendMessage(
+      buyer.tg_id,
+      i18nBuyer.t('fiatsent_order_cmd', { orderId: order._id }),
+      { parse_mode: 'MarkdownV2' }
+    );
+    await bot.telegram.sendMessage(
+      seller.tg_id,
+      i18nSeller.t('take_sell_get_in_touch_with_buyer', {
+        orderId: order._id,
+        tokenCode: order.token_code,
+        fiatAmount: order.fiat_amount,
+        paymentMethod: order.payment_method,
+        currency,
+        buyerUsername: buyer.username,
+        formattedAmount,
       })
     );
   } catch (error) {
@@ -377,14 +439,14 @@ const onGoingTakeSellMessage = async (
 const takeSellWaitingSellerToPayMessage = async (
   ctx,
   bot,
-  buyerUser,
+  buyer,
   order
 ) => {
   try {
     const token = getToken(order.token_code);
     const formattedAmount = formatUnit(order.amount, token.decimals) + ' ' + token.code;
     await bot.telegram.sendMessage(
-      buyerUser.tg_id,
+      buyer.tg_id,
       ctx.i18n.t('waiting_seller_to_pay', { orderId: order._id, formattedAmount: formattedAmount })
     );
   } catch (error) {
@@ -422,19 +484,20 @@ const refundInstructionsMessage = async(ctx, user, order) => {
 
 const fundsReleasedMessages = async (
   bot,
-  sellerUser,
-  buyerUser,
+  order,
+  seller,
+  buyer,
   i18nBuyer,
   i18nSeller
 ) => {
   try {
     await bot.telegram.sendMessage(
-      sellerUser.tg_id,
-      i18nSeller.t('sell_success', { buyerUsername: buyerUser.username })
+      seller.tg_id,
+      i18nSeller.t('sell_success', { orderId: order._id })
     );
     await bot.telegram.sendMessage(
-      buyerUser.tg_id,
-      i18nBuyer.t('your_purchase_is_completed', { sellerUsername: sellerUser.username })
+      buyer.tg_id,
+      i18nBuyer.t('purchase_success', { orderId: order._id })
     );
   } catch (error) {
     logger.error(error);
@@ -639,19 +702,27 @@ const fiatSentMessages = async (
   try {
     let token = getToken(order.token_code);
     let formattedAmount = formatUnit(order.amount, token.decimals) + ' ' + token.code;
+    let currency = getCurrency(order.fiat_code);
+    currency = !!currency && !!currency.symbol_native ? currency.symbol_native : order.fiat_code;
     await ctx.telegram.sendMessage(
       buyer.tg_id,
       i18nBuyer.t('I_told_seller_you_sent_fiat', {
+        orderId: order._id,
         sellerUsername: seller.username,
-        formattedAmount: formattedAmount
+        formattedAmount: formattedAmount,
+        currency,
+        fiatAmount: numberFormat(order.fiat_code, order.fiat_amount)
       })
     );
     await ctx.telegram.sendMessage(
       seller.tg_id,
       i18nSeller.t('buyer_told_me_that_sent_fiat', {
-        buyerUsername: buyer.username,
         order: order,
+        buyerUsername: buyer.username,
         formattedAmount: formattedAmount,
+        currency,
+
+        fiatAmount: numberFormat(order.fiat_code, order.fiat_amount),
         dappPage: process.env.DAPP_PAGE
       }),
       { parse_mode: 'markdown' }
@@ -1011,6 +1082,7 @@ const wizardAddWalletAddressInitMessage = async (
     let token = getToken(order.token_code);
     await ctx.reply(
       ctx.i18n.t('wizard_add_wallet_address_init', {
+        orderId: order._id,
         expirationTime,
         currency,
         fiatAmount: numberFormat(order.fiat_code, order.fiat_amount),
@@ -1102,19 +1174,19 @@ const wizardAddFiatAmountCorrectMessage = async (ctx, currency, fiatAmount) => {
   }
 };
 
-const expiredOrderMessage = async (bot, order, buyerUser, sellerUser, i18n) => {
+const expiredOrderMessage = async (bot, order, buyer, seller, i18n) => {
   try {
-    const detailedOrder = getDetailedOrder(i18n, order, buyerUser, sellerUser);
-    const buyerUsername = buyerUser ? sanitizeMD(buyerUser.username) : '';
-    const sellerUsername = sellerUser ? sanitizeMD(sellerUser.username) : '';
+    const detailedOrder = getDetailedOrder(i18n, order, buyer, seller);
+    const buyerUsername = buyer ? sanitizeMD(buyer.username) : '';
+    const sellerUsername = seller ? sanitizeMD(seller.username) : '';
 
     await bot.telegram.sendMessage(
       process.env.ADMIN_CHANNEL,
       i18n.t('expired_order', {
         detailedOrder,
-        buyerUser,
+        buyer,
         buyerUsername,
-        sellerUser,
+        seller,
         sellerUsername,
       }),
       { parse_mode: 'markdownV2' }
@@ -1192,7 +1264,7 @@ const toSellerDidntLockTokensMessage = async (bot, user, order, i18n) => {
 
     await bot.telegram.sendMessage(
       user.tg_id,
-      i18n.t('you_havent_locked_tokens_for_sell_order', { order: order, formattedAmount: formattedAmount, dappPage: process.env.DAPP_PAGE }),
+      i18n.t('you_havent_locked_tokens', { order: order, formattedAmount: formattedAmount, dappPage: process.env.DAPP_PAGE }),
       { parse_mode: 'markdown' }
     );
   } catch (error) {
@@ -1204,7 +1276,7 @@ const toBuyerSellerDidntLockTokensMessage = async (bot, user, order, i18n) => {
   try {
     await bot.telegram.sendMessage(
       user.tg_id,
-      i18n.t('seller_havent_locked_tokens_for_sell_order', { orderId: order._id })
+      i18n.t('to_buyer_seller_havent_locked_tokens', { orderId: order._id })
     );
   } catch (error) {
     logger.error(error);
@@ -1215,7 +1287,7 @@ const toAdminChannelSellerDidntLockTokensMessage = async (bot, user, order, i18n
   try {
     await bot.telegram.sendMessage(
       process.env.ADMIN_CHANNEL,
-      i18n.t('to_admin_seller_havent_locked_tokens_for_sell_order', {
+      i18n.t('to_admin_seller_havent_locked_tokens', {
         orderId: order._id,
         username: user.username,
       })
@@ -1291,6 +1363,7 @@ module.exports = {
   startMessage,
   initBotErrorMessage,
   lockTokensForSellOrderMessage,
+  lockTokensForBuyOrderMessage,
   sellOrderCorrectFormatMessage,
   buyOrderCorrectFormatMessage,
   errorParsingWalletAddressMessage,

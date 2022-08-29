@@ -246,7 +246,7 @@ init_cooperativecancel: '🕒 Du hast mit der Stornierung des Auftrages mit der 
 counterparty_wants_cooperativecancel: '😳 Deine Gegenpartei möchte den Auftrag mit der Id ${orderId} stornieren. Wenn du mit der Stornierung einverstanden bist, führe bitte den folgenden Befehl aus 👇'
 cant_take_more_orders: ⛔ Sorry! Du kannst keinen weiteren Auftrag annehmen, während andere auf dich warten
 seller_released: 💸 Der Verkäufer hat die Sats bereits freigegeben, du musst warten, bis deine LN-Rechnung bezahlt ist.
-your_purchase_is_completed: |
+purchase_success: |
   🪙 Dein Sats-Kauf wurde erfolgreich abgeschlossen, @${sellerUsername} hat deine FIAT-Zahlung bestätigt und ich habe deine LN-Rechnung bezahlt, viel Spaß mit dem sound Money!
 
   ⚡️🍊⚡️
@@ -328,8 +328,8 @@ you_havent_added_wallet_address: '🤨 Du hast die LN-Rechnung noch nicht gesend
 buyer_hasnt_added_wallet_address: '😔 Der Käufer hat mir die LN-Rechnung für den Erhalt der Sats für deinen Auftrag nicht geschickt: Auftrag ${orderId}. Deine Sats wurden an dich zurückgeschickt.'
 buyer_hasnt_added_wallet_address_to_admin_channel: 'Käufer @${username} hat den Auftrag ${orderId} angenommen, aber keine LN-Rechnung gesendet. Die Zeit ist abgelaufen, der Auftrag wird neu veröffentlicht.'
 havent_locked_tokens: '🤨 Du hast die LN-Rechnung nicht bezahlt, um Sats für den Auftrag (${orderId}) zu verkaufen.'
-seller_havent_locked_tokens_for_sell_order: '😔 Der Verkäufer hat die LN-Rechnung für deinen Auftrag (${orderId}) nicht bezahlt. Der Vorgang wurde storniert.'
-to_admin_seller_havent_locked_tokens_for_sell_order: 'Verkäufer @${username} hat die LN-Rechnung des Auftrages (${orderId}) nicht bezahlt. Der Auftrag ist abgelaufen und wurde wieder veröffentlicht.'
+seller_havent_locked_tokens: '😔 Der Verkäufer hat die LN-Rechnung für deinen Auftrag (${orderId}) nicht bezahlt. Der Vorgang wurde storniert.'
+to_admin_seller_havent_locked_tokens: 'Verkäufer @${username} hat die LN-Rechnung des Auftrages (${orderId}) nicht bezahlt. Der Auftrag ist abgelaufen und wurde wieder veröffentlicht.'
 selling: Verkaufe
 buying: Kaufe
 receive_payment: Zahlung erhalten

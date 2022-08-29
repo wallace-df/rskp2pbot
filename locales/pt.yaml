@@ -246,7 +246,7 @@ init_cooperativecancel: '🕒 Você começou o cancelamento do pedido Id: ${orde
 counterparty_wants_cooperativecancel: '😳 Sua contraparte quer cancelar o pedido Id: ${orderId}, Se você concorda com esse cancelamento, execute o seguinte comando 👇'
 cant_take_more_orders: ⛔ Desculpe!Você não pode fazer outro pedido enquanto tem outras pessoas esperando por você
 seller_released: 💸 O vendedor já lançou os Satoshis, você deve esperar que sua fatura seja paga.
-your_purchase_is_completed: |
+purchase_success: |
   🪙 Sua compra de Satoshis foi concluída bem-sucedida, @${sellerUsername} confirmou seu pagamento fiduciário e eu paguei sua fatura, aproveite o som de dinheiro!
 
   ⚡️🍊⚡️
@@ -328,8 +328,8 @@ you_havent_added_wallet_address: '🤨 Você não enviou a fatura para receber s
 buyer_hasnt_added_wallet_address: '😔 O comprador não me enviou a fatura para receber os sats para o seu pedido Id: ${orderId}, seus sats foram enviados de volta para você'
 buyer_hasnt_added_wallet_address_to_admin_channel: 'Compradora @${username} tomou o orderId: ${orderId} mas não enviou a fatura para onde receber sats, o tempo expirou, a ordem foi republicada.'
 havent_locked_tokens: '🤨 Você não pagou a fatura para vender sats para o pedido Id: ${orderId}'
-seller_havent_locked_tokens_for_sell_order: '😔 O vendedor não pagou a fatura pela sua compra Id: ${orderId}, A operação foi cancelada.'
-to_admin_seller_havent_locked_tokens_for_sell_order: 'Vendedora @${username} não pagou a fatura do pedido Id: ${orderId} O lapso do tempo terminou e o pedido foi publicado novamente.'
+seller_havent_locked_tokens: '😔 O vendedor não pagou a fatura pela sua compra Id: ${orderId}, A operação foi cancelada.'
+to_admin_seller_havent_locked_tokens: 'Vendedora @${username} não pagou a fatura do pedido Id: ${orderId} O lapso do tempo terminou e o pedido foi publicado novamente.'
 selling: Vendendo
 buying: Comprando
 receive_payment: Receber pagamento

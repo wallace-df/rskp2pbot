@@ -31,11 +31,11 @@ const createOrder = async (
     tgChatId,
     tgOrderMessage,
     community_id,
+    walletAddress
   }
 ) => {
   try {
-    // fixme: get fees...
-    const fee = 0;//await getFee(amount, community_id);
+    const fee = await getFee(amount, community_id);
     // Global fee values at the moment of the order creation
     // We will need this to calculate the final amount
     const botFee = parseFloat(process.env.MAX_FEE);
@@ -100,6 +100,7 @@ const createOrder = async (
     } else {
       order = new Order({
         buyer_id: user._id,
+        buyer_address: walletAddress,
         ...baseOrderData,
       });
     }
@@ -176,7 +177,7 @@ const buildDescription = async (
       const exchangePrice = calculateExchangePrice(fiatAmount[0], amount, token.decimals);
       const symbol = !!currency && !!currency.symbol_native ? currency.symbol_native : fiatCode;
 
-      tasaText = i18n.t('seller_price') + `: ${symbol} ${numberFormat(fiatCode, Number(exchangePrice))}\n`;
+      tasaText = i18n.t('order_price') + `: ${symbol} ${numberFormat(fiatCode, Number(exchangePrice))}\n`;
       tasaText += i18n.t('fair_price') + `: ${symbol} ${numberFormat(fiatCode, Number(fairPrice))}\n`;
     }
 

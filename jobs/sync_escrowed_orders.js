@@ -111,15 +111,21 @@ const activateFundedOrders = async bot => {
       if (order.type === 'sell') {
         await messages.onGoingTakeSellMessage(
           bot,
-          sellerUser,
           buyerUser,
+          sellerUser,
           order,
           i18nCtxBuyer,
           i18nCtxSeller
         );
-
-      } else if (order.type === 'buy') {
-        // FIXME: handle.
+      } else if (order.type === 'buy') {    
+        await messages.onGoingTakeBuyMessage(
+          bot,
+          buyerUser,
+          sellerUser,
+          order,
+          i18nCtxBuyer,
+          i18nCtxSeller
+        );
       }
 
     } catch (err) {
@@ -186,7 +192,7 @@ const processReleasedOrder = async (bot, order, releasedByAdmin) => {
     order.status = 'RELEASED';
     await order.save();
 
-    await messages.fundsReleasedMessages(bot, sellerUser, buyerUser, i18nCtxBuyer, i18nCtxSeller);
+    await messages.fundsReleasedMessages(bot, order, sellerUser, buyerUser, i18nCtxBuyer, i18nCtxSeller);
 
     await handleReputationItems(buyerUser, sellerUser, order.amount);
     await messages.rateUserMessage(bot, buyerUser, order, i18nCtxBuyer);

@@ -24,8 +24,10 @@ const {
   takebuy,
   takesell,
   rateUser,
-  cancelAddWalletAddress,
   addWalletAddress,
+  cancelAddWalletAddress,
+  lockTokensRequest,
+  cancelLockTokensRequest,
   cancelShowHoldInvoice,
   showHoldInvoice,
   waitPayment,
@@ -237,7 +239,7 @@ const initialize = (botToken, options) => {
 
       if (!orderId) return;
       if (!(await validateObjectId(ctx, orderId))) return;
-      const address = await validateWalletAddress(ctx, walletAddress);
+      const address = await validateWalletAddress(walletAddress);
       if (!address){
         return await messages.invalidWalletAddressMessage(ctx);
       };
@@ -397,12 +399,16 @@ const initialize = (botToken, options) => {
     await cancelAddWalletAddress(ctx, bot, null, true);
   });
 
-  bot.action('showHoldInvoiceBtn', userMiddleware, async ctx => {
-    await showHoldInvoice(ctx, bot);
+  bot.action('lockTokensBtn', userMiddleware, async ctx => {
+    await lockTokensRequest(ctx, bot, null, true);    
   });
 
-  bot.action('cancelShowHoldInvoiceBtn', userMiddleware, async ctx => {
-    await cancelShowHoldInvoice(ctx, bot);
+  bot.action('cancelLockTokensBtn', userMiddleware, async ctx => {
+    await cancelLockTokensRequest(ctx, bot, null, true);    
+  });
+
+  bot.action('showHoldInvoiceBtn', userMiddleware, async ctx => {
+    await showHoldInvoice(ctx, bot);
   });
 
   bot.action(/^showStarBtn\(([1-5]),(\w{24})\)$/, userMiddleware, async ctx => {
