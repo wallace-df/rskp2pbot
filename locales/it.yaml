@@ -30,7 +30,7 @@ start: |
   Ti auguriamo transazioni rapide e sicure!
 init_bot_error: per utilizzare questo Bot è necessario inizializzare l'avvio con il comando /start
 non_handle_error: 👤 Per utilizzare questo bot è necessario impostare il proprio nome utente di Telegram; per impostarlo, aprire il menu in alto a sinistra e selezionare impostazioni -> modifica profilo -> nome utente
-lock_tokens_request: |
+lock_tokens_for_sell_order: |
   Qualcuno richiede di comprare da te ${order.amount} sats per ${currency} ${order.fiat_amount}.
 
   Reputazione del compratore: ${rate}
@@ -92,7 +92,7 @@ begin_take_buy: |
   🤖 Premere Continua per accettare l'ordine, se premi Cancella verrai svincolato dall'ordine e sarà ripubblicato. Hai ${expirationTime} minuti prima che l'ordine scada. 👇
 continue: Continua
 cancel: Cancella
-pay_invoice: Si prega di pagare questa invoice di ${amount} sats per ${currency} ${fiatAmount} per iniziare lo scambio.
+you_took_buy_order: Si prega di pagare questa invoice di ${amount} sats per ${currency} ${fiatAmount} per iniziare lo scambio.
 payment_received: |
   🤑 Pagamento ricevuto!
 
@@ -107,19 +107,19 @@ someone_took_your_order: |
   Reputazione del venditore: ${rate}
 
   Se accetti le condizioni, premi per continuare 👇
-you_took_someone_order: |
+you_took_sell_order: |
   🤖 Hai accettato l'ordine di vendita, per favore usa un metodo di pagamento fiat che ti permetta di inviare il denaro immediatamente e per cui non ci sia il rischio di congelamento i fondi \\.
 
   *Se per qualche motivo il metodo di pagamento mette in pausa il trasferimento e i fondi non arrivano in meno di ${expirationTime}, i satoshi torneranno al venditore, mettendo a rischio l'acquirente e non potrò costringere il venditore a inviare di nuovo i fondi \\.*
 
   Se accetti le condizioni, premi per continuare 👇
-get_in_touch_with_seller: |
+take_sell_get_in_touch_with_seller: |
   Contatta il venditore, @${sellerUsername} per ottenere i dettagli su come inviare i fondi ${currency} ${fiatAmount} usando ${paymentMethod}.
 
   Quando hai inviato i fondi fammelo sapere, con il comando 👇
 fiatsent_order_cmd: |
   /fiatsent ${orderId}
-get_in_touch_with_buyer: |
+take_sell_get_in_touch_with_buyer: |
   🤖 Mettiti in contatto con  @${buyerUsername} in modo da fornire informazioni su come inviarti ${currency} ${fiatAmount} tramite ${paymentMethod}. Non rilasciare i sats finché non è accertato che l'acquirente abbia pagato il controvalore in fiat.
 
   Una volta confermata la ricezione del denaro, è necessario sbloccare i satoshi.
@@ -323,12 +323,12 @@ expired_order_to_seller: |
   Se hai ricevuto il denaro fiat, sei pregato di rilasciare i fondi con il comando /release, altrimenti rischi che l'acquirente apra una disputa che si ripercuoterà sulla tua reputazione.
 
   Se hai bisogno di aiuto, puoi scrivere al gruppo ${helpGroup}
-didnt_add_wallet_address: "🤨 Non è stata inviata la fattura per ricevere i sats relativi all'ordine ID: ${orderId}"
-buyer_havent_added_wallet_address: "😔 L'acquirente non mi ha inviato la fattura per ricevere i sats relativi al tuo ordine ID: ${orderId}, i sats sono stati rispediti a te"
-buyer_havent_added_wallet_address_to_admin_channel: "L'acquirente @${username} ha accettato l'ordine ID: ${orderId} ma non ha inviato la fattura dove ricevere sats, il tempo è scaduto e l'ordine è stato ripubblicato."
+you_havent_added_wallet_address: "🤨 Non è stata inviata la fattura per ricevere i sats relativi all'ordine ID: ${orderId}"
+buyer_hasnt_added_wallet_address: "😔 L'acquirente non mi ha inviato la fattura per ricevere i sats relativi al tuo ordine ID: ${orderId}, i sats sono stati rispediti a te"
+buyer_hasnt_added_wallet_address_to_admin_channel: "L'acquirente @${username} ha accettato l'ordine ID: ${orderId} ma non ha inviato la fattura dove ricevere sats, il tempo è scaduto e l'ordine è stato ripubblicato."
 havent_locked_tokens: "🤨 Non hai pagato la invoice per vendere i sats relativi all' ordineID:${orderId}"
-seller_havent_locked_tokens: "😔 Il venditore non ha pagato la invoice per il tuo ordine di acquisto ID: ${orderId}, l'operazione è stata annullata."
-seller_havent_added_wallet_address_to_admin_channel: "Il venditore @${username} non ha pagato la invoice per l'ordine ID: ${orderId} il termine è scaduto e l'ordine è stato ripubblicato"
+seller_havent_locked_tokens_for_sell_order: "😔 Il venditore non ha pagato la invoice per il tuo ordine di acquisto ID: ${orderId}, l'operazione è stata annullata."
+to_admin_seller_havent_locked_tokens_for_sell_order: "Il venditore @${username} non ha pagato la invoice per l'ordine ID: ${orderId} il termine è scaduto e l'ordine è stato ripubblicato"
 selling: Vendita
 buying: Acquisto
 receive_payment: Ricezione del pagamento

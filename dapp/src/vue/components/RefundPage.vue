@@ -93,8 +93,6 @@ export default {
           throw "There was an error fetching details: order status not supported.";
         }
 
-        console.log(order);
-
         this.sellerAddress = order.sellerAddress;
         this.amount = this.formatAmount(this.toBN(order.amount).add(this.toBN(order.fees)), this.getTokenByAddress(order.tokenContractAddress));
         

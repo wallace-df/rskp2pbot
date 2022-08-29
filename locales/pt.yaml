@@ -30,7 +30,7 @@ start: |
   Faça uma transação rápida e segura!
 init_bot_error: Para usar este bot, você precisa primeiro inicializar a inicialização com o comando /start
 non_handle_error: 👤 Para usar este bot, você precisa ativar seu nome de usuário do Telegram, para ativá-lo, abra o menu de hambúrguer no canto superior esquerdo e selecione Configurações -> editar Perfil -> nome de usuário
-lock_tokens_request: |
+lock_tokens_for_sell_order: |
   Alguém quer te comprar ${order.amount} sats por ${currency} ${order.fiat_amount}.
 
   Reputação do comprador: ${rate}
@@ -92,7 +92,7 @@ begin_take_buy: |
   🤖 Pressione Continue aceitando a oferta, se você pressionar cancelar, será liberado do pedido e ela será republicada. Você tem ${expirationTime} minutos antes que esse pedido expire. 👇
 continue: Continuar
 cancel: Cancelar
-pay_invoice: Por favor, pague esta fatura de ${amount} sats para ${currency} ${fiatAmount} para iniciar a operação.
+you_took_buy_order: Por favor, pague esta fatura de ${amount} sats para ${currency} ${fiatAmount} para iniciar a operação.
 payment_received: |
   🤑 Pagamento recebido!
 
@@ -107,19 +107,19 @@ someone_took_your_order: |
   Reputação do vendedor: ${rate}
 
   Se você concorda com o exposto acima, pressione o botão para continuar 👇
-you_took_someone_order: |
+you_took_sell_order: |
   🤖 Você tomou esse pedido de venda, use um processador de pagamento fiduciário que permita enviar o dinheiro imediatamente e no qual não há risco de congelar fundos\\.
 
   *Se por algum motivo o seu processador de pagamento coloca o pagamento em pausa e os fundos não chegam em menos de ${expirationTime}, os sats voltarão ao vendedor, Colocando o comprador em risco e não poderei forçar o vendedor a enviar os sats novamente\\.*
 
   Se você concorda com o exposto acima, pressione o botão para continuar 👇
-get_in_touch_with_seller: |
+take_sell_get_in_touch_with_seller: |
   Entre em contato com o vendedor, usuário @${sellerUsername} Para obter os detalhes sobre como enviar o dinheiro que você deve enviar ${currency} ${fiatAmount} usando ${paymentMethod}.
 
   Depois de enviar o dinheiro, por favor me avise com o comando 👇
 fiatsent_order_cmd: |
   /fiatsent ${orderId}
-get_in_touch_with_buyer: |
+take_sell_get_in_touch_with_buyer: |
   🤖 Entre em contato com  @${buyerUsername} para fornecer informações sobre como enviar você ${currency} ${fiatAmount} através dos ${paymentMethod}. Não libere esses SATs até verificar se o comprador pagou o Fiat.
 
   Depois de confirmar a recepção do dinheiro, você deve desbloquear os sats.
@@ -324,12 +324,12 @@ expired_order_to_seller: |
   Se você recebeu o dinheiro da Fiat, libere os fundos com o comando /release, caso contrário, estará sob o risco de o comprador abrir uma disputa que afetará sua reputação.
 
   Se precisar de ajuda, pode escrever para o grupo ${helpGroup}
-didnt_add_wallet_address: '🤨 Você não enviou a fatura para receber sats para o pedido Id: ${orderId}'
-buyer_havent_added_wallet_address: '😔 O comprador não me enviou a fatura para receber os sats para o seu pedido Id: ${orderId}, seus sats foram enviados de volta para você'
-buyer_havent_added_wallet_address_to_admin_channel: 'Compradora @${username} tomou o orderId: ${orderId} mas não enviou a fatura para onde receber sats, o tempo expirou, a ordem foi republicada.'
+you_havent_added_wallet_address: '🤨 Você não enviou a fatura para receber sats para o pedido Id: ${orderId}'
+buyer_hasnt_added_wallet_address: '😔 O comprador não me enviou a fatura para receber os sats para o seu pedido Id: ${orderId}, seus sats foram enviados de volta para você'
+buyer_hasnt_added_wallet_address_to_admin_channel: 'Compradora @${username} tomou o orderId: ${orderId} mas não enviou a fatura para onde receber sats, o tempo expirou, a ordem foi republicada.'
 havent_locked_tokens: '🤨 Você não pagou a fatura para vender sats para o pedido Id: ${orderId}'
-seller_havent_locked_tokens: '😔 O vendedor não pagou a fatura pela sua compra Id: ${orderId}, A operação foi cancelada.'
-seller_havent_added_wallet_address_to_admin_channel: 'Vendedora @${username} não pagou a fatura do pedido Id: ${orderId} O lapso do tempo terminou e o pedido foi publicado novamente.'
+seller_havent_locked_tokens_for_sell_order: '😔 O vendedor não pagou a fatura pela sua compra Id: ${orderId}, A operação foi cancelada.'
+to_admin_seller_havent_locked_tokens_for_sell_order: 'Vendedora @${username} não pagou a fatura do pedido Id: ${orderId} O lapso do tempo terminou e o pedido foi publicado novamente.'
 selling: Vendendo
 buying: Comprando
 receive_payment: Receber pagamento

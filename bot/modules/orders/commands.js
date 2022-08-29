@@ -92,7 +92,7 @@ const buy = async ctx => {
     const buyOrderParams = await validateBuyOrder(ctx);
     if (!buyOrderParams) return;
 
-    const { amount, fiatAmount, fiatCode, paymentMethod } = buyOrderParams;
+    const { amount, tokenCode, fiatAmount, fiatCode, paymentMethod } = sellOrderParams;
     let priceMargin = buyOrderParams.priceMargin;
     priceMargin = isFloat(priceMargin)
       ? parseFloat(priceMargin.toFixed(2))
@@ -130,6 +130,7 @@ const buy = async ctx => {
     const order = await ordersActions.createOrder(ctx.i18n, ctx, user, {
       type: 'buy',
       amount,
+      tokenCode,
       fiatAmount,
       fiatCode,
       paymentMethod,

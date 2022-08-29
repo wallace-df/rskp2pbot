@@ -30,7 +30,7 @@ start: |
   Mache eine schnelle und sichere Transaktion!
 init_bot_error: Um diesen Bot zu verwenden, musst du zuerst den Boot mit dem Befehl /start initialisieren
 non_handle_error: 👤 Um diesen Bot zu nutzen, musst du deinen Telegram-Benutzernamen aktivieren. Um ihn zu aktivieren, öffne das Hamburger-Menü oben links und wähle Einstellungen -> Profil bearbeiten -> Benutzernamen
-lock_tokens_request: |
+lock_tokens_for_sell_order: |
   Jemand möchte ${order.amount} Sats für ${currency} ${order.fiat_amount} kaufen.
 
   Buyer Reputation: ${rate}
@@ -92,7 +92,7 @@ begin_take_buy: |
   🤖 Drücke auf Weiter, um das Angebot anzunehmen. Wenn du auf Abbrechen drückst, wird der Auftrag freigegeben und neu veröffentlicht. Du hast ${expirationTime} Minuten, bevor dieser Auftrag abläuft.
 continue: Weiter
 cancel: Abbrechen
-pay_invoice: Bitte bezahle diese LN-Rechnung von ${amount} sats für ${currency} ${fiatAmount}, um den Vorgang zu starten.
+you_took_buy_order: Bitte bezahle diese LN-Rechnung von ${amount} sats für ${currency} ${fiatAmount}, um den Vorgang zu starten.
 payment_received: |
   🤑 Zahlung erhalten!
 
@@ -107,19 +107,19 @@ someone_took_your_order: |
   Verkäufer Ruf: ${rate}
 
   Wenn du mit den obigen Angaben einverstanden bist, drücke den Button, um fortzufahren 👇
-you_took_someone_order: |
+you_took_sell_order: |
   🤖 Wenn du diesen Verkaufsauftrag angenommen hast, verwende bitte einen FIAT\\-Zahlungsanbieter, der es dir ermöglicht, das Geld sofort zu überweisen und bei dem kein Risiko besteht, dass das Geld eingefroren wird\\.
 
   *Wenn dein Zahlungsabwickler die Zahlung aus irgendeinem Grund pausiert und das Geld nicht innerhalb von ${expirationTime} eintrifft, gehen die Sats an den Verkäufer zurück, wodurch der Käufer einem Risiko ausgesetzt ist und ich nicht in der Lage bin, den Verkäufer zu zwingen, die Sats erneut zu senden\\.*
 
   Wenn du mit den obigen Angaben einverstanden bist, drücke den Button, um fortzufahren 👇
-get_in_touch_with_seller: |
+take_sell_get_in_touch_with_seller: |
   Nimm Kontakt mit dem Verkäufer @${sellerUsername} auf, um die Details zu erfahren, wie du ${currency} ${fiatAmount} mit ${paymentMethod} überweisen musst.
 
   Sobald du das Geld überwiesen hast, gib mir bitte mit dem folgenden Befehl Bescheid 👇
 fiatsent_order_cmd: |
   /fiatsent ${orderId}
-get_in_touch_with_buyer: |
+take_sell_get_in_touch_with_buyer: |
   🤖 Nimm Kontakt mit @${buyerUsername} auf, um ihm Informationen darüber zu geben, wie er dir ${currency} ${fiatAmount} über ${paymentMethod} senden kann. Gib die Sats erst frei, wenn du dich vergewissert hast, dass der Käufer das Betrag bezahlt hat.
 
   Sobald du den Erhalt des Geldes bestätigt hast, musst du die Sats freigeben.
@@ -324,12 +324,12 @@ expired_order_to_seller: |
   Wenn du das FIAT-Geld erhalten hast, gibst du es bitte mit dem Befehl /release frei. Andernfalls läufst du Gefahr, dass der Käufer einen Streitfall eröffnet, der deinen Ruf beeinträchtigen wird.
 
   Wenn du Hilfe brauchst, kannst du an die Gruppe ${helpGroup} schreiben
-didnt_add_wallet_address: '🤨 Du hast die LN-Rechnung noch nicht gesendet, um Sats für den Auftrag zu erhalten: ${orderId}'
-buyer_havent_added_wallet_address: '😔 Der Käufer hat mir die LN-Rechnung für den Erhalt der Sats für deinen Auftrag nicht geschickt: Auftrag ${orderId}. Deine Sats wurden an dich zurückgeschickt.'
-buyer_havent_added_wallet_address_to_admin_channel: 'Käufer @${username} hat den Auftrag ${orderId} angenommen, aber keine LN-Rechnung gesendet. Die Zeit ist abgelaufen, der Auftrag wird neu veröffentlicht.'
+you_havent_added_wallet_address: '🤨 Du hast die LN-Rechnung noch nicht gesendet, um Sats für den Auftrag zu erhalten: ${orderId}'
+buyer_hasnt_added_wallet_address: '😔 Der Käufer hat mir die LN-Rechnung für den Erhalt der Sats für deinen Auftrag nicht geschickt: Auftrag ${orderId}. Deine Sats wurden an dich zurückgeschickt.'
+buyer_hasnt_added_wallet_address_to_admin_channel: 'Käufer @${username} hat den Auftrag ${orderId} angenommen, aber keine LN-Rechnung gesendet. Die Zeit ist abgelaufen, der Auftrag wird neu veröffentlicht.'
 havent_locked_tokens: '🤨 Du hast die LN-Rechnung nicht bezahlt, um Sats für den Auftrag (${orderId}) zu verkaufen.'
-seller_havent_locked_tokens: '😔 Der Verkäufer hat die LN-Rechnung für deinen Auftrag (${orderId}) nicht bezahlt. Der Vorgang wurde storniert.'
-seller_havent_added_wallet_address_to_admin_channel: 'Verkäufer @${username} hat die LN-Rechnung des Auftrages (${orderId}) nicht bezahlt. Der Auftrag ist abgelaufen und wurde wieder veröffentlicht.'
+seller_havent_locked_tokens_for_sell_order: '😔 Der Verkäufer hat die LN-Rechnung für deinen Auftrag (${orderId}) nicht bezahlt. Der Vorgang wurde storniert.'
+to_admin_seller_havent_locked_tokens_for_sell_order: 'Verkäufer @${username} hat die LN-Rechnung des Auftrages (${orderId}) nicht bezahlt. Der Auftrag ist abgelaufen und wurde wieder veröffentlicht.'
 selling: Verkaufe
 buying: Kaufe
 receive_payment: Zahlung erhalten

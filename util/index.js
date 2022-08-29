@@ -168,6 +168,7 @@ const formatUnit = (value, decimals) => {
 // If we found those trades in the last 24 hours we decrease both variables to both users
 const handleReputationItems = async (buyer, seller, amount) => {
   try {
+    amount = Number(amount);
     const yesterday = new Date(Date.now() - 86400000).toISOString();
     const orders = await Order.find({
       status: 'RELEASED',
@@ -180,7 +181,7 @@ const handleReputationItems = async (buyer, seller, amount) => {
       orders.forEach(order => {
         totalAmount += order.amount;
       });
-      const lastAmount = orders[orders.length - 1].amount;
+      const lastAmount = Number(orders[orders.length - 1].amount);
       let buyerTradesCompleted;
       let sellerTradesCompleted;
       let buyerVolumeTraded;
@@ -484,6 +485,9 @@ const getDetailedOrder = (i18n, order, buyer, seller) => {
     const fee = order.fee;
     const creator =
       order.creator_id === buyerId ? buyerUsername : sellerUsername;
+    
+    const token = getToken(order.token_code);
+    const formattedAmount = sanitizeMD(formatUnit(order.amount, token.decimals));
     const message = i18n.t('order_detail', {
       order,
       creator,
@@ -495,6 +499,7 @@ const getDetailedOrder = (i18n, order, buyer, seller) => {
       fee,
       paymentMethod,
       priceMargin,
+      formattedAmount
     });
 
     return message;

@@ -1,8 +1,8 @@
 {
-  "name": "p2plnbot",
+  "name": "rskp2pbot",
   "version": "0.1.0",
-  "author": "Francisco Calderón",
-  "description": "P2P lightning network telegram bot",
+  "author": "Wallace Ferreira",
+  "description": "RSK telegram bot",
   "main": "app.js",
   "scripts": {
     "start": "node ./app",
@@ -22,18 +22,15 @@
     "dotenv": "^10.0.0",
     "ethers": "^5.7.0",
     "hardhat": "^2.10.2",
-    "invoices": "2.0.6",
     "js-big-decimal": "^1.3.5",
-    "lightning": "^5.16.0",
     "mongoose": "6.5.2",
     "node-schedule": "^2.1.0",
-    "qrcode": "^1.5.0",
     "socks-proxy-agent": "^6.2.0-beta.0",
     "telegraf": "^4.6.0",
     "winston": "^3.7.2"
   },
   "keywords": [
-    "lightning",
+    "rsk",
     "telegram",
     "bot",
     "p2p",

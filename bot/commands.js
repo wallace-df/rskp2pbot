@@ -25,6 +25,7 @@ const crypto = require('crypto');
 const logger = require('../logger');
 
 const takebuy = async (ctx, bot) => {
+  // FIXME: concurrency improvement... account for parallel atempts of taking offer
   try {
     const text = ctx.update.callback_query.message.text;
     if (!text) return;
@@ -35,24 +36,27 @@ const takebuy = async (ctx, bot) => {
 
     // Sellers with orders in status = FIAT_SENT, have to solve the order
     const isOnFiatSentStatus = await validateSeller(ctx, user);
-
     if (!isOnFiatSentStatus) return;
+
     const orderId = extractId(text);
     if (!orderId) return;
+
     if (!(await validateObjectId(ctx, orderId))) return;
+
     const order = await Order.findOne({ _id: orderId });
     if (!order) return;
+
     // We verify if the user is not banned on this community
     if (await isBannedFromCommunity(user, order.community_id))
       return await messages.bannedUserErrorMessage(ctx, user);
 
     if (!(await validateTakeBuyOrder(ctx, bot, user, order))) return;
-    // We change the status to trigger the expiration of this order
-    // if the user don't do anything
-    order.status = 'WAITING_PAYMENT';
+    
+    order.status = 'WAITING_BUYER_ADDRESS';
     order.seller_id = user._id;
     order.taken_at = Date.now();
     await order.save();
+
     // We delete the messages related to that order from the channel
     await deleteOrderFromChannel(order, bot.telegram);
     await messages.beginTakeBuyMessage(ctx, bot, user, order);
@@ -62,6 +66,8 @@ const takebuy = async (ctx, bot) => {
 };
 
 const takesell = async (ctx, bot) => {
+    // FIXME: concurrency improvement... account for parallel atempts of taking offer
+
   try {
     const text = ctx.update.callback_query.message.text;
     if (!text) return;
@@ -81,15 +87,14 @@ const takesell = async (ctx, bot) => {
 
     if (!(await validateTakeSellOrder(ctx, bot, user, order))) return;
 
-    // We delete the messages related to that order from the channel
-    await deleteOrderFromChannel(order, bot.telegram);
-
     // Save the updated state first, then publish messages.
     order.status = 'WAITING_BUYER_ADDRESS';
     order.buyer_id = user._id;
     order.taken_at = Date.now();
     await order.save();
 
+    // We delete the messages related to that order from the channel
+    await deleteOrderFromChannel(order, bot.telegram);
     await messages.beginTakeSellMessage(ctx, bot, user, order);
   } catch (error) {
     logger.error(error);
@@ -128,7 +133,7 @@ const waitPayment = async (ctx, bot, buyer, seller, order, buyerAddress) => {
     const roundedRating = decimalRound(buyer.total_rating, -1);
     const rate = `${roundedRating} ${stars} (${buyer.total_reviews})`;
 
-    await messages.lockTokensRequestMessage(ctx, seller, order, i18nCtxSeller, rate);
+    await messages.lockTokensForSellOrderMessage(ctx, seller, order, i18nCtxSeller, rate);
     await messages.takeSellWaitingSellerToPayMessage(ctx, bot, buyer, order);
     
   } catch (error) {
@@ -272,73 +277,54 @@ const cancelAddWalletAddress = async (ctx, bot, order, userAction) => {
     const i18nCtx = await getUserI18nContext(user);
     const sellerUser = await User.findOne({ _id: order.seller_id });
 
-    if (order.creator_id === order.buyer_id) {
-
-      throw "Shouldn't reached here?";
-      
-      
-      // // Save the updated state first, then publish messages.
-      // order.status = 'CLOSED';
-      // await order.save();
-
-      // // Then publish the messages.
-      // await messages.toBuyerDidntAddWalletAddressMessage(bot, user, order, i18nCtx);
-      // const i18nCtxSeller = await getUserI18nContext(sellerUser);
-      // await messages.toSellerBuyerDidntAddWalletAddressMessage(
-      //   bot,
-      //   sellerUser,
-      //   order,
-      //   i18nCtxSeller
-      // );
+    // Re-publish order
+    if (userAction) {
+      logger.info(
+        `Buyer Id: ${user.id} cancelled Order Id: ${order._id}, republishing to the channel`
+      );
     } else {
-      // Re-publish order
-      if (userAction) {
-        logger.info(
-          `Buyer Id: ${user.id} cancelled Order Id: ${order._id}, republishing to the channel`
-        );
-      } else {
-        logger.info(
-          `Order Id: ${order._id} expired, republishing to the channel`
-        );
-      }
-      order.taken_at = null;
-      order.status = 'PENDING';
-      if (!!order.min_fiat_amount && !!order.max_fiat_amount) {
-        order.fiat_amount = undefined;
-      }
-      if (order.price_from_api) {
-        order.amount = '0';
-        order.fee = 0;
-        order.buyer_hash = null;
-        order.buyer_secret = null;
-        order.seller_hash = null;
-        order.seller_secret = null;
-      }
+      logger.info(
+        `Order Id: ${order._id} expired, republishing to the channel`
+      );
+    }
 
-      if (order.type === 'buy') {
-        order.seller_id = null;
-      } else {
-        order.buyer_id = null;
-      }
+    order.taken_at = null;
+    order.status = 'PENDING';
+    if (!!order.min_fiat_amount && !!order.max_fiat_amount) {
+      order.fiat_amount = undefined;
+    }
+    if (order.price_from_api) {
+      order.amount = '0';
+      order.fee = 0;
+      order.buyer_hash = null;
+      order.buyer_secret = null;
+      order.seller_hash = null;
+      order.seller_secret = null;
+    }
 
-      order.tg_channel_message1 = null;
-      
-      // Save the updated state first, then publish messages.
-      await order.save();
+    if (order.type === 'buy') {
+      order.seller_id = null;
+    } else {
+      order.buyer_id = null;
+    }
 
-      // Then publish the messages.
-      if (order.type === 'buy') {
-        await messages.publishBuyOrderMessage(bot, user, order, i18nCtx);
-      } else {
-        await messages.publishSellOrderMessage(bot, sellerUser, order, i18nCtx);
-      }
+    order.tg_channel_message1 = null;
+    
+    // Save the updated state first, then publish messages.
+    await order.save();
 
-      if (!userAction) {
-        await messages.toBuyerDidntAddWalletAddressMessage(bot, user, order, i18nCtx);
-        await messages.toAdminChannelBuyerDidntAddWalletAddressMessage(bot, user, order, i18nCtx);
-      } else {
-        await messages.successCancelOrderMessage(ctx, user, order, i18nCtx);
-      }
+    // Then publish the messages.
+    if (order.type === 'buy') {
+      await messages.publishBuyOrderMessage(bot, user, order, i18nCtx);
+    } else {
+      await messages.publishSellOrderMessage(bot, sellerUser, order, i18nCtx);
+    }
+
+    if (!userAction) {
+      await messages.toBuyerDidntAddWalletAddressMessage(bot, user, order, i18nCtx);
+      await messages.toAdminChannelBuyerDidntAddWalletAddressMessage(bot, user, order, i18nCtx);
+    } else {
+      await messages.successCancelOrderMessage(ctx, user, order, i18nCtx);
     }
   } catch (error) {
     logger.error(error);

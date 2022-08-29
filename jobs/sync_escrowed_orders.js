@@ -188,7 +188,7 @@ const processReleasedOrder = async (bot, order, releasedByAdmin) => {
 
     await messages.fundsReleasedMessages(bot, sellerUser, buyerUser, i18nCtxBuyer, i18nCtxSeller);
 
-    //await handleReputationItems(buyerUser, sellerUser, order.amount);
+    await handleReputationItems(buyerUser, sellerUser, order.amount);
     await messages.rateUserMessage(bot, buyerUser, order, i18nCtxBuyer);
     await messages.rateUserMessage(bot, sellerUser, order, i18nCtxSeller);
 
