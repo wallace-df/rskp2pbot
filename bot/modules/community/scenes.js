@@ -1,7 +1,6 @@
 const { Scenes } = require('telegraf');
 const logger = require('../../../logger');
 const { Community, User, PendingPayment } = require('../../../models');
-const { isPendingPayment } = require('../../../ln');
 const { isGroupAdmin, itemsFromMessage } = require('../../../util');
 const messages = require('../../messages');
 const { isValidInvoice } = require('../../validations');
