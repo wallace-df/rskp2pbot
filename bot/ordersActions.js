@@ -248,7 +248,6 @@ const getOrders = async (ctx, user, status) => {
         { status: 'PENDING' },
         { status: 'ACTIVE' },
         { status: 'FIAT_SENT' },
-        { status: 'RELEASED' },
         { status: 'DISPUTE' },
       ];
       where.$and.push({ $or });

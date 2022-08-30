@@ -5,6 +5,7 @@ exports.listOrdersResponse = async orders => {
     const channel = await getOrderChannel(order);
     let amount = '\\-';
     const status = order.status.split('_').join('\\_');
+    const token = getToken(order.token_code);
     const fiatAmount =
       typeof order.fiat_amount !== 'undefined'
         ? sanitizeMD(order.fiat_amount)
@@ -14,15 +15,18 @@ exports.listOrdersResponse = async orders => {
             sanitizeMD(order.max_fiat_amount),
           ].join('');
 
-    if (typeof order.amount !== 'undefined') amount = order.amount;
+    if (typeof order.amount !== 'undefined' && token) {
+      amount = sanitizeMD(formatUnit(order.amount, token.decimals));
+    }
     return [
       [''].join(''),
-      ['`Id          `: ', '`', order.id, '`'].join(''),
-      ['`Status      `: ', '`', status, '`'].join(''),
-      ['`Token amount`: ', '`', amount, '`'].join(''),
-      ['`Fiat amount `: ', '`', fiatAmount, '`'].join(''),
-      ['`Fiat        `: ', '`', order.fiat_code, '`'].join(''),
-      ['`Channel     `: ', '`', sanitizeMD(channel), '`'].join(''),
+      ['`Id           `: ', '`', order.id, '`'].join(''),
+      ['`Status       `: ', '`', status, '`'].join(''),
+      ['`Token code   `: ', '`', order.token_code, '`'].join(''),
+      ['`Token amount `: ', '`', amount, '`'].join(''),
+      ['`Fiat         `: ', '`', order.fiat_code, '`'].join(''),
+      ['`Fiat amount  `: ', '`', fiatAmount, '`'].join(''),
+      ['`Channel      `: ', '`', sanitizeMD(channel), '`'].join(''),
       ['`_________________________________`'].join(''),
     ].join('\n');
   });

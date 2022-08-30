@@ -28,22 +28,22 @@ start: |
 init_bot_error: to use this bot you need to first initialize it with the command /start
 non_handle_error: 👤 To use this bot you need to activate your Telegram Username. To activate it, open the hamburger menu on the top left and select Settings -> Edit profile -> Username
 help: |
-  /sell <_token amount_> <_token code_> <_fiat amount_> <_fiat code_> <_payment method_> [premium/discount] - Creates a Sell order
-  /buy <_token amount_> <_token code_> <_wallet address_> <_fiat amount_> <_Fiat code_> <_payment method_> [premium/discount] - Creates a Buy Order
-  /info - Shows additional info about the BOT
-  /showusername - Toggles off the display of the username in each new order created. Default value is se to no (false)
-  /showvolume - shows trade volume when each order is created, default value is *no* (false)
-  /setaddress <_order id_> <_wallet address_> - This command allows the buyer to set the wallet address where to receive tokens. 
-  /setlang - Allows the user to change the language
+  /sell <_token amount_> <_token code_> <_fiat amount_> <_fiat code_> <_payment method_> [premium/discount] - Creates a Sell order.
+  /buy <_token amount_> <_token code_> <_wallet address_> <_fiat amount_> <_Fiat code_> <_payment method_> [premium/discount] - Creates a Buy Order.
+  /info - Shows additional info about the bot.
+  /showusername - Toggles off the display of the username in each new order created. Default value is se to no (false).
+  /showvolume - shows trade volume when each order is created, default value is *no* (false).
+  /setaddress <_order id_> <_wallet address_> - This command allows the buyer to set the wallet address to receive tokens. 
+  /setlang - Allows the user to change the language.
   /listorders - Use this command to list all your pending transactions. 
   /listtokens - Lists all supported tokens. 
   /listcurrencies - Lists all the currencies we can use to without indicatin the amount in tokens. 
-  /fiatsent <_order id_> - Buyer informs that has already sent FIAT money to seller
-  /release <_order id_> - Seller releases the tokens 
-  /refund <_order id_> - Seller gets refund on tokens 
-  /dispute <_order id_> - Opens a dispute between participant parties
-  /cancel <_order id_> - Cancel an order that has not been taken yet
-  /cancelall - Cancel all posted and untaken orders
+  /fiatsent <_order id_> - Buyer informs that has already sent FIAT money to seller.
+  /release <_order id_> - Seller releases the tokens. 
+  /refund <_order id_> - Seller gets refund on tokens. 
+  /dispute <_order id_> - Opens a dispute between participant parties.
+  /cancel <_order id_> - Cancel an order.
+  /cancelall - Cancel all posted and untaken orders.
 
   Communities:
   /community - Create a new community
@@ -56,17 +56,17 @@ help: |
 sell_correct_format: |
   /sell \<_token amount_\> \<_token code_\> \<_fiat amount_\> \<_fiat code_\> \<_payment method_\> \[_premium/discount_\]
 
-  In order to create a sell order of 1000 satoshis for 2 Us dollars \(USD\) and indicate that the fiat payment is through transfer or ATM deposit, you must avoid \<\> and \[\]\.
+  In order to create a sell order of 0\.00001 RBTC for 2 US dollars \(USD\), and indicate that the fiat payment is through transfer or ATM deposit:
 
-  `/sell 1000 2 USD "transfer or ATM deposit"`
+  `/sell  0\.00001 RBTC 2 USD "transfer or ATM deposit"`
 
-  In order to create a sale with a surplus in the price of 3% \(premium\) you need to add the parameter 0 indicating fiat amount\. The bot will calculate the selling price using the Bitcoin market price and applying the indicated surplus, you need to add 3 as the last parameter
+  In order to create a sale of RBTC with a premium over the market price of 3%:
 
-  `/sell 0 2 USD "payment method" 3`
+  `/sell 0 RBTC 2 USD "payment method" 3`
 
-  In order to create a sell by range, instead of indicating a fixed fiat amount you can indicate a miminum and maximum amount to transact separated by a hyphen *\-*
+  In order to create a sell by range, instead of indicating a fixed fiat amount, you can indicate a minimum and maximum amount:
 
-  `/sell 0 100\-500 USD "payment method" 3`
+  `/sell 0 RBTC 100\-500 USD "payment method" 3`
 pending_sell: |
   📝 Your sell offer has been published in the ${channel} channel.
 
@@ -86,7 +86,7 @@ wizard_add_wallet_address_init: |
 
   If you do not send the address within ${expirationTime} minutes, the order will be cancelled and republished.
 wizard_add_wallet_exit: |
-  You have exit the wizard mode, you can now write down the commands. You can still add a wallet address to the order with the comand /setaddress indicating Order ID and Wallet Address:
+  You have exit the wizard mode, you can now write down the commands. You can still add a wallet address to the order with the command /setaddress:
 
   `/setaddress ${orderId} `\\<wallet address\\>
 error_parsing_wallet_address: |
@@ -95,7 +95,8 @@ error_parsing_wallet_address: |
   If you want to abort and return to the command entering mode, just run /exit
 you_havent_added_wallet_address: |
   🤨 You have not sent the wallet address to receive ${tokenCode} for the order with id ${orderId}. The operation was cancelled.
-buyer_hasnt_added_wallet_address_to_admin_channel: 'Buyer @${username} took the order with id ${orderId} but has not sent the wallet address to receive tokens and time has expired.'
+buyer_hasnt_added_wallet_address_to_admin_channel: |
+  Buyer @${username} took the order with id ${orderId} but has not sent the wallet address to receive tokens and time has expired.
 lock_tokens_for_sell_order: |
   Somebody took your sell order with id ${order._id} and wants to buy you ${formattedAmount} for ${currency} ${order.fiat_amount}.
 
@@ -106,7 +107,8 @@ lock_tokens_for_sell_order: |
   [Lock ${formattedAmount}](${dappPage}/lock?orderId=${order._id}&token=${order.token_code}&buyerAddress=${order.buyer_address}&buyerHash=${order.buyer_hash}&sellerHash=${order.seller_hash}&amount=${order.amount}&fee=${order.fee})
 
   You have ${expirationTime} minutes to lock the tokens. After that, the trade will be cancelled and any locked tokens will be refunded to you.
-waiting_seller_to_pay: 'I have sent a request to the seller to put ${formattedAmount} under escrow for the order with id ${orderId}. As soon the tokens are locked, I will put you both in touch.'
+waiting_seller_to_pay: |
+  I have sent a request to the seller to put ${formattedAmount} under escrow for the order with id ${orderId}. As soon the tokens are locked, I will put you both in touch.
 take_sell_get_in_touch_with_seller: |
   The seller has deposited ${formattedAmount} under escrow for your order with id ${orderId}.
 
@@ -122,19 +124,19 @@ take_sell_get_in_touch_with_buyer: |
 sell_success: Your sale for order with id ${orderId} has been completed!
 
 buy_correct_format: |
-  /buy \<_sats amount_\> \<_fiat amount_\> \<_fiat code_\> \<_payment method_\> \[_premium/discount_\]
+  /buy \<_token amount_\> \<_token code_\> \<_your wallet address_\> \<_fiat amount_\> \<_fiat code_\> \<_payment method_\> \[_premium/discount_\]
 
-  In order to create and order for 1000 satoshis for 2 \(USD\) and indicate that fiat payment is through transfer, you must to omit both \<\> and \[\]\.
+  In order to create a buy order of 0\.00001 RBTC for 2 US dollars \(USD\), and indicate that the fiat payment is through transfer or ATM deposit:
 
-  `/buy 1000 2 USD "online transfer"`
+  `/buy  0\.00001 RBTC 0x10A8631dA7Cf0da9cfA1c30c0D1CeA0C489FdbE0 2 USD "transfer or ATM deposit"`
 
-  If you do not want to establish a fixed amount of satoshis and you want to buy with a price under market value you can place a buy order establishing a certain discount, such rate is the percentage that will be substracted of market price when your order is published\. You need to specify 0 at the \<_sats amount_\> field, the bot will calculate te price\. If you want to buy with a 2% discount on price market, you should write \-2 as the last parameter
+  In order to create a purchase of RBTC with a discount over the market price of 2%:
 
-  `/buy 0 2 USD "payment method" \-2`
+  `/buy 0 RBTC 0x10A8631dA7Cf0da9cfA1c30c0D1CeA0C489FdbE0 2 USD "payment method" \-2`
 
-  If you want to create purchase order by range instead of indicating a fixed Fiat amount, you can set the minimum and maximum to transact separated by a hyphen *\-*
+  In order to create a purchase by range, instead of indicating a fixed fiat amount, you can indicate a minimum and maximum amount:
 
-  `/buy 0 100\-500 USD "payment method" \-2`
+  `/buy 0 RBTC 0x10A8631dA7Cf0da9cfA1c30c0D1CeA0C489FdbE0 100\-500 USD "payment method" \-2`
 pending_buy: |
   📝 You buy offer has been published in the ${channel} channel.
 
@@ -402,6 +404,7 @@ take_dispute: Take dispute
 not_authorized: 🤨 You are not authorized to perform this operation
 need_default_community: To perform this operation you need to have a default community
 enter_token_amount: Enter ${tokenCode} amount (e.g, 0.0001)
+enter_wallet_address: Enter your wallet address
 market_price: Market price (API3 + Yadio)
 enter_currency: 'Enter a currency by your code, eg: USD'
 choose_currency: Choose a currency

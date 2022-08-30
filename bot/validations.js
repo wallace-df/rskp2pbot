@@ -199,15 +199,6 @@ const validateBuyOrder = async ctx => {
       return false;
     }
 
-    // if (amount !== '0' && amount < process.env.MIN_PAYMENT_AMT) {
-    //   await messages.mustBeGreatherEqThan(
-    //     ctx,
-    //     'monto_en_sats',
-    //     process.env.MIN_PAYMENT_AMT
-    //   );
-    //   return false;
-    // }
-
     if (fiatAmount.length === 2 && fiatAmount[1] <= fiatAmount[0]) {
       await messages.mustBeANumberOrRange(ctx);
       return false;

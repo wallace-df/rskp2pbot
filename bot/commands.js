@@ -24,22 +24,29 @@ const ordersActions = require('./ordersActions');
 const crypto = require('crypto');
 const logger = require('../logger');
 
+let takeOrderLock = {};
+
 const takebuy = async (ctx, bot) => {
-  // FIXME: concurrency improvement... account for parallel atempts of taking offer
+  const text = ctx.update.callback_query.message.text;
+  if (!text) return;
+
+  let orderId = extractId(text);
+  if (!orderId) return;
+
+  const { user } = ctx;
+
+  // If there's some parallel request for taking this over, do not go on.
+  if (takeOrderLock[orderId]) {
+    await messages.alreadyTakenOrderMessage(ctx, bot, user);
+    return;
+  }
+
   try {
-    const text = ctx.update.callback_query.message.text;
-    if (!text) return;
-
-    const { user } = ctx;
-
     if (!(await validateUserWaitingOrder(ctx, bot, user))) return;
 
     // Sellers with orders in status = FIAT_SENT, have to solve the order
     const isOnFiatSentStatus = await validateSeller(ctx, user);
     if (!isOnFiatSentStatus) return;
-
-    const orderId = extractId(text);
-    if (!orderId) return;
 
     if (!(await validateObjectId(ctx, orderId))) return;
 
@@ -51,7 +58,11 @@ const takebuy = async (ctx, bot) => {
       return await messages.bannedUserErrorMessage(ctx, user);
 
     if (!(await validateTakeBuyOrder(ctx, bot, user, order))) return;
-    
+
+    // Do not allow the same order ID to be took in parallel by several users.
+    takeOrderLock[orderId] = true;
+
+    // Save the updated state first, then publish messages.
     order.status = 'WAITING_PAYMENT';
     order.seller_id = user._id;
     order.taken_at = Date.now();
@@ -62,21 +73,29 @@ const takebuy = async (ctx, bot) => {
     await messages.beginTakeBuyMessage(ctx, bot, user, order);
   } catch (error) {
     logger.error(error);
+  } finally {
+    // Release lock.
+    takeOrderLock[orderId] = false;
   }
 };
 
 const takesell = async (ctx, bot) => {
-    // FIXME: concurrency improvement... account for parallel atempts of taking offer
+  const text = ctx.update.callback_query.message.text;
+  if (!text) return;
 
+  const orderId = extractId(text);
+  if (!orderId) return;
+
+  const { user } = ctx;
+
+  // If there's some parallel request for taking this over, do not go on.
+  if (takeOrderLock[orderId]) {
+    await messages.alreadyTakenOrderMessage(ctx, bot, user);
+    return;
+  }
+  
   try {
-    const text = ctx.update.callback_query.message.text;
-    if (!text) return;
-
-    const { user } = ctx;
     if (!(await validateUserWaitingOrder(ctx, bot, user))) return;
-
-    const orderId = extractId(text);
-    if (!orderId) return;
 
     const order = await Order.findOne({ _id: orderId });
     if (!order) return;
@@ -86,6 +105,9 @@ const takesell = async (ctx, bot) => {
       return await messages.bannedUserErrorMessage(ctx, user);
 
     if (!(await validateTakeSellOrder(ctx, bot, user, order))) return;
+
+    // Do not allow the same order ID to be took in parallel by several users.
+    takeOrderLock[orderId] = 1;
 
     // Save the updated state first, then publish messages.
     order.status = 'WAITING_BUYER_ADDRESS';
@@ -98,6 +120,9 @@ const takesell = async (ctx, bot) => {
     await messages.beginTakeSellMessage(ctx, bot, user, order);
   } catch (error) {
     logger.error(error);
+  } finally {
+    // Release lock.
+    takeOrderLock[orderId] = false;
   }
 };
 

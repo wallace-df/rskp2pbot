@@ -1,6 +1,6 @@
 const { Scenes, Markup } = require('telegraf');
 const logger = require('../../../logger');
-const { getCurrency, getToken, toBaseUnit } = require('../../../util');
+const { getCurrency, getToken, toBaseUnit, isAddress } = require('../../../util');
 const ordersActions = require('../../ordersActions');
 const {
   publishBuyOrderMessage,
@@ -25,6 +25,7 @@ const createOrder = (exports.createOrder = new Scenes.WizardScene(
         statusMessage,
         type,
         tokenCode,
+        walletAddress,
         currency,
         fiatAmount,
         tokenAmount,
@@ -58,12 +59,13 @@ const createOrder = (exports.createOrder = new Scenes.WizardScene(
           }
         };
       }
+
       if (undefined === tokenCode) return createOrderSteps.token(ctx);
+      if (undefined === walletAddress && type == 'buy') return createOrderSteps.walletAddress(ctx); 
       if (undefined === currency) return createOrderSteps.currency(ctx);
       if (undefined === fiatAmount) return createOrderSteps.fiatAmount(ctx);
       if (undefined === tokenAmount) return createOrderSteps.tokenAmount(ctx);
-      if (undefined === priceMargin && tokenAmount === '0')
-        return createOrderSteps.priceMargin(ctx);
+      if (undefined === priceMargin && tokenAmount === '0') return createOrderSteps.priceMargin(ctx);
       if (undefined === method) return createOrderSteps.method(ctx);
 
       const order = await ordersActions.createOrder(ctx.i18n, ctx, user, {
@@ -76,6 +78,7 @@ const createOrder = (exports.createOrder = new Scenes.WizardScene(
         status: 'PENDING',
         priceMargin,
         community_id: community && community.id,
+        walletAddress
       });
       if (order) {
         const publishFn =
@@ -138,7 +141,18 @@ const createOrderSteps = {
     };
     return ctx.wizard.next();
   },
-
+  async walletAddress(ctx) {
+    const prompt = await createOrderPrompts.walletAddress(ctx);
+    ctx.wizard.state.handler = async ctx => {
+      const ret = await createOrderHandlers.walletAddress(ctx);
+      if (!ret) return;
+      return await ctx.telegram.deleteMessage(
+        prompt.chat.id,
+        prompt.message_id
+      );
+    };
+    return ctx.wizard.next();
+  },
   async currency(ctx) {
     const prompt = await createOrderPrompts.currency(ctx);
     const deletePrompt = () =>
@@ -234,28 +248,6 @@ const createOrderSteps = {
 };
 
 const createOrderPrompts = {
-  async priceMargin(ctx) {
-    const margin = ['-5', '-4', '-3', '-2', '-1', '+1', '+2', '+3', '+4', '+5'];
-    const buttons = margin.map(m => Markup.button.callback(m + '%', m));
-    const rows = [];
-    const chunkSize = 5;
-    for (let i = 0; i < buttons.length; i += chunkSize) {
-      const chunk = buttons.slice(i, i + chunkSize);
-      rows.push(chunk);
-    }
-    const noMargin = [
-      {
-        text: ctx.i18n.t('no_premium_or_discount'),
-        callback_data: '0',
-        hide: false,
-      },
-    ];
-    rows.splice(1, 0, noMargin);
-    return ctx.reply(
-      ctx.i18n.t('enter_premium_discount'),
-      Markup.inlineKeyboard(rows)
-    );
-  },
   async token(ctx) {
     const { tokens } = ctx.wizard.state;
     if (!tokens) return ctx.reply(ctx.i18n.t('enter_token'));
@@ -272,6 +264,9 @@ const createOrderPrompts = {
       ctx.i18n.t('choose_token'),
       Markup.inlineKeyboard(rows)
     );
+  },
+  async walletAddress(ctx) {
+    return ctx.reply(ctx.i18n.t('enter_wallet_address'));
   },
   async currency(ctx) {
     const { currencies } = ctx.wizard.state;
@@ -305,9 +300,45 @@ const createOrderPrompts = {
       Markup.inlineKeyboard([button])
     );
   },
+  async priceMargin(ctx) {
+    const margin = ['-5', '-4', '-3', '-2', '-1', '+1', '+2', '+3', '+4', '+5'];
+    const buttons = margin.map(m => Markup.button.callback(m + '%', m));
+    const rows = [];
+    const chunkSize = 5;
+    for (let i = 0; i < buttons.length; i += chunkSize) {
+      const chunk = buttons.slice(i, i + chunkSize);
+      rows.push(chunk);
+    }
+    const noMargin = [
+      {
+        text: ctx.i18n.t('no_premium_or_discount'),
+        callback_data: '0',
+        hide: false,
+      },
+    ];
+    rows.splice(1, 0, noMargin);
+    return ctx.reply(
+      ctx.i18n.t('enter_premium_discount'),
+      Markup.inlineKeyboard(rows)
+    );
+  }
 };
 
 const createOrderHandlers = {
+  async walletAddress(ctx) {
+    if (ctx.message === undefined) return ctx.scene.leave();
+    ctx.wizard.state.error = null;
+    await ctx.deleteMessage();
+    if (!isAddress(ctx.message.text)) {
+      ctx.wizard.state.error = ctx.i18n.t('invalid_wallet_address');
+      await ctx.wizard.state.updateUI();
+      return;
+    }
+    ctx.wizard.state.walletAddress = ctx.message.text;
+    await ctx.wizard.state.updateUI();
+
+    return true;
+  },
   async fiatAmount(ctx) {
     if (ctx.message === undefined) return ctx.scene.leave();
     ctx.wizard.state.error = null;
@@ -357,5 +388,5 @@ const createOrderHandlers = {
     ctx.wizard.state.tokenAmount = input;
     await ctx.wizard.state.updateUI();
     return true;
-  },
+  }
 };
