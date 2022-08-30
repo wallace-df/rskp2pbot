@@ -6,7 +6,7 @@ Telegram bot which allows people to trade using RSK accounts with other people o
 
 ## Try it out!
 * Bot: [@rsktestbot](https://t.me/rsktestbot)
-* Main channel offers: [@rskp2p](https://t.me/rskp2p)
+* Offers channel: [@rskp2p](https://t.me/rskp2p)
 
 Wherever you are, you can start using the [bot](https://t.me/rsktestbot), you just need to have a telegram account with a username and `/start` the bot.
 
