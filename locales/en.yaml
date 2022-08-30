@@ -142,7 +142,7 @@ pending_buy: |
 
   You can cancel this order before another user picks it up by executing the command 👇
 begin_take_buy: |
-  🤖 You took this buy order.
+  🤖 You took a buy order.
   
   Please use a fiat payment processor that allows you to receive the money immediately and in which there is no risk of freezing funds.
 
@@ -150,7 +150,7 @@ begin_take_buy: |
 
   If you press Cancel, you will be released from the order and it will be republished. 👇
 lock_tokens_for_buy_order: |
-  🤖 I need you to lock ${formattedAmount} that are worth ${currency} ${fiatAmount} to start this trade.
+  🤖 I need you to lock ${formattedAmount} that are worth ${currency} ${fiatAmount} to start the trade for the order with id ${order._id}.
 
   [Lock ${formattedAmount}](${dappPage}/lock?orderId=${order._id}&token=${order.token_code}&buyerAddress=${order.buyer_address}&buyerHash=${order.buyer_hash}&sellerHash=${order.seller_hash}&amount=${order.amount}&fee=${order.fee})
 

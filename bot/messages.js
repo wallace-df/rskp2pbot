@@ -296,42 +296,6 @@ const genericErrorMessage = async (bot, user, i18n) => {
   }
 };
 
-const showHoldInvoiceMessage = async (
-  ctx,
-  request,
-  amount,
-  fiatCode,
-  fiatAmount
-) => {
-  try {
-    let currency = getCurrency(fiatCode);
-    currency =
-      !!currency && !!currency.symbol_native
-        ? currency.symbol_native
-        : fiatCode;
-    await ctx.reply(
-      ctx.i18n.t('you_took_buy_order', {
-        amount: numberFormat(fiatCode, amount),
-        fiatAmount: numberFormat(fiatCode, fiatAmount),
-        currency,
-      })
-    );
-    // Create QR code
-    const qrBytes = await QR.toBuffer(request);
-    // Send payment request in QR and text
-    await ctx.replyWithMediaGroup([
-      {
-        type: 'photo',
-        media: { source: qrBytes },
-        caption: ['`', request, '`'].join(''),
-        parse_mode: 'MarkdownV2',
-      },
-    ]);
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
 const onGoingTakeBuyMessage = async (
   bot,
   buyer,
@@ -1421,7 +1385,6 @@ module.exports = {
   listTokensResponse,
   listCurrenciesResponse,
   priceApiFailedMessage,
-  showHoldInvoiceMessage,
   waitingForBuyerOrderMessage,
   sellerReleasedMessage,
   showInfoMessage,

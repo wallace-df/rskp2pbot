@@ -28,18 +28,12 @@ const {
   cancelAddWalletAddress,
   lockTokensRequest,
   cancelLockTokensRequest,
-  cancelShowHoldInvoice,
-  showHoldInvoice,
   waitPayment,
   cancelOrder,
   fiatSent,
   release,
   refund
 } = require('./commands');
-const {
-  settleHoldInvoice,
-  payToBuyer,
-} = require('../ln');
 const {
   validateUser,
   validateParams,
@@ -405,10 +399,6 @@ const initialize = (botToken, options) => {
 
   bot.action('cancelLockTokensBtn', userMiddleware, async ctx => {
     await cancelLockTokensRequest(ctx, bot, null, true);    
-  });
-
-  bot.action('showHoldInvoiceBtn', userMiddleware, async ctx => {
-    await showHoldInvoice(ctx, bot);
   });
 
   bot.action(/^showStarBtn\(([1-5]),(\w{24})\)$/, userMiddleware, async ctx => {

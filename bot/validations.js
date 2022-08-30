@@ -187,7 +187,7 @@ const validateBuyOrder = async ctx => {
     fiatAmount = fiatAmount.split('-');
     fiatAmount = fiatAmount.map(Number);
 
-    if (fiatAmount.length === 2 && amount) {
+    if (fiatAmount.length === 2 && amount !== '0') {
       await messages.invalidRangeWithAmount(ctx);
       return false;
     }

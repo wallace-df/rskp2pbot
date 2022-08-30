@@ -209,6 +209,7 @@ const processReleasedOrder = async (bot, order, releasedByAdmin) => {
       } else {
         user = buyerUser;
         i18nCtx = i18nCtxBuyer;
+        orderData.walletAddress = order.buyer_address;
       }
 
       const newOrder = await ordersActions.createOrder(

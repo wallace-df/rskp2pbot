@@ -1,7 +1,7 @@
 const { Scenes } = require('telegraf');
 const { isValidWalletAddress } = require('./validations');
 const { Order } = require('../models');
-const { waitPayment, addWalletAddress, showHoldInvoice } = require('./commands');
+const { waitPayment, addWalletAddress, lockTokensRequest } = require('./commands');
 const { getCurrency } = require('../util');
 const messages = require('./messages');
 const logger = require('../logger');
@@ -118,7 +118,7 @@ const addFiatAmountWizard = new Scenes.WizardScene(
       if (order.type === 'sell') {
         await addWalletAddress(ctx, bot, order);
       } else {
-        await showHoldInvoice(ctx, bot, order);
+        await lockTokensRequest(ctx, bot, order);
       }
 
       return ctx.scene.leave();

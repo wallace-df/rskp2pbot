@@ -263,7 +263,6 @@ const lockTokensRequest = async (ctx, bot, order) => {
 
     // Sellers only can take orders with status WAITING_PAYMENT
     if (order.status !== 'WAITING_PAYMENT') {
-      await messages.invalidDataMessage(ctx, bot, user);
       return;
     }
 
@@ -275,7 +274,7 @@ const lockTokensRequest = async (ctx, bot, order) => {
       });
       return;
     }
-
+    
     if (order.amount === '0') {
       order.amount = await getTokenAmountFromMarketPrice(order.fiat_code, order.fiat_amount, order.token_code, order.price_margin);
     }
@@ -370,160 +369,6 @@ const cancelLockTokensRequest = async (ctx, bot, order, userAction) => {
   }
 };
 
-const showHoldInvoice = async (ctx, bot, order) => {
-  try {
-    ctx.deleteMessage();
-    if (!order) {
-      const orderId = ctx.update.callback_query.message.text;
-      if (!orderId) return;
-      order = await Order.findOne({ _id: orderId });
-      if (!order) return;
-    }
-
-    const user = await User.findOne({ _id: order.seller_id });
-    if (!user) return;
-
-    // Sellers only can take orders with status WAITING_PAYMENT
-    if (order.status !== 'WAITING_PAYMENT') {
-      await messages.invalidDataMessage(ctx, bot, user);
-      return;
-    }
-
-    if (order.fiat_amount === undefined) {
-      ctx.scene.enter('ADD_FIAT_AMOUNT_WIZARD_SCENE_ID', {
-        bot,
-        order,
-        caller: user,
-      });
-      return;
-    }
-
-    // We create the hold invoice and show it to the seller
-    const description = ctx.i18n.t('hold_invoice_memo', {
-      botName: ctx.botInfo.username,
-      orderId: order._id,
-      fiatCode: order.fiat_code,
-      fiatAmount: order.fiat_amount,
-    });
-    let amount;
-    if (order.amount === '0') {
-      amount = await getTokenAmountFromMarketPrice(order.fiat_code, order.fiat_amount);
-      const marginPercent = order.price_margin / 100;
-      amount = amount - amount * marginPercent;
-      amount = Math.floor(amount);
-      order.fee = await getFee(amount, order.community_id);
-      order.amount = amount;
-    }
-    amount = Math.floor(order.amount + order.fee);
-    const { request, hash, secret } = await createHoldInvoice({
-      description,
-      amount,
-    });
-    order.hash = hash;
-    order.secret = secret;
-    await order.save();
-
-    // We monitor the invoice to know when the seller makes the payment
-    await subscribeInvoice(bot, hash);
-    await messages.showHoldInvoiceMessage(
-      ctx,
-      request,
-      amount,
-      order.fiat_code,
-      order.fiat_amount
-    );
-  } catch (error) {
-    logger.error(`Error in showHoldInvoice: ${error}`);
-  }
-};
-
-const cancelShowHoldInvoice = async (ctx, bot, order) => {
-  try {
-    if (ctx) ctx.deleteMessage();
-    let userAction = false;
-    if (!order) {
-      userAction = true;
-      const orderId = !!ctx && ctx.update.callback_query.message.text;
-      if (!orderId) return;
-      order = await Order.findOne({ _id: orderId });
-      if (!order) return;
-    }
-
-    const user = await User.findOne({ _id: order.seller_id });
-    if (!user) return;
-    const i18nCtx = await getUserI18nContext(user);
-    // Sellers only can cancel orders with status WAITING_PAYMENT
-    if (order.status !== 'WAITING_PAYMENT')
-      return await messages.genericErrorMessage(bot, user, i18nCtx);
-
-    const buyerUser = await User.findOne({ _id: order.buyer_id });
-    if (order.creator_id === order.seller_id) {
-      order.status = 'CLOSED';
-      await order.save();
-      await messages.toSellerDidntLockTokensMessage(bot, user, order, i18nCtx);
-      await messages.toBuyerSellerDidntLockTokensMessage(
-        bot,
-        buyerUser,
-        order,
-        i18nCtx
-      );
-    } else {
-      // Re-publish order
-      if (userAction) {
-        logger.info(
-          `Seller Id ${user.id} cancelled Order Id: ${order._id}, republishing to the channel`
-        );
-      } else {
-        logger.info(
-          `Order Id: ${order._id} expired, republishing to the channel`
-        );
-      }
-      order.taken_at = null;
-      order.status = 'PENDING';
-
-      if (!!order.min_fiat_amount && !!order.max_fiat_amount) {
-        order.fiat_amount = undefined;
-      }
-
-      if (order.price_from_api) {
-        order.amount = '0';
-        order.fee = 0;
-        order.buyer_secret = null;
-        order.buyer_hash = null;
-        order.seller_secret = null;
-        order.seller_hash = null;
-      }
-
-      if (order.type === 'buy') {
-        order.seller_id = null;
-        await messages.publishBuyOrderMessage(bot, buyerUser, order, i18nCtx);
-      } else {
-        order.buyer_id = null;
-        await messages.publishSellOrderMessage(bot, user, order, i18nCtx);
-      }
-      await order.save();
-      if (!userAction) {
-        await messages.toSellerDidntLockTokensMessage(
-          bot,
-          user,
-          order,
-          i18nCtx
-        );
-        await messages.toAdminChannelSellerDidntLockTokensMessage(
-          bot,
-          user,
-          order,
-          i18nCtx
-        );
-      } else {
-        await messages.successCancelOrderMessage(ctx, user, order, i18nCtx);
-      }
-    }
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
 const cancelOrder = async (ctx, bot, orderId, user) => {
   try {
     if (!user) {
@@ -541,10 +386,6 @@ const cancelOrder = async (ctx, bot, orderId, user) => {
     if (!order) return;
 
     if (order.status === 'PENDING') {
-      // If we already have a holdInvoice we cancel it and return the money
-      if (order.hash) {
-        //await cancelHoldInvoice({ hash: order.hash });
-      }
 
       // Save the updated state first, then publish messages.
       // No need for locks here, since no funds have been put under escrow for PENDING orders.
@@ -605,8 +446,6 @@ const cancelOrder = async (ctx, bot, orderId, user) => {
     const i18nCtxCP = await getUserI18nContext(counterPartyUser);
     // If the counter party already requested a cooperative cancel order
     if (order[`${counterParty}_cooperativecancel`]) {
-      // If we already have a holdInvoice we cancel it and return the money
-      // if (order.hash) await cancelHoldInvoice({ hash: order.hash });
 
       // Save updated state first, then publish messages.
       // No need for locks here, since the only other possible states here will come from escrow actions which will
@@ -837,14 +676,13 @@ async function republishOrder(bot, order, buyer, seller) {
 module.exports = {
   takebuy,
   takesell,
-  rateUser,
-  saveUserReview,
   addWalletAddress,
   cancelAddWalletAddress,
   lockTokensRequest,
   cancelLockTokensRequest,
   waitPayment,
-  showHoldInvoice,
+  rateUser,
+  saveUserReview,
   cancelOrder,
   fiatSent,
   release,
