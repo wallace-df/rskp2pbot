@@ -18,9 +18,9 @@ const logger = require('../logger');
 
 const startMessage = async ctx => {
   try {
-    const orderExpiration = parseInt(process.env.ORDER_EXPIRATION_WINDOW) / 60;
+    const paymentWindow = parseInt(process.env.PAYMENT_EXPIRATION_WINDOW) / 60;
     const message = ctx.i18n.t('start', {
-      orderExpiration,
+      paymentWindow,
       channel: process.env.CHANNEL,
     });
     await ctx.reply(message);

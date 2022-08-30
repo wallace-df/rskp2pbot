@@ -5,20 +5,27 @@ start: |
 
   1. Publish your order using the /buy or /sell command and follow the instructions. 
   
-  2. The bot will publish your order in the ${channel} channel so other users can take them.
+  2. The bot will publish your order in the ${channel} channel so other users can take it.
 
   3. You can cancel your order at any time BEFORE another user takes by using with the /cancel command.
 
   4. Once somebody takes your sell order:
-    - The bot will ask the buyer to provide the wallet address to receive the tokens. The buyer will have ${paymentWindow} minutes to inform the wallet address, or the order will be automatically cancelled and republished.
-    - After the buyer provides the wallet address, the bot will ask you to lock tokens in a smart contract. You'll have ${paymentWindow} minutes to lock the tokens, or the order will be automatically cancelled and any locked tokens will be refunded to you.
-    - Once the tokens are locked, the bot will reveal who the buyer is so that you send instructions to get your FIAT payment.
-    - Once you receive the FIAT payment from the buyer, you must release the tokens from the smart contract to the buyer.
+  
+  4a. The bot will ask the buyer to provide the wallet address to receive the tokens. The buyer will have ${paymentWindow} minutes to inform the wallet address, or the order will be automatically cancelled and republished.
+
+  4b. After the buyer provides the wallet address, the bot will ask you to lock tokens in a smart contract. You'll have ${paymentWindow} minutes to lock the tokens, or the order will be automatically cancelled and any locked tokens will be refunded to you.
+
+  4c. Once the tokens are locked, the bot will reveal who the buyer is so that you send instructions to get your FIAT payment.
+
+  4d. Once you receive the FIAT payment from the buyer, you must release the tokens from the smart contract to the buyer.
 
   5. Once somebody takes your buy order:
-    - The bot will ask the seller to lock tokens in a smart contract. The seller will have ${paymentWindow} minutes to lock the tokens, or the order will be automatically cancelled and republished.
-    - Once the tokens are locked, the bot will put you in contact with the seller so that you can get the instructions to send the FIAT payment.
-    - Once you make the FIAT payment, you should indicate that by using the /fiatsent command and wait for the seller to release the tokens to you.
+
+  5a. The bot will ask the seller to lock tokens in a smart contract. The seller will have ${paymentWindow} minutes to lock the tokens, or the order will be automatically cancelled and republished.
+  
+  5b. Once the tokens are locked, the bot will put you in contact with the seller so that you can get the instructions to send the FIAT payment.
+  
+  5c. Once you make the FIAT payment, you should indicate that by using the /fiatsent command and wait for the seller to release the tokens to you.
 
   6. If at any stance you cannot carry out the trade, you can use the /dispute command to call in admins to bring a solution. 
 
