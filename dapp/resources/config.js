@@ -43,8 +43,8 @@ export default {
     erc20ABI: require("../../contracts/abis/ERC20.json"),
 
     contractAddresses: {
-        development: "0xD29d2756CF2a664C65A9F330Dd3e9a7d24259A7c",
-        test: "0xD29d2756CF2a664C65A9F330Dd3e9a7d24259A7c"
+        development: "0xe2514B40ccf6De1Adc9FA25219bC4F17C5cac948",
+        test: "0xe2514B40ccf6De1Adc9FA25219bC4F17C5cac948"
     },
 
     tokens: {
