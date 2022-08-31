@@ -20,15 +20,18 @@
         </tr>
         <tr>
           <th>Buyer Address</th>
-          <td>{{buyerAddress}}</td>
+          <td>{{buyerAddress.toLowerCase()}}</td>
         </tr>
         <tr>
           <th>Seller Address</th>
-          <td>{{sellerAddress}}</td>
+          <td>{{sellerAddress.toLowerCase()}}</td>
         </tr>
         <tr>
           <th>Amount</th>
-          <td>{{formatAmount(amount, token)}}</td>
+          <td>
+            {{formatAmount(amount, token)}}
+            <button class="btn btn-warning btn-sm" style="border-radius: 0.75rem; margin-left: 1rem" v-if="token.id !== 'RBTC'" @click="addToken(token)"> <i class="fa fa-plus"></i> Add tRIF</button>
+          </td>
         </tr>
         <tr>
           <th>Fee</th>
@@ -48,7 +51,6 @@
 <script>
 import Config from "../../../resources/config.js";
 import Wallet from "../../js/services/wallet.js";
-import Web3 from "web3";
 
 export default {
   name: "HomePage",
@@ -166,6 +168,14 @@ export default {
         this.locking = false;
         this.showError(err);
       }
+    },
+
+    async addToken(token) {
+      let params = {
+        type: 'ERC20',
+        options: {...token}
+      };      
+      window.ethereum.request({ method: 'wallet_watchAsset', params });
     }
   }
 }

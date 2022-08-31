@@ -3,6 +3,7 @@ import Config from "../../../resources/config.js";
 import StringUtils from "../../js/utils/string.js";
 import NumberUtils from "../utils/number.js";
 import AddressUtils from "../utils/address.js";
+import TimeUtils from "../utils/time.js";
 
 import Web3Utils from "web3-utils";
 
@@ -53,6 +54,10 @@ export default {
 
         getTokenByAddress(tokenAddress){
             return tokenByAddress[tokenAddress.toLowerCase()];
+        },
+
+        formatTimestamp(timestamp) {
+            return TimeUtils.formatTimestamp(timestamp);
         },
 
         formatAmount(amount, token) {

@@ -381,6 +381,7 @@ const validateRefundOrder = async (ctx, user, orderId) => {
     let where = {
       seller_id: user._id,
       status: 'CANCELED',
+      funds_unlocked: false,
       _id: orderId,
     };
     let order = await Order.findOne(where);

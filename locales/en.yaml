@@ -117,13 +117,13 @@ lock_tokens_for_sell_order: |
 waiting_seller_to_pay: |
   I have sent a request to the seller to put ${formattedAmount} under escrow for the order with id ${orderId}. As soon the tokens are locked, I will put you both in touch.
 take_sell_get_in_touch_with_seller: |
-  The seller has deposited ${formattedAmount} under escrow for your order with id ${orderId}.
+  The seller has deposited ${formattedAmount} under escrow for your order with id ${orderId}. You can see the details at ${dappPage}.
 
   Get in touch with the seller, @${sellerUsername}, so as to get the details on how to send ${currency} ${fiatAmount} using ${paymentMethod}.
 
   Once you send the money, please let me know with the command 👇
 take_sell_get_in_touch_with_buyer: |
-  🤖 You have succesfully locked ${formattedAmount} for the order with id ${orderId}.
+  🤖 You have succesfully locked ${formattedAmount} for the order with id ${orderId}. You can see the details at ${dappPage}.
   
   Get in touch with buyer, @${buyerUsername}, so as to give information on how to send you ${currency} ${fiatAmount} through ${paymentMethod}. Do not release your tokens until you verify that the buyer paid you the fiat.
 
@@ -176,7 +176,7 @@ to_buyer_seller_havent_locked_tokens: |
   😔 Seller has not locked the tokens for the order with id ${orderId}. The operation was cancelled.
 to_admin_seller_havent_locked_tokens: 'Seller @${username} has not locked the tokens for order with id ${orderId} and time has expired.'
 take_buy_get_in_touch_with_seller: |
-  Somebody took your buy order with id ${orderId} and already deposited ${formattedAmount} under escrow for you. 
+  Somebody took your buy order with id ${orderId} and already deposited ${formattedAmount} under escrow for you. You can see the details at ${dappPage}.
   
   Get in touch with the seller, @${sellerUsername}, so as to get the details on how to send ${currency} ${fiatAmount} using ${paymentMethod}.
 
@@ -184,7 +184,7 @@ take_buy_get_in_touch_with_seller: |
 
   Once you send the money, please let me know with the command 👇
 take_buy_get_in_touch_with_buyer: |
-  🤖 You have succesfully locked ${formattedAmount} for the order with id ${orderId}.
+  🤖 You have succesfully locked ${formattedAmount} for the order with id ${orderId}. You can see the details at ${dappPage}.
   
   Get in touch with buyer, @${buyerUsername}, so as to give information on how to send you ${currency} ${fiatAmount} through ${paymentMethod}. Do not release your tokens until you verify that the buyer paid you the fiat.
 
@@ -285,13 +285,17 @@ no_rate_for_token: |
 cancel_error: This order cannot be cancelled at this moment
 cancel_success: 'You have cancelled the order with id ${orderId}.'
 cancelall_success: You have cancelled all your published orders!
-order_cancelled_by_admin: 'Admin has cancelled the order with id ${orderId}!'
+to_admin_order_cancelled_by_admin: 'Admin has cancelled the order with id ${orderId} and the seller was refunded.'
+to_seller_order_cancelled_by_admin: 'Admin has cancelled the order with id ${orderId} and you have been refunded.'
+to_buyer_order_cancelled_by_admin: 'Admin has cancelled the order with id ${orderId} and the seller was refunded.'
 order_completed: 'You have completed the order with id ${orderId}!'
-order_completed_by_admin: 'Admin has completed the order with id ${orderId}!'
+to_admin_order_completed_by_admin: 'Admin has completed the order with id ${orderId} and funds were released to the buyer.'
+to_buyer_order_completed_by_admin: 'Admin has completed the order with id ${orderId} and funds were released to you.'
+to_seller_order_completed_by_admin: 'Admin has completed the order with id ${orderId} and funds were released to the buyer.'
 have_to_wait_for_counterpart: 🕒 You have already made this operation, you must wait for the other party to take action
 ok_cooperativecancel: '👍 Counterparty agreed and the order with id ${orderId} has been cancelled.'
 refund_cooperativecancel: |
-  💰 Use this link to get a refund on your loked tokens:
+  💰 Use this link to get a refund on your loked tokens for the order with id ${order._id}:
 
   [Refund ${formattedAmount}](${dappPage}/refund?orderId=${order._id}&sellerCode=${order.seller_secret})
 

@@ -43,8 +43,8 @@ export default {
     erc20ABI: require("../../contracts/abis/ERC20.json"),
 
     contractAddresses: {
-        development: "0x73EC72bA3A8Ea6EA828C6F927B6fd15C810703A1",
-        test: "0x73EC72bA3A8Ea6EA828C6F927B6fd15C810703A1"
+        development: "0xD29d2756CF2a664C65A9F330Dd3e9a7d24259A7c",
+        test: "0xD29d2756CF2a664C65A9F330Dd3e9a7d24259A7c"
     },
 
     tokens: {
@@ -59,7 +59,8 @@ export default {
                 id: "RIF",
                 symbol: "tRIF",
                 address: "0x19f64674d8a5b4e652319f5e239efd3bc969a1fe",
-                decimals: 18
+                decimals: 18,
+                image: 'https://s2.coinmarketcap.com/static/img/coins/64x64/3701.png'
             }
         },
         test: {
@@ -73,7 +74,8 @@ export default {
                 id: "RIF",
                 symbol: "tRIF",
                 address: "0x19f64674d8a5b4e652319f5e239efd3bc969a1fe",
-                decimals: 18
+                decimals: 18,
+                image: 'https://s2.coinmarketcap.com/static/img/coins/64x64/3701.png'
             }
         }
     }

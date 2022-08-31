@@ -171,13 +171,7 @@ const beginTakeBuyMessage = async (ctx, bot, seller, order) => {
   }
 };
 
-const lockTokensForSellOrderMessage = async (
-  ctx,
-  user,
-  order,
-  i18n,
-  rate
-) => {
+const lockTokensForSellOrderMessage = async (ctx, user, order, i18n, rate) => {
   try {
     let currency = getCurrency(order.fiat_code);
     let token = getToken(order.token_code);
@@ -202,13 +196,7 @@ const lockTokensForSellOrderMessage = async (
   }
 };
 
-const lockTokensForBuyOrderMessage = async (
-  ctx,
-  user,
-  order,
-  i18n,
-  rate
-) => {
+const lockTokensForBuyOrderMessage = async (ctx, user, order, i18n) => {
   try {
     let currency = getCurrency(order.fiat_code);
     let token = getToken(order.token_code);
@@ -232,7 +220,6 @@ const lockTokensForBuyOrderMessage = async (
     logger.error(error);
   }
 };
-
 
 const errorParsingWalletAddressMessage = async ctx => {
   try {
@@ -296,14 +283,7 @@ const genericErrorMessage = async (bot, user, i18n) => {
   }
 };
 
-const onGoingTakeBuyMessage = async (
-  bot,
-  buyer,
-  seller,
-  order,
-  i18nBuyer,
-  i18nSeller
-) => {
+const onGoingTakeBuyMessage = async (bot, buyer, seller, order, i18nBuyer, i18nSeller) => {
   try {
     let currency = getCurrency(order.fiat_code);
     currency =
@@ -325,8 +305,10 @@ const onGoingTakeBuyMessage = async (
         fiatAmount: numberFormat(order.fiat_code, order.fiat_amount),
         paymentMethod: order.payment_method,
         formattedAmount: formattedAmount,
-        rate
-      })
+        rate,
+        dappPage: process.env.DAPP_PAGE
+      }),
+ //     { parse_mode: 'markdown' }
     );
     await bot.telegram.sendMessage(
       buyer.tg_id,
@@ -343,7 +325,9 @@ const onGoingTakeBuyMessage = async (
         currency,
         buyerUsername: buyer.username,
         formattedAmount,
-      })
+        dappPage: process.env.DAPP_PAGE
+      }),
+     // { parse_mode: 'markdown' }
     );
 
   } catch (error) {
@@ -351,14 +335,7 @@ const onGoingTakeBuyMessage = async (
   }
 };
 
-const onGoingTakeSellMessage = async (
-  bot,
-  buyer,
-  seller,
-  order,
-  i18nBuyer,
-  i18nSeller
-) => {
+const onGoingTakeSellMessage = async (bot, buyer, seller, order, i18nBuyer, i18nSeller) => {
   try {
     let token = getToken(order.token_code);
     let currency = getCurrency(order.fiat_code);
@@ -375,8 +352,10 @@ const onGoingTakeSellMessage = async (
         sellerUsername: seller.username,
         fiatAmount: numberFormat(order.fiat_code, order.fiat_amount),
         paymentMethod: order.payment_method,
-        formattedAmount
-      })
+        formattedAmount,
+        dappPage: process.env.DAPP_PAGE
+      }),
+//      { parse_mode: 'markdown' }
     );
     await bot.telegram.sendMessage(
       buyer.tg_id,
@@ -393,19 +372,16 @@ const onGoingTakeSellMessage = async (
         currency,
         buyerUsername: buyer.username,
         formattedAmount,
-      })
+        dappPage: process.env.DAPP_PAGE
+      }),
+  //    { parse_mode: 'markdown' }
     );
   } catch (error) {
     logger.error(error);
   }
 };
 
-const takeSellWaitingSellerToPayMessage = async (
-  ctx,
-  bot,
-  buyer,
-  order
-) => {
+const takeSellWaitingSellerToPayMessage = async (ctx, bot, buyer, order) => {
   try {
     const token = getToken(order.token_code);
     const formattedAmount = formatUnit(order.amount, token.decimals) + ' ' + token.code;
@@ -418,7 +394,7 @@ const takeSellWaitingSellerToPayMessage = async (
   }
 };
 
-const releaseInstructionsMessage = async(ctx, user, order) => {
+const releaseInstructionsMessage = async (ctx, user, order) => {
   try {
     const token = getToken(order.token_code);
     const formattedAmount = formatUnit(order.amount, token.decimals) + ' ' + token.code;
@@ -432,7 +408,7 @@ const releaseInstructionsMessage = async(ctx, user, order) => {
   }
 };
 
-const refundInstructionsMessage = async(ctx, user, order) => {
+const refundInstructionsMessage = async (ctx, user, order) => {
   try {
     let token = getToken(order.token_code);
     const formattedAmount = formatUnit(order.amount, token.decimals) + ' ' + token.code;
@@ -446,14 +422,7 @@ const refundInstructionsMessage = async(ctx, user, order) => {
   }
 };
 
-const fundsReleasedMessages = async (
-  bot,
-  order,
-  seller,
-  buyer,
-  i18nBuyer,
-  i18nSeller
-) => {
+const fundsReleasedMessages = async (bot, order, seller, buyer, i18nBuyer, i18nSeller) => {
   try {
     await bot.telegram.sendMessage(
       seller.tg_id,
@@ -513,13 +482,7 @@ const notOrderMessage = async ctx => {
   }
 };
 
-const publishBuyOrderMessage = async (
-  bot,
-  user,
-  order,
-  i18n,
-  messageToUser
-) => {
+const publishBuyOrderMessage = async (bot, user, order, i18n, messageToUser) => {
   try {
     let publishMessage = `⚡️🍊⚡️\n${order.description}\n`;
     publishMessage += `:${order._id}:`;
@@ -547,13 +510,7 @@ const publishBuyOrderMessage = async (
   }
 };
 
-const publishSellOrderMessage = async (
-  ctx,
-  user,
-  order,
-  i18n,
-  messageToUser
-) => {
+const publishSellOrderMessage = async (ctx, user, order, i18n, messageToUser) => {
   try {
     let publishMessage = `⚡️🍊⚡️\n${order.description}\n`;
     publishMessage += `:${order._id}:`;
@@ -655,14 +612,7 @@ const bannedUserErrorMessage = async (ctx, user) => {
   }
 };
 
-const fiatSentMessages = async (
-  ctx,
-  buyer,
-  seller,
-  order,
-  i18nBuyer,
-  i18nSeller
-) => {
+const fiatSentMessages = async (ctx, buyer, seller, order, i18nBuyer, i18nSeller) => {
   try {
     let token = getToken(order.token_code);
     let formattedAmount = formatUnit(order.amount, token.decimals) + ' ' + token.code;
@@ -817,23 +767,23 @@ const successCancelAllOrdersMessage = async ctx => {
   }
 };
 
-const successCancelOrderByAdminMessage = async (i18nCtx, bot, user, order) => {
+const successCancelOrderByAdminMessages = async (bot, order, buyer, seller, i18nBuyer, i18nSeller) => {
   try {
     await bot.telegram.sendMessage(
-      user.tg_id,
-      i18nCtx.t('order_cancelled_by_admin', { orderId: order._id })
+      buyer.tg_id,
+      i18nBuyer.t('to_buyer_order_cancelled_by_admin', { orderId: order._id })
     );
-  } catch (error) {
-    logger.error(error);
-  }
-};
 
-const toAdminSuccessCancelOrderMessage = async (i18nCtx, bot, order) => {
-  try {
+    await bot.telegram.sendMessage(
+      seller.tg_id,
+      i18nSeller.t('to_seller_order_cancelled_by_admin', { orderId: order._id })
+    );
+
     await bot.telegram.sendMessage(
       process.env.ADMIN_CHANNEL,
-      i18nCtx.t('order_cancelled_by_admin', { orderId: order._id })
+      i18nSeller.t('to_admin_order_cancelled_by_admin', { orderId: order._id })
     );
+
   } catch (error) {
     logger.error(error);
   }
@@ -847,23 +797,23 @@ const successCompleteOrderMessage = async (ctx, order) => {
   }
 };
 
-const successCompleteOrderByAdminMessage = async (i18nCtx, bot, user, order) => {
+const successCompleteOrderByAdminMessages = async (bot, order, buyer, seller, i18nBuyer, i18nSeller) => {
   try {
     await bot.telegram.sendMessage(
-      user.tg_id,
-      i18nCtx.t('order_completed_by_admin', { orderId: order._id })
+      buyer.tg_id,
+      i18nBuyer.t('to_buyer_order_completed_by_admin', { orderId: order._id })
     );
-  } catch (error) {
-    logger.error(error);
-  }
-};
 
-const toAdminSuccessCompleteOrderMessage = async (i18nCtx, bot, order) => {
-  try {
+    await bot.telegram.sendMessage(
+      seller.tg_id,
+      i18nSeller.t('to_seller_order_completed_by_admin', { orderId: order._id })
+    );
+
     await bot.telegram.sendMessage(
       process.env.ADMIN_CHANNEL,
-      i18nCtx.t('order_completed_by_admin', { orderId: order._id })
+      i18nSeller.t('to_admin_order_completed_by_admin', { orderId: order._id })
     );
+
   } catch (error) {
     logger.error(error);
   }
@@ -915,12 +865,7 @@ const initCooperativeCancelMessage = async (ctx, order) => {
   }
 };
 
-const counterPartyWantsCooperativeCancelMessage = async (
-  ctx,
-  user,
-  order,
-  i18n
-) => {
+const counterPartyWantsCooperativeCancelMessage = async (ctx, user, order, i18n) => {
   try {
     await ctx.telegram.sendMessage(
       user.tg_id,
@@ -1370,11 +1315,9 @@ module.exports = {
   initCooperativeCancelMessage,
   okCooperativeCancelMessage,
   shouldWaitCooperativeCancelMessage,
-  successCompleteOrderByAdminMessage,
-  toAdminSuccessCompleteOrderMessage,
+  successCompleteOrderByAdminMessages,
   successCompleteOrderMessage,
-  successCancelOrderByAdminMessage,
-  toAdminSuccessCancelOrderMessage,
+  successCancelOrderByAdminMessages,
   successCancelOrderMessage,
   badStatusOnCancelOrderMessage,
   userCantTakeMoreThanOneWaitingOrderMessage,

@@ -571,8 +571,13 @@ button.full {
 }
 
 td, th {
-    border: 1px solid #ccc;
-    padding: 1rem;
+    border: 1px solid #ddd;
+    padding: 0.5rem;
+    background: #fff;
+}
+
+th {
+    background: #efefef;
 }
 
 th {

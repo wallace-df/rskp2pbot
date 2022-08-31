@@ -13,7 +13,7 @@ contract RSKEscrow is ReentrancyGuard {
     ////////////////////////////////////////////////////////////////////////////////
   
     enum EscrowStatus { NON_EXISTING, LOCKED, RELEASED, REFUNDED }
-
+ 
     struct EscrowOrder {
         string id;
         uint256 timestamp;
@@ -33,11 +33,12 @@ contract RSKEscrow is ReentrancyGuard {
     ////////////////////////////////////////////////////////////////////////////////
 
     address private _ownerAddress;
+    mapping(address => bool) private _whitelistedERC20Tokens;
     mapping(address => uint256) private _fees;
 
     mapping(string => EscrowOrder) private _orders;
+    mapping(address => string[]) private _userOrders;
     mapping(bytes32 => bool) private _usedHashes;
-    mapping(address => bool) private _whitelistedERC20Tokens;
     
     ////////////////////////////////////////////////////////////////////////////////
     // MODIFIERS
@@ -51,6 +52,7 @@ contract RSKEscrow is ReentrancyGuard {
     ////////////////////////////////////////////////////////////////////////////////
     // EVENTS
     ////////////////////////////////////////////////////////////////////////////////
+
     event OrderLocked(
         string orderId,
         address tokenContractAddress,
@@ -136,16 +138,27 @@ contract RSKEscrow is ReentrancyGuard {
     // VIEW FUNCTIONS
     ////////////////////////////////////////////////////////////////////////////////
 
-    function orderById(string calldata _orderId) public view returns (EscrowOrder memory) {
-        return _orders[_orderId];
-    }
-    
     function isERC20Whitelisted(address _tokenContractAddress) public view returns (bool) {
         return _whitelistedERC20Tokens[_tokenContractAddress];
     }
 
     function fees(address _tokenContractAddress) public view returns (uint256) {
         return _fees[_tokenContractAddress];
+    }
+
+    function orderById(string calldata _orderId) public view returns (EscrowOrder memory) {
+        return _orders[_orderId];
+    }
+
+    function userOrders(address _userAddress) public view returns (EscrowOrder[] memory) {
+        string[] memory orderIds = _userOrders[_userAddress];
+
+        EscrowOrder[] memory orders = new EscrowOrder[](orderIds.length);
+        for (uint256 i = 0; i < orderIds.length; i++) {
+            orders[i] = _orders[orderIds[i]];
+        }	     
+
+        return orders;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -178,6 +191,9 @@ contract RSKEscrow is ReentrancyGuard {
 
         require (_usedHashes[_sellerHash] == false, "Seller hash is not unique");
         _usedHashes[_sellerHash] = true;
+
+        _userOrders[_buyerAddress].push(_orderId);
+        _userOrders[_sellerAddress].push(_orderId);
 
         emit OrderLocked(
             _orderId,

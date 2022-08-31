@@ -15,8 +15,12 @@
           <td>{{orderId}}</td>
         </tr>
         <tr>
+          <th>Timestamp</th>
+          <td>{{timestamp}}</td>
+        </tr>
+        <tr>
           <th>Seller Address</th>
-          <td>{{sellerAddress}}</td>
+          <td>{{sellerAddress.toLowerCase()}}</td>
         </tr>
         <tr>
           <th>Amount</th>
@@ -51,6 +55,7 @@ export default {
   data() {
     return { 
       orderId: null,
+      timestamp: null,
       sellerAddress: null,
       sellerCode: null,
       amount: null,
@@ -95,6 +100,7 @@ export default {
 
         this.sellerAddress = order.sellerAddress;
         this.amount = this.formatAmount(this.toBN(order.amount).add(this.toBN(order.fees)), this.getTokenByAddress(order.tokenContractAddress));
+        this.timestamp = this.formatTimestamp(order.timestamp);
         
         if (this.amount === null) {
           throw "There was an error fetching details: order amount invalid.";

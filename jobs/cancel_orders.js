@@ -52,18 +52,18 @@ const cancelOrders = async bot => {
       admin_warned: false,
     });
     for (const order of activeOrders) {
-      const buyerUser = await User.findOne({ _id: order.buyer_id });
-      const sellerUser = await User.findOne({ _id: order.seller_id });
-      const i18nCtxBuyer = await getUserI18nContext(buyerUser);
-      const i18nCtxSeller = await getUserI18nContext(sellerUser);
+      const buyer = await User.findOne({ _id: order.buyer_id });
+      const seller = await User.findOne({ _id: order.seller_id });
+      const i18nCtxBuyer = await getUserI18nContext(buyer);
+      const i18nCtxSeller = await getUserI18nContext(seller);
 
       // We send messages about the expired order to each party
-      await messages.toBuyerExpiredOrderMessage(bot, order, buyerUser, i18nCtxBuyer);
-      await messages.toSellerExpiredOrderMessage(bot, order, sellerUser, i18nCtxSeller);
+      await messages.toBuyerExpiredOrderMessage(bot, order, buyer, i18nCtxBuyer);
+      await messages.toSellerExpiredOrderMessage(bot, order, seller, i18nCtxSeller);
 
       // Instead of cancel this order we should send this to the admins
       // and they decide what to do
-      await messages.expiredOrderMessage(bot, order, buyerUser, sellerUser, i18nCtxBuyer);
+      await messages.expiredOrderMessage(bot, order, buyer, seller, i18nCtxBuyer);
 
       // It is okay to save the state after publishing the messages above.
       // In the worst case, users will simply get an extra reminder.

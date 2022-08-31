@@ -71,6 +71,9 @@ const syncEscrowedOrders = async bot => {
     // Resolve (release or cancel) orders where the seller has locked the required tokens.
     await resolveFundedOrders(bot);
 
+    // Flag refundable orders whose funds have been already unlocked.
+    await flagUnlockedRefundableOrders(bot);
+
   } catch (error) {
     logger.error(error);
   } finally {
@@ -101,18 +104,18 @@ const activateFundedOrders = async bot => {
       order.tokens_held_at = Date.now();
       order.save();
 
-      const buyerUser = await User.findOne({ _id: order.buyer_id });
-      const sellerUser = await User.findOne({ _id: order.seller_id });
+      const buyer = await User.findOne({ _id: order.buyer_id });
+      const seller = await User.findOne({ _id: order.seller_id });
 
       // This is the i18n context we need to pass to the message
-      const i18nCtxBuyer = await getUserI18nContext(buyerUser);
-      const i18nCtxSeller = await getUserI18nContext(sellerUser);
+      const i18nCtxBuyer = await getUserI18nContext(buyer);
+      const i18nCtxSeller = await getUserI18nContext(seller);
 
       if (order.type === 'sell') {
         await messages.onGoingTakeSellMessage(
           bot,
-          buyerUser,
-          sellerUser,
+          buyer,
+          seller,
           order,
           i18nCtxBuyer,
           i18nCtxSeller
@@ -120,8 +123,8 @@ const activateFundedOrders = async bot => {
       } else if (order.type === 'buy') {    
         await messages.onGoingTakeBuyMessage(
           bot,
-          buyerUser,
-          sellerUser,
+          buyer,
+          seller,
           order,
           i18nCtxBuyer,
           i18nCtxSeller
@@ -160,6 +163,31 @@ const resolveFundedOrders = async bot => {
   }
 };
 
+const flagUnlockedRefundableOrders = async bot => {
+  const cancelledOrders = await Order.find({
+    $or: [{ status: 'CANCELED' }]
+  });
+
+  for (const order of cancelledOrders) {
+    try {
+
+      let escrow = await rskEscrowContract.orderById(order._id.toString());
+
+      if (!isMatchingOrder(order, escrow)) {
+        continue;
+      }
+
+      if (escrow.status === 2 || escrow.status === 3) {
+        order.funds_unlocked = true;
+        await order.save();    
+      }
+
+    } catch (err) {
+      logger.warning(err);
+    }
+  }
+};
+
 const processReleasedOrder = async (bot, order, releasedByAdmin) => {
   // We look for a dispute for this order
   const dispute = await Dispute.findOne({ order_id: order._id });
@@ -172,31 +200,31 @@ const processReleasedOrder = async (bot, order, releasedByAdmin) => {
     await dispute.save();
   }
 
-  const buyerUser = await User.findOne({ _id: order.buyer_id });
-  const sellerUser = await User.findOne({ _id: order.seller_id });
-  const i18nCtxBuyer = await getUserI18nContext(buyerUser);
-  const i18nCtxSeller = await getUserI18nContext(sellerUser);
+  const buyer = await User.findOne({ _id: order.buyer_id });
+  const seller = await User.findOne({ _id: order.seller_id });
+  const i18nCtxBuyer = await getUserI18nContext(buyer);
+  const i18nCtxSeller = await getUserI18nContext(seller);
 
   if (releasedByAdmin) {
     // Save updated state first, then publish messages.
+    order.funds_unlocked = true;
     order.status = 'COMPLETED_BY_ADMIN';
     await order.save();
 
-    await messages.successCompleteOrderByAdminMessage(i18nCtxSeller, bot, sellerUser, order);
-    await messages.successCompleteOrderByAdminMessage(i18nCtxBuyer, bot, buyerUser, order);
-    await messages.toAdminSuccessCompleteOrderMessage(i18nCtxBuyer, bot, order);
+    await messages.successCompleteOrderByAdminMessages(bot, order, buyer, seller, i18nCtxBuyer, i18nCtxSeller);
 
   } else {
 
     // Save updated state first, then publish messages.
+    order.funds_unlocked = true;
     order.status = 'RELEASED';
     await order.save();
 
-    await messages.fundsReleasedMessages(bot, order, sellerUser, buyerUser, i18nCtxBuyer, i18nCtxSeller);
+    await messages.fundsReleasedMessages(bot, order, seller, buyer, i18nCtxBuyer, i18nCtxSeller);
 
-    await handleReputationItems(buyerUser, sellerUser, order.amount);
-    await messages.rateUserMessage(bot, buyerUser, order, i18nCtxBuyer);
-    await messages.rateUserMessage(bot, sellerUser, order, i18nCtxSeller);
+    await handleReputationItems(buyer, seller, order.amount);
+    await messages.rateUserMessage(bot, buyer, order, i18nCtxBuyer);
+    await messages.rateUserMessage(bot, seller, order, i18nCtxSeller);
 
     // If this is a range order, probably we need to created a new child range order
     const orderData = await ordersActions.getNewRangeOrderPayload(order);
@@ -204,10 +232,10 @@ const processReleasedOrder = async (bot, order, releasedByAdmin) => {
     if (orderData) {
       let user;
       if (order.type === 'sell') {
-        user = sellerUser;
+        user = seller;
         i18nCtx = i18nCtxSeller;
       } else {
-        user = buyerUser;
+        user = buyer;
         i18nCtx = i18nCtxBuyer;
         orderData.walletAddress = order.buyer_address;
       }
@@ -246,8 +274,9 @@ const processReleasedOrder = async (bot, order, releasedByAdmin) => {
 const processRefundedOrder = async (bot, order, refundedByAdmin) => {
 
   if (!refundedByAdmin) {
-    // If the seller initiated the refund, it means that the order has been already cancelled,
-    // so there's anything else to do here.
+    // If the seller initiated the refund, we just update the state.
+    order.funds_unlocked = true;
+    await order.save();  
     return;
   }
 
@@ -258,18 +287,17 @@ const processRefundedOrder = async (bot, order, refundedByAdmin) => {
     await dispute.save();
   }
 
-  const buyerUser = await User.findOne({ _id: order.buyer_id });
-  const sellerUser = await User.findOne({ _id: order.seller_id });
-  const i18nCtxBuyer = await getUserI18nContext(buyerUser);
-  const i18nCtxSeller = await getUserI18nContext(sellerUser);
+  const buyer = await User.findOne({ _id: order.buyer_id });
+  const seller = await User.findOne({ _id: order.seller_id });
+  const i18nCtxBuyer = await getUserI18nContext(buyer);
+  const i18nCtxSeller = await getUserI18nContext(seller);
 
   // Save updated state first, then publish messages.
+  order.funds_unlocked = true;
   order.status = 'CANCELED_BY_ADMIN';
   await order.save();
 
-  await messages.successCancelOrderByAdminMessage(i18nCtxSeller, bot, sellerUser, order);
-  await messages.successCancelOrderByAdminMessage(i18nCtxBuyer, bot, buyerUser, order);
-  await messages.toAdminSuccessCancelOrderMessage(i18nCtxSeller, bot, order);
+  await messages.successCancelOrderByAdminMessages(bot, order, buyer, seller, i18nCtxBuyer, i18nCtxSeller);
 
 };
 

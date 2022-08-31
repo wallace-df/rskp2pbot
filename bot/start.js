@@ -89,6 +89,7 @@ const askForConfirmation = async (user, command) => {
     } else if (command == '/refund') {
       where.$and = [
         { seller_id: user._id },
+        { funds_unlocked: false },
         {
           $or: [
             { status: 'CANCELED' },
