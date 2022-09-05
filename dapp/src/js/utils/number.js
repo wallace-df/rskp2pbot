@@ -11,7 +11,6 @@ export default {
         const regexStr = "^(0|[1-9]\\d*)(\\.\\d{0," + decimals + "})?$";
 
         if (new RegExp(regexStr).test(amount) === false) {
-            console.log("invalid number");
             return false;
         }
 
@@ -41,7 +40,6 @@ export default {
                 throw "Value should be <= " + maxValue.toString();
             }
         } catch (err) {
-            console.log(err);
             return false;
         }
 

@@ -18,6 +18,6 @@ const DisputeSchema = new mongoose.Schema({
   order_id: { type: String, default: null },
   solver_id: { type: String, default: null },
   created_at: { type: Date, default: Date.now },
-});
+}, { optimisticConcurrency: true });
 
 module.exports = mongoose.model('Dispute', DisputeSchema);

@@ -168,20 +168,9 @@ const formatUnit = (value, decimals) => {
   return value;
 };
 
-// This function checks if the current buyer and seller were doing circular operations
-// In order to increase their trades_completed and volume_traded.
-// If we found those trades in the last 24 hours we decrease both variables to both users
 const handleReputationItems = async (buyer, seller, order) => {  
   try {
     const amount = new BigDecimal(order.amount);
-    const yesterday = new Date(Date.now() - 86400000).toISOString();
-    const orders = await Order.find({
-      status: 'RELEASED',
-      seller_id: buyer._id,
-      buyer_id: seller._id,
-      taken_at: { $gte: yesterday },
-    });
-
     let buyerVolumeTraded = {};
     let sellerVolumeTraded = {};
 
@@ -189,7 +178,6 @@ const handleReputationItems = async (buyer, seller, order) => {
       try {
         buyerVolumeTraded = JSON.parse(buyer.volume_traded_json)
       } catch (err) {
-        console.log(err);
         buyerVolumeTraded = {};
       }
     }
@@ -198,7 +186,6 @@ const handleReputationItems = async (buyer, seller, order) => {
       try {
         sellerVolumeTraded = JSON.parse(seller.volume_traded_json)
       } catch (err) {
-        console.log(err);
         sellerVolumeTraded = {};
       }
     }
@@ -211,88 +198,15 @@ const handleReputationItems = async (buyer, seller, order) => {
       sellerVolumeTraded[order.token_code] = '0';
     }
 
-    if (orders.length > 0) {
-      const lastAmount = new BigDecimal(orders[orders.length - 1].amount);
+    buyer.trades_completed++;
+    seller.trades_completed++;
 
-      let totalAmount = new BigDecimal('0');
-      orders.forEach(order => {
-        totalAmount = totalAmount.add(new BigDecimal(order.amount));
-      });
-
-      let buyerTradesCompleted;
-      let sellerTradesCompleted;
-
-      console.log(amount.getValue(), lastAmount.getValue(), amount.gt(lastAmount));
-
-      if (amount.gt(lastAmount)) {
-
-        console.log("complex 1..");
-
-        buyerTradesCompleted =
-          buyer.trades_completed - orders.length <= 0
-            ? 0
-            : buyer.trades_completed - orders.length;
-            
-        sellerTradesCompleted =
-          seller.trades_completed - orders.length <= 0
-            ? 0
-            : seller.trades_completed - orders.length;
-
-        buyerVolumeTraded[order.token_code] =
-          new BigDecimal(buyerVolumeTraded[order.token_code]).subtract(totalAmount).le(new BigDecimal('0'))
-            ? '0'
-            : new BigDecimal(buyerVolumeTraded[order.token_code]).subtract(totalAmount).getValue();
-
-        sellerVolumeTraded[order.token_code] =
-          new BigDecimal(sellerVolumeTraded[order.token_code]).subtract(totalAmount).le(new BigDecimal('0'))
-            ? '0'
-            : new BigDecimal(buyerVolumeTraded[order.token_code]).subtract(totalAmount).getValue();
-
-      } else {
-
-
-        console.log("complex 2..");
-
-        buyerTradesCompleted =
-          buyer.trades_completed <= 1
-            ? 0
-            : buyer.trades_completed - 1;
-
-        sellerTradesCompleted =
-          seller.trades_completed <= 1
-            ? 0
-            : seller.trades_completed - 1;
-  
-        buyerVolumeTraded[order.token_code] =
-          new BigDecimal(buyerVolumeTraded[order.token_code]).subtract(amount).le(new BigDecimal('0'))
-            ? '0'
-            : new BigDecimal(buyerVolumeTraded[order.token_code]).subtract(amount).getValue();
-  
-        sellerVolumeTraded[order.token_code] =
-          new BigDecimal(sellerVolumeTraded[order.token_code]).subtract(amount).le(new BigDecimal('0'))
-            ? '0'
-            : new BigDecimal(sellerVolumeTraded[order.token_code]).subtract(amount).getValue();
-      }
-
-      buyer.trades_completed = buyerTradesCompleted;
-      seller.trades_completed = sellerTradesCompleted;
-      
-    } else {
-      buyer.trades_completed++;
-      seller.trades_completed++;
-
-      console.log("simply adding...");
-
-      buyerVolumeTraded[order.token_code] = new BigDecimal(buyerVolumeTraded[order.token_code]).add(amount).getValue();
-      sellerVolumeTraded[order.token_code] = new BigDecimal(sellerVolumeTraded[order.token_code]).add(amount).getValue();
-    }
+    buyerVolumeTraded[order.token_code] = new BigDecimal(buyerVolumeTraded[order.token_code]).add(amount).getValue();
+    sellerVolumeTraded[order.token_code] = new BigDecimal(sellerVolumeTraded[order.token_code]).add(amount).getValue();
 
     buyer.volume_traded_json = JSON.stringify(buyerVolumeTraded);
     seller.volume_traded_json = JSON.stringify(sellerVolumeTraded);
-
-    console.log(buyer);
-    console.log(seller);
-
+    
     await buyer.save();
     await seller.save();
   } catch (error) {

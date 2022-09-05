@@ -31,6 +31,7 @@ const {
   waitPayment,
   cancelOrder,
   fiatSent,
+  lockFunds,
   release,
   refund
 } = require('./commands');
@@ -86,6 +87,11 @@ const askForConfirmation = async (user, command) => {
       const orders = await Order.find(where);
 
       return orders;
+    } else if (command == '/lockfunds') {
+      where.$and = [{ seller_id: user._id }, { status: 'WAITING_PAYMENT' }, {seller_hash: {$ne:null}}];
+      const orders = await Order.find(where);
+
+      return orders;
     } else if (command == '/refund') {
       where.$and = [
         { seller_id: user._id },
@@ -126,20 +132,16 @@ const initialize = (botToken, options) => {
   bot.use(stageMiddleware());
   bot.use(commandArgsMiddleware());
 
-  schedule.scheduleJob(`*/10 * * * * *`, async () => {
+  schedule.scheduleJob(`*/30 * * * * *`, async () => {
     await syncEscrowedOrders(bot);
   });
 
-  schedule.scheduleJob(`*/10 * * * * *`, async () => {
+  schedule.scheduleJob(`*/5 * * * *	`, async () => {
     await cancelOrders(bot);
   });
 
-  schedule.scheduleJob(`*/10 * * * *`, async () => {
+  schedule.scheduleJob(`0 */1 * * *`, async () => {
     await deleteOrders(bot);
-  });
-
-  schedule.scheduleJob(`*/10 * * * *`, async () => {
-    await calculateEarnings();
   });
 
   bot.start(async ctx => {
@@ -286,6 +288,27 @@ const initialize = (botToken, options) => {
     }
   });
 
+  // We allow sellers to get a refund link for their cancelled orders.
+  bot.command('lockfunds', userMiddleware, async ctx => {
+    try {
+      const params = ctx.update.message.text.split(' ');
+      const [command, orderId] = params.filter(el => el);
+
+      if (!orderId) {
+        const orders = await askForConfirmation(ctx.user, command);
+        if (!orders.length) return await ctx.reply(`${command}  <order Id>`);
+
+        return await messages.showConfirmationButtons(ctx, orders, command);
+      } else if (!(await validateObjectId(ctx, orderId))) {
+        return;
+      } else {
+        await lockFunds(ctx, orderId, ctx.user);
+      }
+    } catch (error) {
+      logger.error(error);
+    }
+  });
+  
   bot.command('release', userMiddleware, async ctx => {
     try {
       const params = ctx.update.message.text.split(' ');
@@ -409,6 +432,11 @@ const initialize = (botToken, options) => {
   bot.action(/^cancel_([0-9a-f]{24})$/, userMiddleware, async ctx => {
     ctx.deleteMessage();
     await cancelOrder(ctx, bot, ctx.match[1], null);
+  });
+
+  bot.action(/^lockfunds_([0-9a-f]{24})$/, userMiddleware, async ctx => {
+    ctx.deleteMessage();
+    await lockFunds(ctx, ctx.match[1], null);
   });
 
   bot.action(/^refund_([0-9a-f]{24})$/, userMiddleware, async ctx => {

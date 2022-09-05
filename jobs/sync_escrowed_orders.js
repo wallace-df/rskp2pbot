@@ -165,7 +165,8 @@ const resolveFundedOrders = async bot => {
 
 const flagUnlockedRefundableOrders = async bot => {
   const cancelledOrders = await Order.find({
-    $or: [{ status: 'CANCELED' }]
+    status: 'CANCELED',
+    funds_unlocked: false
   });
 
   for (const order of cancelledOrders) {
@@ -272,7 +273,6 @@ const processReleasedOrder = async (bot, order, releasedByAdmin) => {
 };
 
 const processRefundedOrder = async (bot, order, refundedByAdmin) => {
-
   if (!refundedByAdmin) {
     // If the seller initiated the refund, we just update the state.
     order.funds_unlocked = true;

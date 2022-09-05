@@ -375,7 +375,6 @@ const createOrderHandlers = {
     try {
       input = toBaseUnit(input, tokenDecimals).toString();
     } catch(err) {
-      console.log(err);
       ctx.wizard.state.error = ctx.i18n.t('invalid_amount');
       await ctx.wizard.state.updateUI();
       return;

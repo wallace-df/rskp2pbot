@@ -6,6 +6,7 @@ const {
   validateUserWaitingOrder,
   isBannedFromCommunity,
   validateFiatSentOrder,
+  validateLockFundsOrder,
   validateReleaseOrder,
   validateRefundOrder
 } = require('./validations');
@@ -257,7 +258,7 @@ const cancelAddWalletAddress = async (ctx, bot, order, userAction) => {
       );
     }
 
-    republishOrder(bot, order, buyer, seller);
+    await republishOrder(bot, order, buyer, seller);
 
     if (!userAction) {
       await messages.toBuyerDidntAddWalletAddressMessage(bot, buyer, order, i18nCtxBuyer);
@@ -373,7 +374,7 @@ const cancelLockTokensRequest = async (ctx, bot, order, userAction) => {
         );
       }
 
-      republishOrder(bot, order, buyer, seller);
+      await republishOrder(bot, order, buyer, seller);
 
       if (!userAction) {
         await messages.toSellerDidntLockTokensMessage(bot, seller, order, i18nCtxSeller);
@@ -457,11 +458,12 @@ const cancelOrder = async (ctx, bot, orderId, user) => {
       counterParty = 'buyer';
     }
 
-    if (order[`${initiator}_cooperativecancel`])
+    if (order[`${initiator}_cooperativecancel`] && !order[`${counterParty}_cooperativecancel`]) {
       return await messages.shouldWaitCooperativeCancelMessage(
         ctx,
         initiatorUser
       );
+    }
 
     // Save updated state first, then publish messages.
     order[`${initiator}_cooperativecancel`] = true;
@@ -537,6 +539,26 @@ const fiatSent = async (ctx, orderId, buyer) => {
     const i18nCtxBuyer = await getUserI18nContext(buyer);
     const i18nCtxSeller = await getUserI18nContext(seller);
     await messages.fiatSentMessages(ctx, buyer, seller, order, i18nCtxBuyer, i18nCtxSeller);
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+const lockFunds = async (ctx, orderId, user) => {
+  try {
+    if (!user) {
+      const tgUser = ctx.update.callback_query.from;
+      if (!tgUser) return;
+
+      user = await User.findOne({ tg_id: tgUser.id });
+
+      // If user didn't initialize the bot we can't do anything
+      if (!user) return;
+    }
+    const order = await validateLockFundsOrder(ctx, user, orderId);
+    if (!order) return;
+
+    await messages.lockFundsInstructionsMessage(ctx, user, order);
   } catch (error) {
     logger.error(error);
   }
@@ -702,6 +724,7 @@ module.exports = {
   saveUserReview,
   cancelOrder,
   fiatSent,
+  lockFunds,
   release,
   refund
 };

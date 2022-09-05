@@ -88,7 +88,6 @@ const validateSellOrder = async ctx => {
     try {
       amount = toBaseUnit(amount, token.decimals).toString();
     } catch(err) {
-      console.log(err);
       await ctx.reply(ctx.i18n.t('invalid_amount'));
       return false;
     }
@@ -172,7 +171,6 @@ const validateBuyOrder = async ctx => {
     try {
       amount = toBaseUnit(amount, token.decimals).toString();
     } catch(err) {
-      console.log(err);
       await ctx.reply(ctx.i18n.t('invalid_amount'));
       return false;
     }
@@ -327,6 +325,27 @@ const validateTakeBuyOrder = async (ctx, bot, user, order) => {
       return false;
     }
     return true;
+  } catch (error) {
+    logger.error(error);
+    return false;
+  }
+};
+
+const validateLockFundsOrder = async (ctx, user, orderId) => {
+  try {
+    let where = {
+      seller_id: user._id,
+      status: 'WAITING_PAYMENT',
+      _id: orderId,
+    };
+    let order = await Order.findOne(where);
+
+    if (!order || !order.seller_hash) {
+      await messages.notActiveOrderMessage(ctx);
+      return false;
+    }
+
+    return order;
   } catch (error) {
     logger.error(error);
     return false;
@@ -563,6 +582,7 @@ module.exports = {
   validateWalletAddress,
   validateTakeSellOrder,
   validateTakeBuyOrder,
+  validateLockFundsOrder,
   validateReleaseOrder,
   validateRefundOrder,
   validateDisputeOrder,

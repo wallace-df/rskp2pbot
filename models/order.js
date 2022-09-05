@@ -91,6 +91,6 @@ const OrderSchema = new mongoose.Schema({
   admin_warned: { type: Boolean, default: false }, // We set this to true when the bot warns admins the order is about to expire
   funds_unlocked: {type: Boolean, default: false },
   community_id: { type: String },
-});
+}, { optimisticConcurrency: true });
 
 module.exports = mongoose.model('Order', OrderSchema);

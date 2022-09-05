@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const UserReviewSchema = new mongoose.Schema({
   rating: { type: Number, min: 0, max: 5, default: 0 },
   reviewed_at: { type: Date, default: Date.now },
-});
+}, { optimisticConcurrency: true });
 
 const UserSchema = new mongoose.Schema({
   tg_id: { type: String, unique: true },
@@ -22,6 +22,6 @@ const UserSchema = new mongoose.Schema({
   disputes: { type: Number, min: 0, default: 0 },
   created_at: { type: Date, default: Date.now },
   default_community_id: { type: String },
-});
+}, { optimisticConcurrency: true });
 
 module.exports = mongoose.model('User', UserSchema);

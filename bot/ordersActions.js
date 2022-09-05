@@ -147,8 +147,6 @@ const buildDescription = async (
       }
     }
 
-    console.log(user);
-
     if (!volumeTradedObj[token.code]) {
       volumeTradedObj[token.code] = '0';
     }

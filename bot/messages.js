@@ -154,7 +154,8 @@ const beginTakeBuyMessage = async (ctx, bot, seller, order) => {
       parseInt(process.env.PAYMENT_EXPIRATION_WINDOW) / 60;
     await bot.telegram.sendMessage(
       seller.tg_id,
-      ctx.i18n.t('begin_take_buy', { expirationTime })
+      ctx.i18n.t('begin_take_buy', { expirationTime }),
+      { parse_mode: "markdown" }
     );
     await bot.telegram.sendMessage(seller.tg_id, order._id, {
       reply_markup: {
@@ -211,19 +212,23 @@ const lockTokensForBuyOrderMessage = async (ctx, user, order, i18n) => {
   try {
     let currency = getCurrency(order.fiat_code);
     let token = getToken(order.token_code);
-    currency =
-      !!currency && !!currency.symbol_native
-        ? currency.symbol_native
-        : order.fiat_code;
-    const expirationTime = parseInt(process.env.PAYMENT_EXPIRATION_WINDOW) / 60;
-    const formattedAmount = formatUnit(getOrderTotalAmount(order), token.decimals) + ' ' + token.symbol;
+    let expirationTime = parseInt(process.env.PAYMENT_EXPIRATION_WINDOW) / 60;
+    let formattedOrderAmount = formatUnit(order.amount, token.decimals) + ' ' + token.symbol;
+    let formattedFeeAmount = formatUnit(order.fee, token.decimals) + ' ' + token.symbol;
+    let formattedTotalAmount = formatUnit(getOrderTotalAmount(order), token.decimals) + ' ' + token.symbol;
+    let fiatAmount = numberFormat(order.fiat_code, order.fiat_amount);
+
+    currency = !!currency && !!currency.symbol_native ? currency.symbol_native : order.fiat_code;
+
     const message = i18n.t('lock_tokens_for_buy_order', {
       currency,
       order,
       expirationTime,
-      fiatAmount:numberFormat(order.fiat_code, order.fiat_amount),
+      formattedOrderAmount,
+      formattedFeeAmount,
+      formattedTotalAmount,
+      fiatAmount,
       dappPage: process.env.DAPP_PAGE,
-      formattedAmount: formattedAmount,
     });
     await ctx.telegram.sendMessage(user.tg_id, message, { parse_mode: 'markdown' });
   
@@ -296,30 +301,31 @@ const genericErrorMessage = async (bot, user, i18n) => {
 
 const onGoingTakeBuyMessage = async (bot, buyer, seller, order, i18nBuyer, i18nSeller) => {
   try {
+    let token = getToken(order.token_code);
     let currency = getCurrency(order.fiat_code);
-    currency =
-      !!currency && !!currency.symbol_native
-        ? currency.symbol_native
-        : order.fiat_code;
-    const token = getToken(order.token_code);
-    const formattedAmount = formatUnit(order.amount, token.decimals) + ' ' + token.symbol;
-    const stars = getEmojiRate(buyer.total_rating);
-    const roundedRating = decimalRound(buyer.total_rating, -1);
-    const rate = `${roundedRating} ${stars} (${buyer.total_reviews})`;
+    let formattedOrderAmount = formatUnit(order.amount, token.decimals) + ' ' + token.symbol;
+    let formattedFeeAmount = formatUnit(order.fee, token.decimals) + ' ' + token.symbol;
+    let formattedTotalAmount = formatUnit(getOrderTotalAmount(order), token.decimals) + ' ' + token.symbol;
+    let fiatAmount = numberFormat(order.fiat_code, order.fiat_amount);
+
+    currency = !!currency && !!currency.symbol_native ? currency.symbol_native : order.fiat_code;
+
+    const stars = getEmojiRate(seller.total_rating);
+    const rating = `${stars} (${seller.total_reviews} ${seller.total_reviews === 1 ? 'review' : 'reviews'})`;
 
     await bot.telegram.sendMessage(
       buyer.tg_id,
       i18nBuyer.t('take_buy_get_in_touch_with_seller', {
         orderId: order._id,
         currency,
-        sellerUsername: seller.username,
-        fiatAmount: numberFormat(order.fiat_code, order.fiat_amount),
-        paymentMethod: order.payment_method,
-        formattedAmount: formattedAmount,
-        rate,
+        sellerUsername: sanitizeMD(seller.username),
+        fiatAmount,
+        paymentMethod: sanitizeMD(order.payment_method),
+        formattedAmount: formattedOrderAmount,
+        sellerRating: rating,
         dappPage: process.env.DAPP_PAGE
       }),
- //     { parse_mode: 'markdown' }
+      { parse_mode: 'markdown' }
     );
     await bot.telegram.sendMessage(
       buyer.tg_id,
@@ -330,15 +336,16 @@ const onGoingTakeBuyMessage = async (bot, buyer, seller, order, i18nBuyer, i18nS
       seller.tg_id,
       i18nSeller.t('take_buy_get_in_touch_with_buyer', {
         orderId: order._id,
-        tokenCode: order.token_code,
-        fiatAmount: numberFormat(order.fiat_code, order.fiat_amount),
-        paymentMethod: order.payment_method,
+        fiatAmount,
+        paymentMethod: sanitizeMD(order.payment_method),
         currency,
-        buyerUsername: buyer.username,
-        formattedAmount,
+        buyerUsername: sanitizeMD(buyer.username),
+        formattedOrderAmount,
+        formattedFeeAmount,
+        formattedTotalAmount,
         dappPage: process.env.DAPP_PAGE
       }),
-     // { parse_mode: 'markdown' }
+      { parse_mode: 'markdown' }
     );
 
   } catch (error) {
@@ -362,7 +369,7 @@ const onGoingTakeSellMessage = async (bot, buyer, seller, order, i18nBuyer, i18n
         currency,
         sellerUsername: sanitizeMD(seller.username),
         fiatAmount: numberFormat(order.fiat_code, order.fiat_amount),
-        paymentMethod: order.payment_method,
+        paymentMethod: sanitizeMD(order.payment_method),
         formattedAmount: formattedOrderAmount,
         dappPage: process.env.DAPP_PAGE
       }),
@@ -379,7 +386,7 @@ const onGoingTakeSellMessage = async (bot, buyer, seller, order, i18nBuyer, i18n
         orderId: order._id,
         tokenCode: order.token_code,
         fiatAmount: numberFormat(order.fiat_code, order.fiat_amount),
-        paymentMethod: order.payment_method,
+        paymentMethod: sanitizeMD(order.payment_method),
         currency,
         buyerUsername: sanitizeMD(buyer.username),
         formattedOrderAmount,
@@ -408,6 +415,35 @@ const takeSellWaitingSellerToPayMessage = async (ctx, bot, buyer, order) => {
       ctx.i18n.t('waiting_seller_to_pay', { orderId: order._id, formattedAmount, currency, fiatAmount }),
       {parse_mode: 'markdown'}
     );
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+const lockFundsInstructionsMessage = async (ctx, user, order) => {
+  try {
+
+    let currency = getCurrency(order.fiat_code);
+    let token = getToken(order.token_code);
+    let expirationTime = parseInt(process.env.PAYMENT_EXPIRATION_WINDOW) / 60;
+    let formattedOrderAmount = formatUnit(order.amount, token.decimals) + ' ' + token.symbol;
+    let formattedFeeAmount = formatUnit(order.fee, token.decimals) + ' ' + token.symbol;
+    let formattedTotalAmount = formatUnit(getOrderTotalAmount(order), token.decimals) + ' ' + token.symbol;
+    let fiatAmount = numberFormat(order.fiat_code, order.fiat_amount);
+
+    currency = !!currency && !!currency.symbol_native ? currency.symbol_native : order.fiat_code;
+
+    const message = ctx.i18n.t('lockfunds_instructions', {
+      order,
+      formattedOrderAmount,
+      formattedFeeAmount,
+      formattedTotalAmount,
+      currency,
+      fiatAmount,
+      expirationTime,
+      dappPage: process.env.DAPP_PAGE
+    });
+    await ctx.telegram.sendMessage(user.tg_id, message, { parse_mode: 'markdown' });
   } catch (error) {
     logger.error(error);
   }
@@ -559,6 +595,7 @@ const publishSellOrderMessage = async (ctx, user, order, i18n, messageToUser) =>
       message1 && message1.message_id ? message1.message_id : null;
 
     await order.save();
+
     // Message to user let know the order was published
     if (messageToUser)
       await pendingSellMessage(ctx, user, order, channel, i18n);
@@ -1390,6 +1427,7 @@ module.exports = {
   successCancelOrderMessage,
   badStatusOnCancelOrderMessage,
   userCantTakeMoreThanOneWaitingOrderMessage,
+  lockFundsInstructionsMessage,
   releaseInstructionsMessage,
   refundInstructionsMessage,
   fundsReleasedMessages,
