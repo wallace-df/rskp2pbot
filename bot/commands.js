@@ -155,10 +155,9 @@ const waitPayment = async (ctx, bot, buyer, seller, order, buyerAddress) => {
     // We need the buyer rate
     const buyer = await User.findById(order.buyer_id);
     const stars = getEmojiRate(buyer.total_rating);
-    const roundedRating = decimalRound(buyer.total_rating, -1);
-    const rate = `${roundedRating} ${stars} (${buyer.total_reviews})`;
+    const rating = `${stars} (${buyer.total_reviews} ${buyer.total_reviews === 1 ? 'review' : 'reviews'})`;
 
-    await messages.lockTokensForSellOrderMessage(ctx, seller, order, i18nCtxSeller, rate);
+    await messages.lockTokensForSellOrderMessage(ctx, seller, order, i18nCtxSeller, rating);
     await messages.takeSellWaitingSellerToPayMessage(ctx, bot, buyer, order);
     
   } catch (error) {
@@ -203,7 +202,7 @@ const addWalletAddress = async (ctx, bot, order) => {
       return;
     }
 
-    order.fee = await getFee(order.amount, order.community_id);
+    order.fee = await getFee(order.amount);
 
     // Save the updated state first, then publish messages.
     await order.save();
@@ -310,7 +309,7 @@ const lockTokensRequest = async (ctx, bot, order) => {
       return;
     }
 
-    order.fee = await getFee(order.amount, order.community_id);
+    order.fee = await getFee(order.amount);
 
     let buyerSecret = crypto.randomBytes(32);
     let sellerSecret = crypto.randomBytes(32);
@@ -513,19 +512,19 @@ const cancelOrder = async (ctx, bot, orderId, user) => {
   }
 };
 
-const fiatSent = async (ctx, orderId, user) => {
+const fiatSent = async (ctx, orderId, buyer) => {
   try {
-    if (!user) {
+    if (!buyer) {
       const tgUser = ctx.update.callback_query.from;
       if (!tgUser) return;
 
-      user = await User.findOne({ tg_id: tgUser.id });
+      buyer = await User.findOne({ tg_id: tgUser.id });
 
       // If user didn't initialize the bot we can't do anything
-      if (!user) return;
+      if (!buyer) return;
     }
-    if (user.banned) return await messages.bannedUserErrorMessage(ctx, user);
-    const order = await validateFiatSentOrder(ctx, user, orderId);
+    if (buyer.banned) return await messages.bannedUserErrorMessage(ctx, buyer);
+    const order = await validateFiatSentOrder(ctx, buyer, orderId);
     if (!order) return;
 
     // Save updated state first, then publish messages.
@@ -535,16 +534,9 @@ const fiatSent = async (ctx, orderId, user) => {
 
     // We sent messages to both parties
     // We need to create i18n context for each user
-    const i18nCtxBuyer = await getUserI18nContext(user);
+    const i18nCtxBuyer = await getUserI18nContext(buyer);
     const i18nCtxSeller = await getUserI18nContext(seller);
-    await messages.fiatSentMessages(
-      ctx,
-      user,
-      seller,
-      order,
-      i18nCtxBuyer,
-      i18nCtxSeller
-    );
+    await messages.fiatSentMessages(ctx, buyer, seller, order, i18nCtxBuyer, i18nCtxSeller);
   } catch (error) {
     logger.error(error);
   }
@@ -631,7 +623,7 @@ const saveUserReview = async (targetUser, rating) => {
     const oldRating = targetUser.total_rating;
     let lastRating = targetUser.reviews.length
       ? targetUser.reviews[targetUser.reviews.length - 1].rating
-      : 0;
+      : rating;
 
     lastRating = targetUser.last_rating ? targetUser.last_rating : lastRating;
 

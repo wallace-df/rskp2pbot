@@ -22,7 +22,7 @@ const isMatchingOrder = (order, escrow) => {
     return false;
   }
 
-  if (order.buyer_address.toLowerCase() !== escrow.buyerAddress.toLowerCase()) {
+  if (!order.buyer_address || order.buyer_address.toLowerCase() !== escrow.buyerAddress.toLowerCase()) {
     return false;
   }
 
@@ -222,7 +222,7 @@ const processReleasedOrder = async (bot, order, releasedByAdmin) => {
 
     await messages.fundsReleasedMessages(bot, order, seller, buyer, i18nCtxBuyer, i18nCtxSeller);
 
-    await handleReputationItems(buyer, seller, order.amount);
+    await handleReputationItems(buyer, seller, order);
     await messages.rateUserMessage(bot, buyer, order, i18nCtxBuyer);
     await messages.rateUserMessage(bot, seller, order, i18nCtxSeller);
 

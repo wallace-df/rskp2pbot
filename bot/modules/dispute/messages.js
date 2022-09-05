@@ -12,20 +12,24 @@ exports.beginDispute = async (ctx, initiator, order, buyer, seller) => {
     if (initiator === 'buyer') {
       await ctx.telegram.sendMessage(
         initiatorUser.tg_id,
-        ctx.i18n.t('you_started_dispute_to_buyer')
+        ctx.i18n.t('you_started_dispute_to_buyer', {orderId: order._id}),
+        { parse_mode: "markdown" }
       );
       await ctx.telegram.sendMessage(
         counterPartyUser.tg_id,
-        ctx.i18n.t('buyer_started_dispute_to_seller', { orderId: order._id })
+        ctx.i18n.t('buyer_started_dispute_to_seller', { orderId: order._id }),
+        { parse_mode: "markdown" }
       );
     } else {
       await ctx.telegram.sendMessage(
         initiatorUser.tg_id,
-        ctx.i18n.t('you_started_dispute_to_seller')
+        ctx.i18n.t('you_started_dispute_to_seller', {orderId: order._id}),
+        { parse_mode: "markdown" }
       );
       await ctx.telegram.sendMessage(
         counterPartyUser.tg_id,
-        ctx.i18n.t('seller_started_dispute_to_buyer', { orderId: order._id })
+        ctx.i18n.t('seller_started_dispute_to_buyer', { orderId: order._id }),
+        { parse_mode: "markdown" }
       );
     }
   } catch (error) {

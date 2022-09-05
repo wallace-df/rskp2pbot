@@ -14,7 +14,7 @@ const UserSchema = new mongoose.Schema({
   last_rating: { type: Number, min: 0, max: 5, default: 0 },
   total_rating: { type: Number, min: 0, max: 5, default: 0 },
   reviews: [UserReviewSchema],
-  volume_traded: { type: Number, min: 0, default: 0 },
+  volume_traded_json: { type: String },
   admin: { type: Boolean, default: false },
   banned: { type: Boolean, default: false },
   show_username: { type: Boolean, default: false },

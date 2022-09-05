@@ -3,7 +3,7 @@ const { I18n } = require('@grammyjs/i18n');
 const currencies = require('./fiat.json');
 const tokens = require('./tokens.json');
 const languages = require('./languages.json');
-const { Order, Community } = require('../models');
+const { User, Order, Community } = require('../models');
 const BN = require('bn.js');
 const BigDecimal = require("js-big-decimal");
 const dapiServerDeployment = require('@api3/operations/chain/deployments/polygon-testnet/DapiServer.json');
@@ -142,6 +142,11 @@ const toBaseUnit = (value, decimals) => {
   return new BN(baseUnit.toString(10), 10);
 };
 
+
+const getOrderTotalAmount = (order) => {
+  return new BigDecimal(order.amount).add(new BigDecimal(order.fee)).getValue();
+};
+
 const formatUnit = (value, decimals) => {
   value = new BN(value, 10);
   let base = new BN('10',10).pow(new BN(String(decimals),10));
@@ -166,9 +171,9 @@ const formatUnit = (value, decimals) => {
 // This function checks if the current buyer and seller were doing circular operations
 // In order to increase their trades_completed and volume_traded.
 // If we found those trades in the last 24 hours we decrease both variables to both users
-const handleReputationItems = async (buyer, seller, amount) => {
+const handleReputationItems = async (buyer, seller, order) => {  
   try {
-    amount = Number(amount);
+    const amount = new BigDecimal(order.amount);
     const yesterday = new Date(Date.now() - 86400000).toISOString();
     const orders = await Order.find({
       status: 'RELEASED',
@@ -176,60 +181,126 @@ const handleReputationItems = async (buyer, seller, amount) => {
       buyer_id: seller._id,
       taken_at: { $gte: yesterday },
     });
+
+    let buyerVolumeTraded = {};
+    let sellerVolumeTraded = {};
+
+    if (buyer.volume_traded_json) {
+      try {
+        buyerVolumeTraded = JSON.parse(buyer.volume_traded_json)
+      } catch (err) {
+        console.log(err);
+        buyerVolumeTraded = {};
+      }
+    }
+
+    if (seller.volume_traded_json) {
+      try {
+        sellerVolumeTraded = JSON.parse(seller.volume_traded_json)
+      } catch (err) {
+        console.log(err);
+        sellerVolumeTraded = {};
+      }
+    }
+
+    if (!buyerVolumeTraded[order.token_code]) {
+      buyerVolumeTraded[order.token_code] = '0';
+    }
+
+    if (!sellerVolumeTraded[order.token_code]) {
+      sellerVolumeTraded[order.token_code] = '0';
+    }
+
     if (orders.length > 0) {
-      let totalAmount = 0;
+      const lastAmount = new BigDecimal(orders[orders.length - 1].amount);
+
+      let totalAmount = new BigDecimal('0');
       orders.forEach(order => {
-        totalAmount += order.amount;
+        totalAmount = totalAmount.add(new BigDecimal(order.amount));
       });
-      const lastAmount = Number(orders[orders.length - 1].amount);
+
       let buyerTradesCompleted;
       let sellerTradesCompleted;
-      let buyerVolumeTraded;
-      let sellerVolumeTraded;
-      if (amount > lastAmount) {
+
+      console.log(amount.getValue(), lastAmount.getValue(), amount.gt(lastAmount));
+
+      if (amount.gt(lastAmount)) {
+
+        console.log("complex 1..");
+
         buyerTradesCompleted =
           buyer.trades_completed - orders.length <= 0
             ? 0
             : buyer.trades_completed - orders.length;
+            
         sellerTradesCompleted =
           seller.trades_completed - orders.length <= 0
             ? 0
             : seller.trades_completed - orders.length;
-        buyerVolumeTraded =
-          buyer.volume_traded - totalAmount <= 0
-            ? 0
-            : buyer.volume_traded - totalAmount;
-        sellerVolumeTraded =
-          seller.volume_traded - totalAmount <= 0
-            ? 0
-            : seller.volume_traded - totalAmount;
+
+        buyerVolumeTraded[order.token_code] =
+          new BigDecimal(buyerVolumeTraded[order.token_code]).subtract(totalAmount).le(new BigDecimal('0'))
+            ? '0'
+            : new BigDecimal(buyerVolumeTraded[order.token_code]).subtract(totalAmount).getValue();
+
+        sellerVolumeTraded[order.token_code] =
+          new BigDecimal(sellerVolumeTraded[order.token_code]).subtract(totalAmount).le(new BigDecimal('0'))
+            ? '0'
+            : new BigDecimal(buyerVolumeTraded[order.token_code]).subtract(totalAmount).getValue();
+
       } else {
+
+
+        console.log("complex 2..");
+
         buyerTradesCompleted =
-          buyer.trades_completed <= 1 ? 0 : buyer.trades_completed - 1;
-        sellerTradesCompleted =
-          seller.trades_completed <= 1 ? 0 : seller.trades_completed - 1;
-        buyerVolumeTraded =
-          buyer.volume_traded - amount <= 0 ? 0 : buyer.volume_traded - amount;
-        sellerVolumeTraded =
-          seller.volume_traded - amount <= 0
+          buyer.trades_completed <= 1
             ? 0
-            : seller.volume_traded - amount;
+            : buyer.trades_completed - 1;
+
+        sellerTradesCompleted =
+          seller.trades_completed <= 1
+            ? 0
+            : seller.trades_completed - 1;
+  
+        buyerVolumeTraded[order.token_code] =
+          new BigDecimal(buyerVolumeTraded[order.token_code]).subtract(amount).le(new BigDecimal('0'))
+            ? '0'
+            : new BigDecimal(buyerVolumeTraded[order.token_code]).subtract(amount).getValue();
+  
+        sellerVolumeTraded[order.token_code] =
+          new BigDecimal(sellerVolumeTraded[order.token_code]).subtract(amount).le(new BigDecimal('0'))
+            ? '0'
+            : new BigDecimal(sellerVolumeTraded[order.token_code]).subtract(amount).getValue();
       }
+
       buyer.trades_completed = buyerTradesCompleted;
       seller.trades_completed = sellerTradesCompleted;
-      buyer.volume_traded = buyerVolumeTraded;
-      seller.volume_traded = sellerVolumeTraded;
+      
     } else {
       buyer.trades_completed++;
       seller.trades_completed++;
-      buyer.volume_traded += amount;
-      seller.volume_traded += amount;
+
+      console.log("simply adding...");
+
+      buyerVolumeTraded[order.token_code] = new BigDecimal(buyerVolumeTraded[order.token_code]).add(amount).getValue();
+      sellerVolumeTraded[order.token_code] = new BigDecimal(sellerVolumeTraded[order.token_code]).add(amount).getValue();
     }
+
+    buyer.volume_traded_json = JSON.stringify(buyerVolumeTraded);
+    seller.volume_traded_json = JSON.stringify(sellerVolumeTraded);
+
+    console.log(buyer);
+    console.log(seller);
+
     await buyer.save();
     await seller.save();
   } catch (error) {
     logger.error(error);
+    return false;
   }
+
+  return true;
 };
 
 
@@ -401,7 +472,7 @@ const isGroupAdmin = async (groupId, user, telegram) => {
 
 const deleteOrderFromChannel = async (order, telegram) => {
   try {
-    let channel = process.env.CHANNEL;
+    let channel = process.env.OFFERS_CHANNEL;
     if (order.community_id) {
       const community = await Community.findOne({ _id: order.community_id });
       if (!community) {
@@ -424,7 +495,7 @@ const deleteOrderFromChannel = async (order, telegram) => {
 };
 
 const getOrderChannel = async order => {
-  let channel = process.env.CHANNEL;
+  let channel = process.env.OFFERS_CHANNEL;
   if (order.community_id) {
     const community = await Community.findOne({ _id: order.community_id });
     if (!community) {
@@ -518,17 +589,9 @@ const isDisputeSolver = (community, user) => {
 };
 
 // Return the fee the bot will charge to the seller
-// this fee is a combination from the global bot fee and the community fee
-const getFee = async (amount, communityId) => {
-  const maxFee = Math.round(Number(amount) * parseFloat(process.env.MAX_FEE));
-  if (!communityId) return maxFee;
-
-  const botFee = maxFee * parseFloat(process.env.FEE_PERCENT);
-  let communityFee = Math.round(maxFee - botFee);
-  const community = await Community.findOne({ _id: communityId });
-  communityFee = communityFee * (community.fee / 100);
-
-  return botFee + communityFee;
+const getFee = async (amount) => {
+  let feeRatio = new BigDecimal(process.env.FEE_PERCENT).divide(new BigDecimal("100"), 4);
+  return feeRatio.multiply(new BigDecimal(amount)).round(0).getValue();
 };
 
 const itemsFromMessage = str => {
@@ -583,4 +646,5 @@ module.exports = {
   isInt,
   isFloat,
   getLanguageFlag,
+  getOrderTotalAmount
 };

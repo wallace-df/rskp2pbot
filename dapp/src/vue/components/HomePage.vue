@@ -31,7 +31,9 @@
           </tr>
           <tr>
             <th>Amount</th>
-            <td>{{formatOrderAmount(order)}}</td>
+            <td>
+              {{formatOrderAmount(order)}}
+            </td>
           </tr>
           <tr>
             <th>Fee</th>
@@ -110,7 +112,14 @@ export default {
       try {
         let walletInstance = await Wallet.getInstance();
         let userOrders = await walletInstance.contract.methods.userOrders(walletInstance.walletAddress).call();
-        let lockedOrders = userOrders.filter(order => order.status === '1');
+        let lockedOrders = userOrders.filter(order => order.status === '2');
+        
+        for(let i = 0; i < lockedOrders.length; i++) {
+          lockedOrders[i] = {...lockedOrders[i]};
+          lockedOrders[i].token = this.getTokenByAddress(lockedOrders[i].tokenContractAddress);
+          lockedOrders[i].token = this.getTokenByAddress('0x19f64674d8a5b4e652319f5e239efd3bc969a1fe');
+
+        }
 
         this.sellerOrders = lockedOrders.filter(order => order.sellerAddress.toLowerCase() === walletInstance.walletAddress.toLowerCase());
         this.buyerOrders = lockedOrders.filter(order => order.buyerAddress.toLowerCase() === walletInstance.walletAddress.toLowerCase());
@@ -136,6 +145,13 @@ export default {
         return amount;
       }
       return '-';
+    },
+    async addToken(token) {
+      let params = {
+        type: 'ERC20',
+        options: {...token}
+      };      
+      window.ethereum.request({ method: 'wallet_watchAsset', params });
     }
   }
 }

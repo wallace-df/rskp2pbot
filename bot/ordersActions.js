@@ -35,11 +35,6 @@ const createOrder = async (
   }
 ) => {
   try {
-    const fee = await getFee(amount, community_id);
-    // Global fee values at the moment of the order creation
-    // We will need this to calculate the final amount
-    const botFee = parseFloat(process.env.MAX_FEE);
-    const communityFee = parseFloat(process.env.FEE_PERCENT);
     const token = getToken(tokenCode);
     const currency = getCurrency(fiatCode);
     const priceFromAPI = (amount === '0');
@@ -56,13 +51,12 @@ const createOrder = async (
 
     const fairPrice = await fetchFairMarketPrice(fiatCode, token.code);
     const fiatAmountData = getFiatAmountData(fiatAmount);
+    const fee = await getFee(amount);
 
     const baseOrderData = {
       ...fiatAmountData,
       amount,
       fee,
-      bot_fee: botFee,
-      community_fee: communityFee,
       creator_id: user._id,
       type,
       status,
@@ -84,10 +78,10 @@ const createOrder = async (
         priceMargin,
         fairPrice,
         priceFromAPI,
-        currency,
+        currency
       }),
       range_parent_id,
-      community_id,
+      community_id
     };
 
     let order;
@@ -95,13 +89,13 @@ const createOrder = async (
     if (type === 'sell') {
       order = new Order({
         seller_id: user._id,
-        ...baseOrderData,
+        ...baseOrderData
       });
     } else {
       order = new Order({
         buyer_id: user._id,
         buyer_address: walletAddress,
-        ...baseOrderData,
+        ...baseOrderData
       });
     }
     await order.save();
@@ -142,34 +136,45 @@ const buildDescription = async (
   }
 ) => {
   try {
-    const action = type === 'sell' ? i18n.t('selling') : i18n.t('buying');
+    let action = type === 'sell' ? i18n.t('selling') : i18n.t('buying');
+    let volumeTradedObj = {};
+
+    if (user.volume_traded_json) {
+      try {
+        volumeTradedObj = JSON.parse(user.volume_traded_json);
+      } catch(err) {
+        volumeTradedObj = {};
+      }
+    }
+
+    console.log(user);
+
+    if (!volumeTradedObj[token.code]) {
+      volumeTradedObj[token.code] = '0';
+    }
+
     const hashtag = `#${type.toUpperCase()}${fiatCode}\n`;
-    const paymentAction =
-      type === 'sell' ? i18n.t('receive_payment') : i18n.t('pay');
+    const paymentAction = type === 'sell' ? i18n.t('receive_payment') : i18n.t('pay');
     const trades = user.trades_completed;
-    const volume = numberFormat(fiatCode, user.volume_traded);
+    const volume = formatUnit(volumeTradedObj[token.code], token.decimals) + ' ' + token.symbol;
     const totalRating = user.total_rating;
     const totalReviews = user.total_reviews;
-    const username = user.show_username
-      ? `@${user.username} ` + i18n.t('is') + ` `
-      : ``;
-    const volumeTraded = user.show_volume_traded
-      ? i18n.t('trading_volume', { volume }) + `\n`
-      : ``;
-    priceMargin =
-      !!priceMargin && priceMargin > 0 ? `+${priceMargin}` : priceMargin;
+    const username = user.show_username ? `@${user.username} ` + i18n.t('is') + ` ` : ``;
+    const volumeTraded = user.show_volume_traded ? (`\n` + i18n.t('trading_volume', { volume })) : ``;
+    priceMargin = !!priceMargin && priceMargin > 0 ? `+${priceMargin}` : priceMargin;
     const priceMarginText = priceMargin ? `${priceMargin}%` : ``;
 
-    const fiatAmountString = fiatAmount
-      .map(amt => numberFormat(fiatCode, amt))
-      .join(' - ');
+    const fiatAmountString = fiatAmount.map(amt => numberFormat(fiatCode, amt)).join(' - ');
 
     let currencyString = `${fiatCode} ${fiatAmountString}`;
 
-    if (currency)
+    if (currency) {
       currencyString = `${fiatAmountString} ${currency.name_plural} ${currency.emoji}`;
-    let amountText = `${formatUnit(amount, token.decimals)} ${token.code}`;
+    }
+
+    let amountText = `${formatUnit(amount, token.decimals)} ${token.symbol}`;
     let tasaText = '';
+
     if (priceFromAPI) {
       amountText = `${token.code}`;
       tasaText = i18n.t('rate') + `: ${process.env.FIAT_RATE_NAME} ${priceMarginText}\n`;
@@ -181,22 +186,27 @@ const buildDescription = async (
       tasaText += i18n.t('fair_price') + `: ${symbol} ${numberFormat(fiatCode, Number(fairPrice))}\n`;
     }
 
+    tasaText = '\n\n' + tasaText;
+
     let rateText = '';
     if (totalRating) {
       const stars = getEmojiRate(totalRating);
-      const roundedRating = decimalRound(totalRating, -1);
-      rateText = `${roundedRating} ${stars} (${totalReviews})\n`;
+      rateText = `\nTotal reviews: ${totalReviews}\n`;
+      rateText += `Rating: ${stars}`
     }
 
-    let description =
-      `${username}${action} ${amountText}\n`;
+    if (username.length) {
+      action = action.toLowerCase();
+    }
+
+    let description = `${username}${action} ${amountText}\n`;
     description += i18n.t('for') + ` ${currencyString}\n`;
     description += `${paymentAction} ` + i18n.t('by') + ` ${paymentMethod}\n`;
-    description += i18n.t('has_successful_trades', { trades }) + `\n`;
+    description += `${hashtag}\n`;
+    description += i18n.t('successful_trades', { trades });
     description += volumeTraded;
-    description += hashtag;
-    description += tasaText;
     description += rateText;
+    description += tasaText;
 
     return description;
   } catch (error) {

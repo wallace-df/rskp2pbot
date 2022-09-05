@@ -72,6 +72,22 @@ export default {
             let formattedAmount = NumberUtils.formatUnit(amount.toString(), token.decimals) + " " + token.symbol;
             return formattedAmount;
         },
+
+        formatOrderAmount(order) {
+            let amount = this.formatAmount(this.toBN(order.amount), this.getTokenByAddress(order.tokenContractAddress))
+            if (amount) {
+                return amount;
+            }
+            return '-';
+        },
+        
+        formatOrderFee(order) {
+            let amount = this.formatAmount(this.toBN(order.fee), this.getTokenByAddress(order.tokenContractAddress))
+            if (amount) {
+                return amount;
+            }
+            return '-';
+        },
         
         showError(err) {
             console.log(err);
