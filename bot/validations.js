@@ -119,7 +119,7 @@ const validateSellOrder = async ctx => {
     }
 
     if (fiatAmount.some(x => x < 1)) {
-      await messages.mustBeGreatherEqThan(ctx, 'monto_en_fiat', 1);
+      await messages.mustBeGreatherEqThan(ctx, 'fiat_amount', 1);
       return false;
     }
 
