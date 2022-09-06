@@ -19,8 +19,8 @@
           <td>{{timestamp}}</td>
         </tr>
         <tr>
-          <th>Buyer Address</th>
-          <td>{{buyerAddress.toLowerCase()}}</td>
+          <th>Buyer address</th>
+          <td>{{buyerAddress}}</td>
         </tr>
         <tr>
           <th>Amount</th>
@@ -32,8 +32,8 @@
     <div class="text-center mt-4">
       <button class="btn btn-primary btn-block" disabled v-if="releasing">Releasing funds...</button>
       <button class="btn btn-success btn-block" disabled v-else-if="released">Funds already released to buyer</button>
-      <button class="btn btn-warning btn-block" disabled v-else-if="refunded">Funds have been refunded to seller</button>
-      <button class="btn btn-primary btn-block" v-else @click="release()">Release</button>
+      <button class="btn btn-warning btn-block" disabled v-else-if="refunded">Seller has been refunded</button>
+      <button class="btn btn-primary btn-block" v-else @click="release()">Release {{amount}}</button>
     </div>
 
   </div>
@@ -99,12 +99,8 @@ export default {
         }
 
         this.buyerAddress = order.buyerAddress;
-        this.amount = this.formatAmount(order.amount, this.getTokenByAddress(order.tokenContractAddress));
+        this.amount = this.formatOrderAmount(order);
         this.timestamp = this.formatTimestamp(order.timestamp);
-
-        if (this.amount === null) {
-          throw "There was an error fetching details: order amount invalid.";
-        }
 
         this.$store.commit("setLoading", false);
 

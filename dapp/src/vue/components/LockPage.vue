@@ -5,6 +5,10 @@
   <div class="loading_container" v-else-if="error">
     <h2 class="text-danger">{{error}}</h2>
   </div>
+  <div class="loading_container" v-else-if="alreadyEscrowed">
+    <h2 class="text-success mb-4">Funds already locked for order <i class="text-secondary">{{this.orderId}}</i></h2>
+    <p class="text-dark fs-4">Click <router-link :to="'/rskp2pbot-dapp/status?orderId=' + orderId">here</router-link> to check the updated status.</p>
+  </div>
   <div class="loading_container" v-else-if="locked">
     <h2 class="text-success mb-4">Funds successfully locked for order <i class="text-secondary">{{this.orderId}}</i></h2>
     <p class="text-primary">Your order will automatically updated shortly and you can close this window.</p>
@@ -52,8 +56,6 @@ import Config from "../../../resources/config.js";
 import Wallet from "../../js/services/wallet.js";
 
 export default {
-  name: "HomePage",
-
   components: { },
 
   created() {
@@ -75,6 +77,7 @@ export default {
       error: null,
       locking: false,
       locked: false,
+      alreadyEscrowed: false
     }
   },
 
@@ -116,12 +119,13 @@ export default {
         let order = await walletInstance.contract.methods.orderById(this.orderId).call();
 
         if (order.status !== "0") {
-          throw "OrderID already exists. Please, verify your link.";
+          this.alreadyEscrowed = true;
+        } else {
+          this.buyerAddress = this.buyerAddress.toLowerCase();
+          this.sellerAddress = walletInstance.walletAddress.toLowerCase();
+          this.totalAmount = this.toBN(this.amount).add(this.toBN(this.fee));
         }
 
-        this.buyerAddress = this.buyerAddress.toLowerCase();
-        this.sellerAddress = walletInstance.walletAddress.toLowerCase();
-        this.totalAmount = this.toBN(this.amount).add(this.toBN(this.fee));
         this.$store.commit("setLoading", false);
 
       } catch(err) {

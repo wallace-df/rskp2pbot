@@ -19,12 +19,20 @@
           <td>{{timestamp}}</td>
         </tr>
         <tr>
-          <th>Seller Address</th>
-          <td>{{sellerAddress.toLowerCase()}}</td>
+          <th>Seller address</th>
+          <td>{{sellerAddress}}</td>
         </tr>
         <tr>
-          <th>Amount</th>
-          <td>{{amount}}</td>
+          <th>Order amount</th>
+          <td>{{orderAmount}}</td>
+        </tr>
+        <tr>
+          <th>Fee</th>
+          <td>{{feeAmount}}</td>
+        </tr>
+        <tr>
+          <th>Total</th>
+          <td>{{totalAmount}}</td>
         </tr>
       </tbody>
     </table>
@@ -33,7 +41,7 @@
       <button class="btn btn-primary btn-block" disabled v-if="refunding">Refunding seller...</button>
       <button class="btn btn-warning btn-block" disabled v-else-if="released">Funds have been released to buyer</button>
       <button class="btn btn-success btn-block" disabled v-else-if="refunded">Seller already refunded</button>
-      <button class="btn btn-primary btn-block" v-else @click="refund()">Refund</button>
+      <button class="btn btn-primary btn-block" v-else @click="refund()">Refund {{totalAmount}}</button>
     </div>
 
   </div>
@@ -43,8 +51,6 @@
 import Wallet from "../../js/services/wallet.js";
 
 export default {
-  name: "HomePage",
-
   components: { },
 
   created() {
@@ -57,7 +63,9 @@ export default {
       orderId: null,
       timestamp: null,
       sellerAddress: null,
-      amount: null,
+      orderAmount: null,
+      feeAmount: null,
+      totalAmount: null,
       error: null,
       refunding: false,
       released: false,
@@ -94,17 +102,13 @@ export default {
           throw "There was an error fetching details: order status not supported.";
         }
 
-        this.sellerAddress = order.sellerAddress;
-        this.amount = this.formatAmount(this.toBN(order.amount).add(this.toBN(order.fee)), this.getTokenByAddress(order.tokenContractAddress));
         this.timestamp = this.formatTimestamp(order.timestamp);
+        this.sellerAddress = order.sellerAddress.toLowerCase();
+        this.orderAmount = this.formatOrderAmount(order);
+        this.feeAmount = this.formatOrderFeeAmount(order);
+        this.totalAmount = this.formatOrderTotalAmount(order);
         
-        if (this.amount === null) {
-          throw "There was an error fetching details: order amount invalid.";
-        }
-
-
         this.$store.commit("setLoading", false);
-
       } catch(err) {
         this.error = err;
         this.$store.commit("setLoading", false);

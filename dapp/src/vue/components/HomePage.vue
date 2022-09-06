@@ -22,22 +22,24 @@
             <td>{{formatTimestamp(order.timestamp)}}</td>
           </tr>
           <tr>
-            <th>Seller Address</th>
+            <th>Seller address</th>
             <td>{{order.sellerAddress.toLowerCase()}}</td>
           </tr>
           <tr>
-            <th>Buyer Address</th>
+            <th>Buyer address</th>
             <td>{{order.buyerAddress.toLowerCase()}}</td>
           </tr>
           <tr>
-            <th>Amount</th>
-            <td>
-              {{formatOrderAmount(order)}}
-            </td>
+            <th>Order Amount</th>
+            <td>{{formatOrderAmount(order)}}</td>
           </tr>
           <tr>
             <th>Fee</th>
-            <td>{{formatOrderFee(order)}}</td>
+            <td>{{formatOrderFeeAmount(order)}}</td>
+          </tr>
+          <tr>
+            <th>Total</th>
+            <td>{{formatOrderTotalAmount(order)}}</td>
           </tr>
         </tbody>
       </table>
@@ -58,20 +60,16 @@
             <td>{{formatTimestamp(order.timestamp)}}</td>
           </tr>
           <tr>
-            <th>Seller Address</th>
+            <th>Seller address</th>
             <td>{{order.sellerAddress.toLowerCase()}}</td>
           </tr>
           <tr>
-            <th>Buyer Address</th>
+            <th>Buyer address</th>
             <td>{{order.buyerAddress.toLowerCase()}}</td>
           </tr>
           <tr>
-            <th>Amount</th>
+            <th>Order Amount</th>
             <td>{{formatOrderAmount(order)}}</td>
-          </tr>
-          <tr>
-            <th>Fee</th>
-            <td>{{formatOrderFee(order)}}</td>
           </tr>
         </tbody>
       </table>
@@ -83,8 +81,6 @@
 import Wallet from "../../js/services/wallet.js";
 
 export default {
-  name: "HomePage",
-
   components: { },
 
   created() {
@@ -112,13 +108,11 @@ export default {
       try {
         let walletInstance = await Wallet.getInstance();
         let userOrders = await walletInstance.contract.methods.userOrders(walletInstance.walletAddress).call();
-        let lockedOrders = userOrders.filter(order => order.status === '2');
+        let lockedOrders = userOrders.filter(order => order.status === '1');
         
         for(let i = 0; i < lockedOrders.length; i++) {
           lockedOrders[i] = {...lockedOrders[i]};
           lockedOrders[i].token = this.getTokenByAddress(lockedOrders[i].tokenContractAddress);
-          lockedOrders[i].token = this.getTokenByAddress('0x19f64674d8a5b4e652319f5e239efd3bc969a1fe');
-
         }
 
         this.sellerOrders = lockedOrders.filter(order => order.sellerAddress.toLowerCase() === walletInstance.walletAddress.toLowerCase());
@@ -130,28 +124,6 @@ export default {
         this.error = err;
         this.$store.commit("setLoading", false);
       }
-    },
-
-    formatOrderAmount(order) {
-      let amount = this.formatAmount(this.toBN(order.amount), this.getTokenByAddress(order.tokenContractAddress))
-      if (amount) {
-        return amount;
-      }
-      return '-';
-    },
-    formatOrderFee(order) {
-      let amount = this.formatAmount(this.toBN(order.fee), this.getTokenByAddress(order.tokenContractAddress))
-      if (amount) {
-        return amount;
-      }
-      return '-';
-    },
-    async addToken(token) {
-      let params = {
-        type: 'ERC20',
-        options: {...token}
-      };      
-      window.ethereum.request({ method: 'wallet_watchAsset', params });
     }
   }
 }
