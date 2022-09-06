@@ -841,14 +841,25 @@ const successCancelAllOrdersMessage = async ctx => {
 
 const successCancelOrderByAdminMessages = async (bot, order, buyer, seller, i18nBuyer, i18nSeller) => {
   try {
+    let token = getToken(order.token_code);
+    let currency = getCurrency(order.fiat_code);
+    let formattedOrderAmount = formatUnit(order.amount, token.decimals) + ' ' + token.symbol;
+    let formattedFeeAmount = formatUnit(order.fee, token.decimals) + ' ' + token.symbol;
+    let formattedTotalAmount = formatUnit(getOrderTotalAmount(order), token.decimals) + ' ' + token.symbol;
+    let fiatAmount = numberFormat(order.fiat_code, order.fiat_amount);
+
+    currency = !!currency && !!currency.symbol_native ? currency.symbol_native : order.fiat_code;
+
     await bot.telegram.sendMessage(
       buyer.tg_id,
-      i18nBuyer.t('to_buyer_order_cancelled_by_admin', { orderId: order._id })
+      i18nBuyer.t('to_buyer_order_cancelled_by_admin', { orderId: order._id, formattedAmount: formattedOrderAmount, fiatAmount, currency }),
+      { parse_mode: "markdown" }
     );
 
     await bot.telegram.sendMessage(
       seller.tg_id,
-      i18nSeller.t('to_seller_order_cancelled_by_admin', { orderId: order._id })
+      i18nSeller.t('to_seller_order_cancelled_by_admin', { orderId: order._id, formattedOrderAmount, formattedFeeAmount, formattedTotalAmount, fiatAmount, currency }),
+      { parse_mode: "markdown" }
     );
 
     await bot.telegram.sendMessage(
@@ -871,15 +882,26 @@ const successCompleteOrderMessage = async (ctx, order) => {
 
 const successCompleteOrderByAdminMessages = async (bot, order, buyer, seller, i18nBuyer, i18nSeller) => {
   try {
+    let token = getToken(order.token_code);
+    let currency = getCurrency(order.fiat_code);
+    let formattedOrderAmount = formatUnit(order.amount, token.decimals) + ' ' + token.symbol;
+    let formattedFeeAmount = formatUnit(order.fee, token.decimals) + ' ' + token.symbol;
+    let formattedTotalAmount = formatUnit(getOrderTotalAmount(order), token.decimals) + ' ' + token.symbol;
+    let fiatAmount = numberFormat(order.fiat_code, order.fiat_amount);
+
+    currency = !!currency && !!currency.symbol_native ? currency.symbol_native : order.fiat_code;
+
     await bot.telegram.sendMessage(
       buyer.tg_id,
-      i18nBuyer.t('to_buyer_order_completed_by_admin', { orderId: order._id })
+      i18nBuyer.t('to_buyer_order_completed_by_admin', { orderId: order._id, formattedAmount: formattedOrderAmount, fiatAmount, currency }),
+      { parse_mode: "markdown" }
     );
 
     await bot.telegram.sendMessage(
       seller.tg_id,
-      i18nSeller.t('to_seller_order_completed_by_admin', { orderId: order._id })
-    );
+      i18nSeller.t('to_seller_order_completed_by_admin', { orderId: order._id, formattedOrderAmount, formattedFeeAmount, formattedTotalAmount, fiatAmount, currency }),
+      { parse_mode: "markdown" }
+      );
 
     await bot.telegram.sendMessage(
       process.env.ADMIN_CHANNEL,

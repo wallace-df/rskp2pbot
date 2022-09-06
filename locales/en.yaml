@@ -32,8 +32,10 @@ start: |
   7. If your order has been taken and you want to cancel it, you can proceed with a cooperative cancellation (if both parties agree). You both should use /cancel command.
 
   Make a quick and safe transaction!
-init_bot_error: to use this bot you need to first initialize it with the command /start
-non_handle_error: 👤 To use this bot you need to activate your Telegram Username. To activate it, open the hamburger menu on the top left and select Settings -> Edit profile -> Username
+init_bot_error: |
+  🤖 To use this bot you need to first initialize it with the command /start
+non_handle_error: |
+  👤 To use this bot you need to activate your Telegram Username. To activate it, open the hamburger menu on the top left and select Settings -> Edit profile -> Username
 help: |
   /sell <_token amount_> <_token code_> <_fiat amount_> <_fiat code_> <_payment method_> [premium/discount] - Creates a sell order.
   /buy <_token amount_> <_token code_> <_wallet address_> <_fiat amount_> <_Fiat code_> <_payment method_> [premium/discount] - Creates a buy order.
@@ -572,21 +574,24 @@ order_detail: |
   Premium/discount: ${priceMargin}
   Created: ${createdAt}
   Taken: ${takenAt || ''}
-must_be_numeric: 🤖 ${fieldName} must be numeric
-order_id_invalid: ⛔ Invalid order ID
-order_invalid_type: ⛔ This ${type} order is invalid
-order_already_taken: 🤖 This order has already been taken by another user.
-invalid_data: ⛔ You have sent invalid data, try again.
-continue: Continue
-cancel: Cancel
-invalid_wallet_address: ⛔ Invalid wallet adress. Please copy-paste your RSK address.
-cant_process_order: ⛔ This order cannot be processed, please check if the ID is correct.
-cant_release_order: ⛔ This order cannot be released, the buyer has not sent the wallet address where to pay
-no_id_related: 🤖 You do not have any order associated with this ID.
-sell_tokens: Sell ${tokenCode}
-buy_tokens: Buy ${tokenCode}
-seller: seller
-buyer: buyer
+must_be_numeric: |
+  🤖 ${fieldName} must be numeric.
+order_id_invalid: | 
+  ⛔ Invalid order ID.
+order_invalid_type: |
+  ⛔ This ${type} order is invalid.
+order_already_taken: |
+  🤖 This order has already been taken by another user.
+invalid_data: | 
+  ⛔ You have sent invalid data, try again.
+invalid_wallet_address: |
+  ⛔ Invalid wallet adress. Please copy-paste your RSK address.
+cant_process_order: |
+ ⛔ This order cannot be processed, please check if the ID is correct.
+cant_release_order: | 
+  ⛔ This order cannot be released, the buyer has not sent the wallet address where to pay.
+no_id_related: | 
+  🤖 You do not have any order associated with this ID.
 must_be_valid_token: |
   🤖 Invalid token code.
   
@@ -605,9 +610,6 @@ you_have_orders_waiting: |
   🤖 You have one or more orders where the buyer informs that the fiat money was sent to you but you haven´t released the funds yet.
   
   You will not be able to create new orders until you release such funds.
-user_banned: Banned user!
-user_not_found: User was not found in the database!
-invalid_id: Invalid Id
 cant_take_own_order: | 
   ⛔ You cannot take your own order.
 send_me_wallet_address: |
@@ -632,19 +634,74 @@ cancel_success: |
   🤖 You have cancelled the order with id *${orderId}*.
 cancelall_success: |
   🤖 You have cancelled all your published orders!
-
-
-
-to_admin_order_cancelled_by_admin: 'Admin has cancelled the order with id ${orderId} and the seller was refunded.'
-to_seller_order_cancelled_by_admin: 'Admin has cancelled the order with id ${orderId} and you have been refunded.'
-to_buyer_order_cancelled_by_admin: 'Admin has cancelled the order with id ${orderId} and the seller was refunded.'
-to_admin_order_completed_by_admin: 'Admin has completed the order with id ${orderId} and funds were released to the buyer.'
-to_buyer_order_completed_by_admin: 'Admin has completed the order with id ${orderId} and funds were released to you.'
-to_seller_order_completed_by_admin: 'Admin has completed the order with id ${orderId} and funds were released to the buyer.'
-order_completed: 'You have completed the order with id ${orderId}!'
-
 cant_take_more_orders: |
   ⛔ Sorry! You can't take another order while you have others waiting for you.
+invalid_range_with_amount: |
+  🤖 Ranges are only avialble for floating rates
+
+  Use ranges or specify the amount of tokens, but do not write both of them
+too_many_pending_orders: |
+  ⛔ You have reached the maximum amount of orders that can be published simultaneously.
+select_language: |
+  🤖 Select language
+must_enter_text: |
+  🤖 You must enter only text
+to_admin_order_cancelled_by_admin: |
+  🚨 Admin has cancelled the order with id ${orderId} and the seller was refunded.
+to_admin_order_completed_by_admin: |
+  💸 Admin has completed the order with id ${orderId} and funds were released to the buyer.
+to_seller_order_cancelled_by_admin: |
+  💸 Admin has cancelled the following order and you have been refunded *${formattedTotalAmount}*.
+
+  `-------------------------------`
+  *Order ID*    _${orderId}_
+
+  *Amount*    _${formattedOrderAmount}_
+  *Fee*           _${formattedFeeAmount}_
+  *Total*        _${formattedTotalAmount}_
+
+  *Fiat*          _${currency} ${fiatAmount}_
+  `-------------------------------`
+to_seller_order_completed_by_admin: |
+  🚨 Admin has completed the following order and *${formattedTotalAmount}* have been released to the buyer.
+
+  `-------------------------------`
+  *Order ID*    _${orderId}_
+
+  *Amount*    _${formattedOrderAmount}_
+  *Fee*           _${formattedFeeAmount}_
+  *Total*        _${formattedTotalAmount}_
+
+  *Fiat*          _${currency} ${fiatAmount}_
+  `-------------------------------`
+to_buyer_order_cancelled_by_admin: |
+  🚨 Admin has cancelled the following order and the seller has been refunded.
+  
+  `-------------------------------`
+  *Order ID:*
+  _${orderId}_
+  
+  *Amount:*
+  _${formattedAmount}_
+
+  *Fiat amount:*
+  _${currency} ${fiatAmount}_
+  `-------------------------------`
+to_buyer_order_completed_by_admin: |
+  💸 Admin has completed the following order and *${formattedAmount}* have been released to you.
+  
+  `-------------------------------`
+  *Order ID:*
+  _${orderId}_
+  
+  *Amount:*
+  _${formattedAmount}_
+
+  *Fiat amount:*
+  _${currency} ${fiatAmount}_
+  `-------------------------------`
+order_completed: |
+  🤖 You have completed the order with id ${orderId}. 
 seller_released: |
   💸 Seller has already released your funds.
 problem_getting_price: |
@@ -653,12 +710,15 @@ problem_getting_price: |
   If the problem persists, please contact an administrator.
 update_user_setting: |
   🤖 I have modify the field ${field} to ${newState}.
-invalid_range_with_amount: |
-  🤖 Ranges are only avialble for floating rates
-
-  Use ranges or specify the amount of tokens, but do not write both of them
-too_many_pending_orders: |
-  ⛔ You have reached the maximum amount of orders that can be published simultaneously.
+continue: Continue
+cancel: Cancel
+sell_tokens: Sell ${tokenCode}
+buy_tokens: Buy ${tokenCode}
+seller: seller
+buyer: buyer
+user_banned: Banned user!
+user_not_found: User was not found in the database!
+invalid_id: Invalid Id
 name: Name
 group: Group
 channel: Channel
@@ -667,10 +727,21 @@ published: Published
 created: Created
 yes: Yes
 no: No
+selling: Selling
+buying: Buying
+receive_payment: Receive payment
+pay: Pay
+is: is
+trading_volume: 'Trading volume: ${volume}'
+by: by
+rate: Rate
+successful_trades: 'Successful trades: ${trades}'
+order_price: Order price
+fair_price: Fair market price
+for: For
 wizard_to_exit: /exit to exit the wizard.
 wizard_exit: |
   🤖 You have exit wizard mode, you can now write commands
-
 wizard_community_enter_name: Pick a name for your community
 wizard_community_too_long_name: The name can have a maximum length of ${length} characters.
 wizard_community_enter_currency: Enter the code of the fiat currency(ies) with which users can operate in this community, if there is more than one you must enter each code separated by a blank space.
@@ -699,18 +770,6 @@ wizard_add_fiat_amount: |
   Remember it must be only numbers and be between ${minAmount} and ${maxAmount}:
 wizard_add_fiat_wrong_amount: Invalid amount, input must be between ${minAmount} and ${maxAmount}, it must be only numbers.
 wizard_add_fiat_correct_amount: 'Amount: ${currency} ${fiatAmount}.'
-selling: Selling
-buying: Buying
-receive_payment: Receive payment
-pay: Pay
-is: is
-trading_volume: 'Trading volume: ${volume}'
-by: by
-rate: Rate
-successful_trades: 'Successful trades: ${trades}'
-order_price: Order price
-fair_price: Fair market price
-for: For
 generic_error: An error occurred
 no_capital_letters: 🤖 You are trying to execute a command with the first letter capitalized. Please write the entire command in lowercase.
 unknown_command: 😕 I do not understand. Please use /help to see the list of available commands
@@ -776,8 +835,6 @@ withdraw_earnings: Withdraw earnings
 what_to_do: What do you want to do?
 community: Community
 seller_already_released: Don't worry the seller already released the funds 🥲
-select_language: Select language
-must_enter_text: You must enter only text
 current_earnings: |
   Orders completed so far in the community: ${ordersToRedeem}
 
