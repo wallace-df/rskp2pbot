@@ -60,7 +60,11 @@
 </template>
 
 <script>
-import Wallet from "../../js/services/wallet.js";
+import Web3 from "web3";
+import Config from "../../../resources/config.js";
+
+const CONTRACT_ADDRESS = Config.contractAddresses[process.env.NODE_ENV];
+const NODE_URL = Config.nodeURLs[process.env.NODE_ENV];
 
 export default {
   components: { },
@@ -104,8 +108,10 @@ export default {
           throw "OrderID not specified. Please, verify your link.";
         }
 
-        let walletInstance = await Wallet.getInstance();
-        let order = await walletInstance.contract.methods.orderById(this.orderId).call();
+        let web3 = new Web3(NODE_URL);
+        let contract = new web3.eth.Contract(Config.rskEscrowABI, CONTRACT_ADDRESS);
+
+        let order = await contract.methods.orderById(this.orderId).call();
         this.token = this.getTokenByAddress(order.tokenContractAddress);
 
         if (!this.token) {

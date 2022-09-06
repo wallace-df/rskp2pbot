@@ -1,16 +1,24 @@
+const NODE_URLS = {
+    development: "https://public-node.testnet.rsk.co",
+    test: "https://public-node.testnet.rsk.co",
+    production: "https://public-node.rsk.co"
+};
+
 export default {
+
+    nodeURLs: NODE_URLS,
 
     wallets: {
 
         rpcUrls: {
             development: {
-                31: "https://public-node.testnet.rsk.co"
+                31: NODE_URLS['development']
             },
             test: {
-                31: "https://public-node.testnet.rsk.co"
+                31: NODE_URLS['test']
             },
             production: {
-                30: "https://public-node.rsk.co"
+                30: NODE_URLS['production']
             }
         },
 
@@ -18,21 +26,21 @@ export default {
             development: {
                 id: "a1c8672b-7b1c-476b-b3d0-41c27d575920",
                 network: {
-                    nodeUrl: "https://public-node.testnet.rsk.co",
+                    nodeUrl: NODE_URLS['development'],
                     chainId: 31
                 }
             },
             test: {
                 id: "a1c8672b-7b1c-476b-b3d0-41c27d575920",
                 network: {
-                    nodeUrl: "https://public-node.testnet.rsk.co",
+                    nodeUrl: NODE_URLS['test'],
                     chainId: 31
                 }
             },
             production: {
                 id: "a1c8672b-7b1c-476b-b3d0-41c27d575920",
                 network: {
-                    nodeUrl: "https://public-node.rsk.co",
+                    nodeUrl: NODE_URLS['production'],
                     chainId: 30
                 }
             }
