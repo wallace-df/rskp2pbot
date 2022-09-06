@@ -1,7 +1,7 @@
 const state = {
     loading: false,
     activeSection: "",
-    activeWallet: null
+    activeConnection: null
 };
 
 const mutations = {
@@ -13,8 +13,8 @@ const mutations = {
         state.activeSection = activeSection;
     },
 
-    setActiveWallet(state, activeWallet) {
-        state.activeWallet = activeWallet;
+    setActiveConnection(state, activeConnection) {
+        state.activeConnection = activeConnection;
     }
 };
 

@@ -5,8 +5,8 @@
   <div class="loading_container" v-else-if="error">
     <h2 class="text-danger">{{error}}</h2>
   </div>
-  <div class="p-5" v-else>
-    <div>
+  <div v-else>
+    <div class="p-5">
       <h2 class="text-success text-center mb-4">Your locked funds <i class="text-secondary">(seller)</i></h2>
       <div v-if="sellerOrders.length === 0" class="text-center">
         <i class="text-primary">(You have no locked funds)</i>
@@ -92,14 +92,14 @@ export default {
     return { 
       sellerOrders: [],
       buyerOrders: [],
-      error: null,
+      error: null
     }
   },
 
   computed: {
     loading() {
       return this.$store.state.loading;
-    },
+    }
   },
 
   methods: {
@@ -118,6 +118,7 @@ export default {
         this.sellerOrders = lockedOrders.filter(order => order.sellerAddress.toLowerCase() === walletInstance.walletAddress.toLowerCase());
         this.buyerOrders = lockedOrders.filter(order => order.buyerAddress.toLowerCase() === walletInstance.walletAddress.toLowerCase());
 
+        this.$store.commit("setActiveConnection", {networkName:  walletInstance.networkName, walletAddress:  walletInstance.walletAddress});
         this.$store.commit("setLoading", false);
 
       } catch(err) {

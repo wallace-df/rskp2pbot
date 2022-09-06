@@ -55,6 +55,10 @@ export default {
             return tokenByAddress[tokenAddress.toLowerCase()];
         },
 
+        formatAddress(address){
+            return (address.substring(0, 7) + '...' + address.substring(address.length - 5)).toLowerCase();
+        },
+
         formatTimestamp(timestamp) {
             return TimeUtils.formatTimestamp(timestamp);
         },

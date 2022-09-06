@@ -126,6 +126,7 @@ export default {
           this.totalAmount = this.toBN(this.amount).add(this.toBN(this.fee));
         }
 
+        this.$store.commit("setActiveConnection", {networkName:  walletInstance.networkName, walletAddress:  walletInstance.walletAddress});
         this.$store.commit("setLoading", false);
 
       } catch(err) {

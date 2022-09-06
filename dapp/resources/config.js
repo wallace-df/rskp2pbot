@@ -8,6 +8,12 @@ export default {
 
     nodeURLs: NODE_URLS,
 
+    networkNames: {
+        development: "RSK Testnet",
+        test: "RSK Testnet",
+        production: "RSK Mainnet"
+    },
+
     wallets: {
 
         rpcUrls: {

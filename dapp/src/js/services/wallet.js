@@ -41,7 +41,7 @@ const RLOGIN = new RLogin({
 });
 
 const CONTRACT_ADDRESS = Config.contractAddresses[process.env.NODE_ENV]
-
+const NETWORK_NAME = Config.networkNames[process.env.NODE_ENV];
 let instance = null;
 
 export default {
@@ -58,6 +58,7 @@ export default {
     instance = {
       walletAddress: walletAddress,
       web3Instance: web3,
+      networkName: NETWORK_NAME,
       contract: new web3.eth.Contract(Config.rskEscrowABI, CONTRACT_ADDRESS),
     }
 
