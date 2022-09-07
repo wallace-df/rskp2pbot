@@ -1292,11 +1292,19 @@ const toSellerDidntLockTokensMessage = async (bot, user, order, i18n) => {
 
     currency = !!currency && !!currency.symbol_native ? currency.symbol_native : order.fiat_code;
 
-    await bot.telegram.sendMessage(
-      user.tg_id,
-      i18n.t('you_havent_locked_tokens', { order: order, formattedOrderAmount, formattedFeeAmount, formattedTotalAmount, fiatAmount, currency, dappPage: process.env.DAPP_PAGE }),
-      { parse_mode: 'markdown' }
-    );
+    if (order.amount === '0' || !order.fiat_amount || !order.seller_hash) {
+      await bot.telegram.sendMessage(
+        user.tg_id,
+        i18n.t('you_havent_accepted_buy_order', { orderId: order._id}),
+        { parse_mode: 'markdown' }
+      );  
+    } else {
+      await bot.telegram.sendMessage(
+        user.tg_id,
+        i18n.t('you_havent_locked_tokens', { order: order, formattedOrderAmount, formattedFeeAmount, formattedTotalAmount, fiatAmount, currency, dappPage: process.env.DAPP_PAGE }),
+        { parse_mode: 'markdown' }
+      );  
+    }
   } catch (error) {
     logger.error(error);
   }

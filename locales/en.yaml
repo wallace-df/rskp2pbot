@@ -290,6 +290,10 @@ lock_tokens_for_buy_order: |
   [Lock ${formattedTotalAmount}](${dappPage}/lock?orderId=${order._id}&token=${order.token_code}&buyerAddress=${order.buyer_address}&buyerHash=${order.buyer_hash}&sellerHash=${order.seller_hash}&amount=${order.amount}&fee=${order.fee})
 
   You have *${expirationTime} minutes* to lock the tokens. After that, the trade will be cancelled and any locked tokens will be refunded to you.
+you_havent_accepted_buy_order: |
+  🤨 You have not accepted the terms for the order with id *${orderId}* and time has expired.
+
+  The operation was cancelled.
 you_havent_locked_tokens: |
   🤨 I could not detect that you have locked the tokens for the order below:
 

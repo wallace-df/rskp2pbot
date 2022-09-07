@@ -374,14 +374,14 @@ const cancelLockTokensRequest = async (ctx, bot, order, userAction) => {
         );
       }
 
-      await republishOrder(bot, order, buyer, seller);
-
       if (!userAction) {
         await messages.toSellerDidntLockTokensMessage(bot, seller, order, i18nCtxSeller);
         await messages.toAdminChannelSellerDidntLockTokensMessage(bot, seller, order, i18nCtxSeller);
       } else {
         await messages.successCancelOrderMessage(ctx, seller, order, i18nCtxSeller);
       }
+
+      await republishOrder(bot, order, buyer, seller);
 
     } else {
       await messages.toSellerDidntLockTokensMessage(bot, seller, order, i18nCtxSeller);
