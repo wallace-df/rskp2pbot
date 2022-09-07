@@ -617,16 +617,16 @@ send_me_wallet_address: |
 you_have_no_orders: |
   🤖 You don't have active orders.
 no_rate_for_currency: |
-  🤖 ${fiatRateProvider} Theres is no exchange rate for this currency,
-  if you want to use this currency you must indicate how many tokens you want
-  If you woud like this currency in the listing go to this link to place a request. 👇
+  🤖 ${fiatRateProvider}
+  There is no exchange rate for this currency.
 
+  If you would like this currency in the listing, please go to this link to place a request 👇
   🌐 https://yadio.io/api.html
 no_rate_for_token: |
-  🤖 ${fiatRateProvider} Theres is no exchange rate for this currency,
-  if you want to use this currency you must indicate how many tokens you want
-  If you woud like this currency in the listing go to this link to place a request. 👇
-
+  🤖 ${fiatRateProvider}
+  There is no exchange rate for this token.
+  
+  If you would like this token in the listing, go to this link to place a request 👇
   🌐 https://api3.org/beacons
 cancel_error: |
   ⛔ This order cannot be cancelled at this moment.
