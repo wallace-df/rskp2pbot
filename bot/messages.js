@@ -803,7 +803,7 @@ const noRateForToken = async (bot, user, i18n) => {
     await bot.telegram.sendMessage(
       user.tg_id,
       i18n.t('no_rate_for_token', {
-        fiatRateProvider: process.env.FIAT_RATE_NAME,
+        fiatRateProvider: 'API3',
       })
     );
   } catch (error) {

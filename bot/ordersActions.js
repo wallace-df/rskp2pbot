@@ -175,13 +175,36 @@ const buildDescription = async (
 
     if (priceFromAPI) {
       amountText = `${token.code}`;
-      tasaText = i18n.t('rate') + `: ${process.env.FIAT_RATE_NAME} ${priceMarginText}\n`;
+      if (token.stablecoin) {
+        if (fiatCode.toUpperCase() === 'USD') {
+          tasaText = i18n.t('rate') + `: 1 USD ${priceMarginText}\n`;
+        } else {
+          tasaText = i18n.t('rate') + `: 1 USD → ${process.env.FIAT_RATE_NAME} ${priceMarginText}\n`;
+        }
+      } else if (fiatCode.toUpperCase() === 'USD') {
+        tasaText = i18n.t('rate') + `: API3 ${priceMarginText}\n`;
+      } else {
+        tasaText = i18n.t('rate') + `: API3 → ${process.env.FIAT_RATE_NAME} ${priceMarginText}\n`;
+      }
     } else {
       const exchangePrice = calculateExchangePrice(fiatAmount[0], amount, token.decimals);
       const symbol = !!currency && !!currency.symbol_native ? currency.symbol_native : fiatCode;
+      let providerText;
+
+      if (token.stablecoin) {
+        if (fiatCode.toUpperCase() === 'USD') {
+          providerText = '';           
+        } else {
+          providerText = ` (${process.env.FIAT_RATE_NAME})`;           
+        }
+      } else if (fiatCode.toUpperCase() === 'USD') {
+        providerText = ' (API3)';
+      } else {
+        providerText = ` (API3 → ${process.env.FIAT_RATE_NAME})`;
+      }
 
       tasaText = i18n.t('order_price') + `: ${symbol} ${numberFormat(fiatCode, Number(exchangePrice))}\n`;
-      tasaText += i18n.t('fair_price') + `: ${symbol} ${numberFormat(fiatCode, Number(fairPrice))}\n`;
+      tasaText += i18n.t('fair_price') + `${providerText}: ${symbol} ${numberFormat(fiatCode, Number(fairPrice))}\n`;
     }
 
     tasaText = '\n\n' + tasaText;
