@@ -75,6 +75,13 @@ export default {
                 address: "0x19f64674d8a5b4e652319f5e239efd3bc969a1fe",
                 decimals: 18,
                 image: 'https://s2.coinmarketcap.com/static/img/coins/64x64/3701.png'
+            },
+            DOC: {
+                id: "DOC",
+                symbol: "DOC",
+                address: "0xcb46c0ddc60d18efeb0e586c17af6ea36452dae0",
+                decimals: 18,
+                image: 'https://static.moneyonchain.com/moc-alphatestnet/public/moc/icon-stable.svg'
             }
         },
         test: {
@@ -90,6 +97,13 @@ export default {
                 address: "0x19f64674d8a5b4e652319f5e239efd3bc969a1fe",
                 decimals: 18,
                 image: 'https://s2.coinmarketcap.com/static/img/coins/64x64/3701.png'
+            },
+            DOC: {
+                id: "DOC",
+                symbol: "DOC",
+                address: "0xcb46c0ddc60d18efeb0e586c17af6ea36452dae0",
+                decimals: 18,
+                image: 'https://static.moneyonchain.com/moc-alphatestnet/public/moc/icon-stable.svg'
             }
         }
     }

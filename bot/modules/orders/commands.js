@@ -162,7 +162,7 @@ async function enterWizard(ctx, user, type) {
     }
   }
 
-  state.tokens = ['RBTC', 'RIF'];
+  state.tokens = ['RBTC', 'RIF', 'DOC'];
   await ctx.scene.enter(Scenes.CREATE_ORDER, state);
 }
 

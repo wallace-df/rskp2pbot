@@ -145,7 +145,7 @@ export default {
         if (this.token.id === "RBTC") {
           let params = [this.orderId, this.buyerAddress, buyerHashBytes32, sellerHashBytes32, this.amount, this.fee];
           await walletInstance.contract.methods.escrowRBTC(...params).send({from: walletInstance.walletAddress, value: this.totalAmount});
-        } else if (this.token.id === "RIF") {
+        } else if (this.token.id === "RIF" || this.token.id === "DOC") {
 
           let erc20Contract = new walletInstance.web3Instance.eth.Contract(Config.erc20ABI, this.token.address);
           let allowance = await erc20Contract.methods.allowance(walletInstance.walletAddress, walletInstance.contract._address).call({from: walletInstance.walletAddress});

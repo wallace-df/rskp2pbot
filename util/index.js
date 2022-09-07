@@ -231,9 +231,10 @@ const fetchFairMarketPrice = async (fiatCode, tokenCode) => {
   }
 
   let usdRate = 0;
+  let base = new BigDecimal(new BN('10', 10).pow(new BN(String(token.decimals), 10)));
 
   if (token.stablecoin) {
-    usdRate = 1;
+    usdRate = new BigDecimal('1').multiply(base).getValue();
   } else {
     let response = await dapiServer.readDataFeedWithId(token.api3FeedId);
     usdRate = response.value;
@@ -253,7 +254,6 @@ const fetchFairMarketPrice = async (fiatCode, tokenCode) => {
     fiatRate = new BigDecimal(usdRate).multiply(new BigDecimal(String(response.data.rate)));
   }
 
-  let base = new BigDecimal(new BN('10', 10).pow(new BN(String(token.decimals), 10)));
   return fiatRate.divide(base, 8).getValue();  
 };
 
