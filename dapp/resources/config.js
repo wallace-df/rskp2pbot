@@ -78,7 +78,7 @@ export default {
             },
             DOC: {
                 id: "DOC",
-                symbol: "DOC",
+                symbol: "DoC",
                 address: "0xcb46c0ddc60d18efeb0e586c17af6ea36452dae0",
                 decimals: 18,
                 image: 'https://static.moneyonchain.com/moc-alphatestnet/public/moc/icon-stable.svg'
@@ -100,7 +100,7 @@ export default {
             },
             DOC: {
                 id: "DOC",
-                symbol: "DOC",
+                symbol: "DoC",
                 address: "0xcb46c0ddc60d18efeb0e586c17af6ea36452dae0",
                 decimals: 18,
                 image: 'https://static.moneyonchain.com/moc-alphatestnet/public/moc/icon-stable.svg'
