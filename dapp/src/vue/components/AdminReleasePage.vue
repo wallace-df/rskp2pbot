@@ -97,6 +97,7 @@ export default {
         this.amount = this.formatOrderAmount(order);
         this.timestamp = this.formatTimestamp(order.timestamp);
 
+        this.$store.commit("setActiveConnection", {networkName:  walletInstance.networkName, walletAddress:  walletInstance.walletAddress});
         this.$store.commit("setLoading", false);
 
       } catch(err) {

@@ -189,7 +189,7 @@ take_sell_get_in_touch_with_seller: |
   _${currency} ${fiatAmount}_
   `-------------------------------`
 
-  You can verify the transaction [here](${dappPage}/order/${orderId}).
+  You can verify the transaction [here](${dappPage}/status?orderId=${orderId}).
 
   Get in touch with the seller, @${sellerUsername}, so as to get the details on how to send *${currency} ${fiatAmount}* using *${paymentMethod}*.
 
@@ -214,7 +214,7 @@ take_sell_get_in_touch_with_buyer: |
   _${currency} ${fiatAmount}_
   `-------------------------------`
 
-  You can verify the transaction [here](${dappPage}/order/${orderId}).
+  You can verify the transaction [here](${dappPage}/status?orderId=${orderId}).
   
   Get in touch with buyer, @${buyerUsername}, so as to give information on how to send you *${currency} ${fiatAmount}* through *${paymentMethod}*. 
   
@@ -346,7 +346,7 @@ take_buy_get_in_touch_with_seller: |
   _${currency} ${fiatAmount}_
   `-------------------------------`
 
-  You can verify the transaction [here](${dappPage}/order/${orderId}).
+  You can verify the transaction [here](${dappPage}/status?orderId=${orderId}).
 
   Get in touch with the seller, @${sellerUsername}, so as to get the details on how to send ${currency} ${fiatAmount} using ${paymentMethod}.
 
@@ -374,7 +374,7 @@ take_buy_get_in_touch_with_buyer: |
   _${currency} ${fiatAmount}_
   `-------------------------------`
 
-  You can verify the transaction [here](${dappPage}/order/${orderId}).
+  You can verify the transaction [here](${dappPage}/status?orderId=${orderId}).
   
   Get in touch with buyer, @${buyerUsername}, so as to give information on how to send you *${currency} ${fiatAmount}* through *${paymentMethod}*. 
   
