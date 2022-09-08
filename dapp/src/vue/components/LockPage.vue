@@ -81,10 +81,21 @@ export default {
     }
   },
 
+  watch: {
+    activeConnection() {
+      if (!this.loading) {
+        this.loadParams();
+      }
+    }
+  },
+
   computed: {
     loading() {
       return this.$store.state.loading;
     },
+    activeConnection() {
+      return this.$store.state.activeConnection;
+    }
   },
 
   methods: {
@@ -126,7 +137,6 @@ export default {
           this.totalAmount = this.toBN(this.amount).add(this.toBN(this.fee));
         }
 
-        this.$store.commit("setActiveConnection", {networkName:  walletInstance.networkName, walletAddress:  walletInstance.walletAddress});
         this.$store.commit("setLoading", false);
 
       } catch(err) {

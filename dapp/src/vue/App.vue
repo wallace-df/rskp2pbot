@@ -8,11 +8,21 @@
 </template>
 
 <script>
+import Wallet from "../js/services/wallet.js";
 
 export default {
   name: "App",
 
   components: { },
+
+  created() {
+    let ctx = this;
+    Wallet.setConnectionListener(function(connection) {
+      if (connection) {
+        ctx.$store.commit("setActiveConnection", connection);
+      }
+    });
+  },
 
   data() {
     return {}

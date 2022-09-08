@@ -96,9 +96,20 @@ export default {
     }
   },
 
+  watch: {
+    activeConnection() {
+      if (!this.loading) {
+        this.loadOffers();
+      }
+    }
+  },
+
   computed: {
     loading() {
       return this.$store.state.loading;
+    },
+    activeConnection() {
+      return this.$store.state.activeConnection;
     }
   },
 
@@ -118,7 +129,6 @@ export default {
         this.sellerOrders = lockedOrders.filter(order => order.sellerAddress.toLowerCase() === walletInstance.walletAddress.toLowerCase());
         this.buyerOrders = lockedOrders.filter(order => order.buyerAddress.toLowerCase() === walletInstance.walletAddress.toLowerCase());
 
-        this.$store.commit("setActiveConnection", {networkName:  walletInstance.networkName, walletAddress:  walletInstance.walletAddress});
         this.$store.commit("setLoading", false);
 
       } catch(err) {
