@@ -1,4 +1,4 @@
-![p2pLNBot](logo-600.png)
+
 
 [![chat](https://img.shields.io/badge/chat-telegram-%2326A5E4)](https://t.me/lnp2pbot) [![MIT license](https://img.shields.io/badge/license-MIT-brightgreen)](./LICENSE)
 # RSK P2P Bot
