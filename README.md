@@ -12,5 +12,8 @@ Wherever you are, you can start using the [bot](https://t.me/rsktestbot). You ju
 
 ## Sell
 
+https://user-images.githubusercontent.com/54377956/190664046-2a96b66b-f72c-4380-8ecc-e0305ec392f7.mp4
+
+
 
 ## Buy
