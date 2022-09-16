@@ -1,6 +1,6 @@
 
 
-[![chat](https://img.shields.io/badge/chat-telegram-%2326A5E4)](https://t.me/lnp2pbot) [![MIT license](https://img.shields.io/badge/license-MIT-brightgreen)](./LICENSE)
+[![chat](https://img.shields.io/badge/chat-telegram-%2326A5E4)](https://t.me/rsktestbot) [![MIT license](https://img.shields.io/badge/license-MIT-brightgreen)](./LICENSE)
 # RSK P2P Bot
 Telegram bot which allows people to trade using RSK accounts.
 
