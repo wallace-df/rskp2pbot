@@ -7,11 +7,11 @@
   </div>
   <div class="loading_container" v-else-if="alreadyEscrowed">
     <h2 class="text-success mb-4">Funds already locked for order <i class="text-secondary">{{this.orderId}}</i></h2>
-    <p class="text-dark fs-4">Click <router-link :to="'/rskp2pbot-dapp/status?orderId=' + orderId">here</router-link> to check the updated status.</p>
+    <p class="text-dark fs-4">Click <router-link :to="'/status?orderId=' + orderId">here</router-link> to check the updated status.</p>
   </div>
   <div class="loading_container" v-else-if="locked">
     <h2 class="text-success mb-4">Funds successfully locked for order <i class="text-secondary">{{this.orderId}}</i></h2>
-    <p class="text-primary">Your order will automatically updated shortly and you can close this window.</p>
+    <p class="text-primary">Your order will be automatically updated shortly. You can close this window.</p>
   </div>
   <div class="loading_container" v-else>
     <h2 class="text-success mb-4">Lock funds for order <i class="text-secondary">{{this.orderId}}</i></h2>

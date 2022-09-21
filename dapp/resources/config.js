@@ -58,7 +58,8 @@ export default {
 
     contractAddresses: {
         development: "0xe2514B40ccf6De1Adc9FA25219bC4F17C5cac948",
-        test: "0xe2514B40ccf6De1Adc9FA25219bC4F17C5cac948"
+        test: "0xe2514B40ccf6De1Adc9FA25219bC4F17C5cac948",
+        production: "0x3465f85d57C4189D1e6f3580a078B9f8F7672aee"
     },
 
     tokens: {
@@ -102,6 +103,28 @@ export default {
                 id: "DOC",
                 symbol: "DoC",
                 address: "0xcb46c0ddc60d18efeb0e586c17af6ea36452dae0",
+                decimals: 18,
+                image: 'https://static.moneyonchain.com/moc-alphatestnet/public/moc/icon-stable.svg'
+            }
+        },
+        production: {
+            RBTC: {
+                id: "RBTC",
+                symbol: "RBTC",
+                address: "0x0000000000000000000000000000000000000000",
+                decimals: 18
+            },
+            RIF: {
+                id: "RIF",
+                symbol: "RIF",
+                address: "0x2acc95758f8b5f583470ba265eb685a8f45fc9d5",
+                decimals: 18,
+                image: 'https://s2.coinmarketcap.com/static/img/coins/64x64/3701.png'
+            },
+            DOC: {
+                id: "DOC",
+                symbol: "DoC",
+                address: "0xe700691da7b9851f2f35f8b8182c69c53ccad9db",
                 decimals: 18,
                 image: 'https://static.moneyonchain.com/moc-alphatestnet/public/moc/icon-stable.svg'
             }

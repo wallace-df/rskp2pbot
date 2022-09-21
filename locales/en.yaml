@@ -155,8 +155,9 @@ lock_tokens_for_sell_order: |
   *Buyer reputation*:
   ${buyerRating}
 
-  To start the trade, I need you to lock *${formattedTotalAmount}* (fees included):
+  To start the trade, I need you to lock *${formattedTotalAmount}* (fees included).
 
+  Click the link below to lock your tokens:
   [Lock ${formattedTotalAmount}](${dappPage}/lock?orderId=${order._id}&token=${order.token_code}&buyerAddress=${order.buyer_address}&buyerHash=${order.buyer_hash}&sellerHash=${order.seller_hash}&amount=${order.amount}&fee=${order.fee})
 
   You have *${expirationTime} minutes* to lock the tokens. After that, the trade will be cancelled and any locked tokens will be refunded to you.
@@ -285,8 +286,9 @@ lock_tokens_for_buy_order: |
   _${currency} ${fiatAmount}_
   `-------------------------------`
 
-  To start the trade, I need you to lock *${formattedTotalAmount}* (fees included):
+  To start the trade, I need you to lock *${formattedTotalAmount}* (fees included).
 
+  Click the link below to lock your tokens:
   [Lock ${formattedTotalAmount}](${dappPage}/lock?orderId=${order._id}&token=${order.token_code}&buyerAddress=${order.buyer_address}&buyerHash=${order.buyer_hash}&sellerHash=${order.seller_hash}&amount=${order.amount}&fee=${order.fee})
 
   You have *${expirationTime} minutes* to lock the tokens. After that, the trade will be cancelled and any locked tokens will be refunded to you.
@@ -314,8 +316,7 @@ you_havent_locked_tokens: |
   _${currency} ${fiatAmount}_
   `-------------------------------`
 
-  If you have locked them already, use this link to refund your tokens:
-  
+  If you have locked them already, click the link below to refund your tokens:
   [Refund ${formattedTotalAmount}](${dappPage}/refund?orderId=${order._id}&sellerCode=${order.seller_secret})
 
   You can also get the refund link at any time by using the /refund command.
@@ -433,6 +434,7 @@ buyer_told_me_that_sent_fiat: |
 
   Once you confirm the payment, please release the funds. You will not be able to create another order until you release funds.
 
+  Click the link below to release the tokens:
   [Release ${formattedOrderAmount}](${dappPage}/release?orderId=${order._id}&buyerCode=${order.buyer_secret})
 rate_counterpart: |
   👍 Please qualify your counterparty:
@@ -464,28 +466,26 @@ lockfunds_instructions: |
   _${currency} ${fiatAmount}_
   `-------------------------------`
 
+  Click the link below to lock your tokens:
   [Lock ${formattedTotalAmount}](${dappPage}/lock?orderId=${order._id}&token=${order.token_code}&buyerAddress=${order.buyer_address}&buyerHash=${order.buyer_hash}&sellerHash=${order.seller_hash}&amount=${order.amount}&fee=${order.fee})
 
   You have *${expirationTime} minutes* to lock the tokens. After that, the trade will be cancelled and any locked tokens will be refunded to you.
 release_instructions: |
-  💰 Use this link to release the funds to the buyer:
-
+  💰 Click the link below to release the funds to the buyer:
   [Release ${formattedAmount}](${dappPage}/release?orderId=${order._id}&buyerCode=${order.buyer_secret})
 
   Only release the funds after you confirm that the buyer has sent the fiat since this operation cannot be reversed.
 
   Once you release the funds with the link above, the order will be updated automatically.
 refund_instructions: |
-  💰 Use this link to get a refund on your locked tokens:
-
+  💰 Click the link below to refund your locked tokens:
   [Refund ${formattedAmount}](${dappPage}/refund?orderId=${order._id}&sellerCode=${order.seller_secret})
 have_to_wait_for_counterpart: |
   🕒 You have already made this operation, you must wait for the other party to take action.
 ok_cooperativecancel: |
   👍 Counterparty agreed and the order with id *${orderId}* has been cancelled.
 refund_cooperativecancel: |
-  💰 Use this link to get a refund on your locked tokens for the order with id *${order._id}*:
-
+  💰 Click the link below to refund your locked tokens for the order with id *${order._id}*:
   [Refund ${formattedAmount}](${dappPage}/refund?orderId=${order._id}&sellerCode=${order.seller_secret})
 
   You can also get the refund link at any time by using the /refund command.
@@ -561,7 +561,7 @@ expired_order_to_seller: |
  
   If you received the fiat money, please release the funds, otherwise you are under the risk of the buyer opening a dispute which will affect your reputation.
   
-  Use this link to release the funds:
+  Click the link below to release the funds:
   [Release ${formattedOrderAmount}](${dappPage}/release?orderId=${order._id}&buyerCode=${order.buyer_secret})
 
   If you need help, you can write to the group ${helpGroup}.

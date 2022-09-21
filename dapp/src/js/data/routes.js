@@ -16,13 +16,13 @@ const routes = [
     { path: "/adminRelease", component: AdminReleasePage },
     { path: "/adminRefund", component: AdminRefundPage },
 
-    { path: "/rskp2pbot-dapp", component: HomePage },
-    { path: "/rskp2pbot-dapp/status", component: EscrowStatusPage },
-    { path: "/rskp2pbot-dapp/lock", component: LockPage },
-    { path: "/rskp2pbot-dapp/release", component: ReleasePage },
-    { path: "/rskp2pbot-dapp/refund", component: RefundPage },
-    { path: "/rskp2pbot-dapp/adminRelease", component: AdminReleasePage },
-    { path: "/rskp2pbot-dapp/adminRefund", component: AdminRefundPage },
+    { path: "/rsk", component: HomePage },
+    { path: "/rsk/status", component: EscrowStatusPage },
+    { path: "/rsk/lock", component: LockPage },
+    { path: "/rsk/release", component: ReleasePage },
+    { path: "/rsk/refund", component: RefundPage },
+    { path: "/rsk/adminRelease", component: AdminReleasePage },
+    { path: "/rsk/adminRefund", component: AdminRefundPage },
 
     { path: "/:catchAll(.*)", component: NotFoundPage }
 ];

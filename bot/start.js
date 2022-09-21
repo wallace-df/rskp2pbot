@@ -96,6 +96,7 @@ const askForConfirmation = async (user, command) => {
       where.$and = [
         { seller_id: user._id },
         { funds_unlocked: false },
+        { seller_hash: {$ne:null} },
         {
           $or: [
             { status: 'CANCELED' },

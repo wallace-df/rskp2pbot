@@ -405,7 +405,7 @@ const validateRefundOrder = async (ctx, user, orderId) => {
     };
     let order = await Order.findOne(where);
 
-    if (!order) {
+    if (!order || !order.seller_hash) {
       await messages.notActiveOrderMessage(ctx);
       return false;
     }
