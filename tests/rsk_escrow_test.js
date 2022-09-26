@@ -330,7 +330,7 @@ contract('RSKEscrow', function (accounts) {
         // Calculate new expected balances after withdrawing fees.
         expectedContractBalance = currentContractBalance.sub(toBN(fee));
         expectedEscrowFees = toBN('0');
-        expectedAdminBalance = currentAdminBalance.sub(transactionCost);
+        expectedAdminBalance = currentAdminBalance.add(toBN(fee)).sub(transactionCost);
         expectedBuyerBalance = currentBuyerBalance;
         expectedSellerBalance = currentSellerBalance;
 
