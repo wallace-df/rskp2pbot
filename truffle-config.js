@@ -1,3 +1,7 @@
+const HDWalletProvider = require('@truffle/hdwallet-provider');
+const path = require('path');
+require('dotenv').config({ path: path.resolve(process.cwd(), '.env.test') });
+
 /**
  * Use this file to configure your truffle project. It's seeded with some
  * common settings for different networks and features like migrations,
@@ -31,6 +35,26 @@
        host: "127.0.0.1",     // Localhost (default: none)
        port: 7545,            // Standard Ethereum port (default: none)
        network_id: "*",       // Any network (default: none)
+      },
+
+      rsk_testnet: {
+        provider: () => new HDWalletProvider({
+          mnemonic: {
+            phrase: process.env.TESTNET_SEED_PHRASE,
+          },
+          providerOrUrl: 'https://public-node.testnet.rsk.co/',
+          derivationPath: "m/44'/37310'/0'/0/",
+          // Higher polling interval to check for blocks less frequently
+          pollingInterval: 15e3,
+        }),
+        // Ref: http://developers.rsk.co/rsk/architecture/account-based/#chainid
+        network_id: 31,
+        gasPrice: 0x387ee40,
+        networkCheckTimeout: 1e6,
+        timeoutBlocks: 100,
+        // Higher polling interval to check for blocks less frequently
+        // during deployment
+        deploymentPollingInterval: 15e3,
       }
     },
   
