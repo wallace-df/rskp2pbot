@@ -36,6 +36,7 @@
     "network"
   ],
   "devDependencies": {
+    "@truffle/hdwallet-provider": "^2.0.15",
     "chai": "^4.3.4",
     "chokidar": "^3.5.3",
     "eslint": "^8.15.0",
