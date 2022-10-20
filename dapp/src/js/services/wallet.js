@@ -9,7 +9,9 @@ import { dcentProviderOptions } from "@rsksmart/rlogin-dcent-provider"
 import Web3 from "web3";
 import Config from "../../../resources/config.js";
 
-const RPC_URLS = Config.wallets.rpcUrls[process.env.NODE_ENV];
+
+const ENV =  process.env.NODE_ENV;
+const RPC_URLS = Config.wallets.rpcUrls[ENV];
 const SUPPORTED_CHAINS = Object.keys(RPC_URLS).map(Number);
 const RLOGIN = new RLogin({
   cacheProvider: false,
@@ -17,12 +19,13 @@ const RLOGIN = new RLogin({
     walletconnect: {
       package: WalletConnectProvider,
       options: {
+        bridge: 'https://walletconnect-bridge.rifos.org/',
         rpc: RPC_URLS
       }
     },
     portis: {
       package: Portis,
-      options: Config.wallets.portisOptions[process.env.NODE_ENV]
+      options: Config.wallets.portisOptions[ENV]
     },
     torus: {
       package: Torus,
@@ -41,8 +44,8 @@ const RLOGIN = new RLogin({
   supportedChains: SUPPORTED_CHAINS
 });
 
-const CONTRACT_ADDRESS = Config.contractAddresses[process.env.NODE_ENV]
-const NETWORK_NAME = Config.networkNames[process.env.NODE_ENV];
+const CONTRACT_ADDRESS = Config.contractAddresses[ENV]
+const NETWORK_NAME = Config.networkNames[ENV];
 
 let instance = null;
 let connectionListener = null;
@@ -59,7 +62,8 @@ export default {
     }
 
     let resp = await RLOGIN.connect();
-    let web3 = new Web3(resp.provider);
+    let provider = resp.provider;
+    let web3 = new Web3(provider);
     let walletAddress = (await web3.eth.getAccounts())[0];
 
     instance = {
@@ -67,29 +71,34 @@ export default {
       web3Instance: web3,
       networkName: NETWORK_NAME,
       contract: new web3.eth.Contract(Config.rskEscrowABI, CONTRACT_ADDRESS),
-      provider: resp.provider
+      provider: provider
     };
 
-    window.ethereum.on('networkChanged', function (networkId) {
-      if (SUPPORTED_CHAINS.indexOf(Number(networkId)) < 0) {
-        location.reload();
-      }
+    provider.on('chainChanged', function (networkId) {
+      // if (SUPPORTED_CHAINS.indexOf(Number(networkId)) < 0) {
+      // }
+      location.reload();
+    });
+
+    provider.on('disconnect', function () {
+      location.reload();
     });
 
     if (connectionListener) {
       connectionListener({networkName: instance.networkName, walletAddress: instance.walletAddress});
     }
 
-    window.ethereum.on('accountsChanged', function (accounts) {
-      if (!accounts || accounts.length === 0) {
-          location.reload();
-      } else {
-        instance.walletAddress = accounts[0];
+    provider.on('accountsChanged', function (accounts) {
+      location.reload();
+      // if (!accounts || accounts.length === 0) {
+      //     location.reload();
+      // } else {
+      //   instance.walletAddress = accounts[0];
 
-        if (connectionListener) {
-          connectionListener({networkName: instance.networkName, walletAddress: instance.walletAddress});
-        }
-      }
+      //   if (connectionListener) {
+      //     connectionListener({networkName: instance.networkName, walletAddress: instance.walletAddress});
+      //   }
+      // }
     });
 
     return instance;

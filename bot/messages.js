@@ -1380,12 +1380,11 @@ const showConfirmationButtons = async (ctx, orders, commandString) => {
             fiat: ord.fiat_code,
             amount: ord.fiat_amount || '-',
             type: ord.type,
+            token_code: ord.token_code
           };
         })
         .map(ord => ({
-          text: `${ord._id.slice(0, 2)}..${ord._id.slice(-2)} - ${ord.type} - ${
-            ord.fiat
-          } ${ord.amount}`,
+          text: `Id: ${ord._id} (${ord.type} ${ord.fiat}${ord.amount} of ${ord.token_code})`,
           callback_data: `${commandString}_${ord._id}`,
         }));
       inlineKeyboard.push(lineBtn);
