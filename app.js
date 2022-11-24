@@ -7,10 +7,12 @@ const logger = require('./logger');
 (async () => {
   process.on('unhandledRejection', e => {
     logger.error(`Unhandled Rejection: ${e.message}`);
+    console.log(e);
   });
 
   process.on('uncaughtException', e => {
     logger.error(`Uncaught Exception: ${e.message}`);
+    console.log(e);
   });
 
   const mongoose = mongoConnect();

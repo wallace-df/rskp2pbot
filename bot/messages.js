@@ -1209,7 +1209,7 @@ const toBuyerExpiredOrderMessage = async (bot, order, user, i18n) => {
 
     await bot.telegram.sendMessage(
       user.tg_id,
-      i18n.t('expired_order_to_buyer', { orderId: order._id, formattedAmount, currency, fiatAmount, helpGroup: sanitizeMD(process.env.HELP_CHANNEL) }),
+      i18n.t('expired_order_to_buyer', { orderId: order._id, formattedAmount, currency, fiatAmount, helpGroup: sanitizeMD(process.env.COMMUNITY_CHANNEL) }),
       { parse_mode: 'markdown' }
     );
   } catch (error) {
@@ -1230,7 +1230,7 @@ const toSellerExpiredOrderMessage = async (bot, order, user, i18n) => {
 
     await bot.telegram.sendMessage(
       user.tg_id,
-      i18n.t('expired_order_to_seller', { helpGroup: sanitizeMD(process.env.HELP_CHANNEL), order: order, formattedOrderAmount, formattedFeeAmount, formattedTotalAmount, currency, fiatAmount, dappPage: process.env.DAPP_PAGE }),
+      i18n.t('expired_order_to_seller', { helpGroup: sanitizeMD(process.env.COMMUNITY_CHANNEL), order: order, formattedOrderAmount, formattedFeeAmount, formattedTotalAmount, currency, fiatAmount, dappPage: process.env.DAPP_PAGE }),
       { parse_mode: 'markdown' }
     );
   } catch (error) {
